@@ -13,8 +13,11 @@ permissions:
   contents: read
   actions: read
 
+# The original CI run's only job finished, but GitHub retained the workflow
+# as in_progress and queued later fixes. New exact-head diagnostic has a fresh,
+# isolated concurrency lane; do not cancel another owner or hide old failures.
 concurrency:
-  group: sandfall-sf-m0-ordinary-view
+  group: sandfall-sf-m0-ordinary-view-v2
   cancel-in-progress: false
 
 jobs:
