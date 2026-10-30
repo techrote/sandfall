@@ -1,0 +1,178 @@
+name: Sandfall SF-M0 source and compatibility Web qualification
+
+on:
+  push:
+    branches:
+      - sf-m0/source-import-20261030
+    paths:
+      - .github/workflows/sf-m0-web.yml
+      - tools/sandfall/sf_m0_browser_probe.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sandfall-sf-m0-qualify
+  cancel-in-progress: false
+
+jobs:
+  source-native:
+    name: Source, LFS, docs and native C++
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout complete imported history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - name: Verify exact ancestor and project-specific source changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          PIN=1d376fb38ff5df83691e468baa0639270a5f40e6
+          IMPORT=b48214da1935519002a6c4bfc6d7f465eb4a3eab
+          test "$(git rev-parse "$IMPORT^2")" = "$PIN"
+          test "$(git rev-parse "$PIN^{tree}")" = 97eb0f4eeedde9bbe8b83047ca45c82d8a377d66
+          git merge-base --is-ancestor "$IMPORT" HEAD
+          git merge-base --is-ancestor "$PIN" HEAD
+          python3 tools/ci/check_ci_provider_policy.py
+          python3 tools/ci/check_docs.py
+      - name: Materialize and verify pinned-current LFS dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          git lfs fetch origin "$(git rev-parse HEAD)"
+          git lfs checkout
+          python3 tools/ci/check_repository.py --require-materialized
+      - name: Build and execute native C++ regression baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 900 make test
+
+  web-compat:
+    name: Build real compatibility Web and run 600-tick browser Rapier test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    env:
+      SCONS_JOBS: "2"
+      GIT_LFS_SKIP_SMUDGE: "1"
+    steps:
+      - name: Checkout frozen current source without historical LFS smudge
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 1
+          lfs: false
+      - name: Restore pinned native/Rapier Web runtime objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          git lfs fetch origin "$(git rev-parse HEAD)"
+          git lfs checkout
+          python3 tools/ci/check_repository.py --require-materialized
+      - name: Restore pinned Godot and godot-cpp toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/sf-web-python"
+          "$RUNNER_TEMP/sf-web-python/bin/pip" install --require-hashes -r tools/requirements-build.txt
+          git init "$RUNNER_TEMP/godot-cpp"
+          git -C "$RUNNER_TEMP/godot-cpp" remote add origin https://github.com/godotengine/godot-cpp.git
+          git -C "$RUNNER_TEMP/godot-cpp" fetch --depth=1 origin 101ae38034304346a46ea9ea84ae156d3e860496
+          git -C "$RUNNER_TEMP/godot-cpp" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/godot-cpp" rev-parse HEAD)" = 101ae38034304346a46ea9ea84ae156d3e860496
+          curl -fL --retry 3 'https://downloads.godotengine.org/?flavor=stable&platform=linux.64&slug=linux.x86_64.zip&version=4.7' -o "$RUNNER_TEMP/godot.zip"
+          echo "0b1a6c54c2c619c12e169fe9241edda4b81080b519451cec2984bf0d2c6cb73c  $RUNNER_TEMP/godot.zip" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/godot"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          GODOT_BIN="$(find "$RUNNER_TEMP/godot" -type f -name 'Godot*' -print -quit)"
+          test -n "$GODOT_BIN"
+          chmod +x "$GODOT_BIN"
+          test "$("$GODOT_BIN" --version)" = 4.7.stable.official.5b4e0cb0f
+          echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
+      - name: Obtain checksum-validated Godot 4.7 Web export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://github.com/godotengine/godot-builds/releases/download/4.7-stable'
+          curl -fL --retry 3 "$base/SHA512-SUMS.txt" -o "$RUNNER_TEMP/SHA512-SUMS.txt"
+          curl -fL --retry 3 "$base/Godot_v4.7-stable_export_templates.tpz" -o "$RUNNER_TEMP/Godot_v4.7-stable_export_templates.tpz"
+          (cd "$RUNNER_TEMP"; grep ' Godot_v4.7-stable_export_templates.tpz$' SHA512-SUMS.txt | sha512sum --check --strict)
+          python3 - <<'PY'
+          import os, pathlib, zipfile
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])
+          out=root/"web-templates"
+          out.mkdir(exist_ok=True)
+          with zipfile.ZipFile(root/"Godot_v4.7-stable_export_templates.tpz") as arc:
+              for member in arc.namelist():
+                  name=pathlib.PurePosixPath(member).name
+                  if name.startswith("web_dlink") and name.endswith(".zip"):
+                      (out/name).write_bytes(arc.read(member))
+          expected={f"web_dlink_{kind}.zip" for kind in ("debug","release")}
+          expected|={f"web_dlink_nothreads_{kind}.zip" for kind in ("debug","release")}
+          assert expected<=set(x.name for x in out.iterdir()), f"Missing Web templates: {expected}"
+          print("VERIFIED_WEB_TEMPLATES", sorted(expected))
+          PY
+      - name: Install pinned Emscripten 4.0.20
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch 4.0.20 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          "$RUNNER_TEMP/emsdk/emsdk" install 4.0.20
+          "$RUNNER_TEMP/emsdk/emsdk" activate 4.0.20
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          emcc --version | head -2
+      - name: Build source-identified Rapier-capable compatibility Web export
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          "$RUNNER_TEMP/sf-web-python/bin/python" tools/build_web.py \
+            --cpp "$RUNNER_TEMP/godot-cpp" \
+            --godot "$GODOT_BIN" \
+            --templates "$RUNNER_TEMP/web-templates" \
+            --profile compat
+          python3 - <<'PY'
+          import hashlib,json,pathlib,subprocess
+          root=pathlib.Path("build/web")
+          info=json.loads((root/"build-info.json").read_text())
+          expected=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
+          assert info["source_commit"]==expected, (info["source_commit"],expected)
+          assert info["profile"]=="compat"
+          assert info["rapier"]=="0.35.2"
+          for p in ("index.html","index.js","index.wasm","index.pck","godot_rapier.wasm","RAPIER_LICENSE.txt","RAPIER_THIRDPARTY.txt","SHA256SUMS"):
+              assert (root/p).is_file(), p
+          for line in (root/"SHA256SUMS").read_text().splitlines():
+              digest,name=line.split("  ",1)
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==digest, name
+          print("SF_M0_EXPORTED_SOURCE",expected,"RAPIER",info["rapier"])
+          PY
+      - name: Execute real Chromium Web/Rapier test and retain diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sf-m0-evidence
+          python3 tools/serve_web.py --directory build/web --port 8030 > sf-m0-evidence/http.log 2>&1 &
+          command -v google-chrome-stable || command -v google-chrome
+          CHROME="$(command -v google-chrome-stable || command -v google-chrome)"
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
+            --remote-debugging-port=9222 \
+            --user-data-dir="$RUNNER_TEMP/sf-m0-chrome" about:blank > sf-m0-evidence/chrome.log 2>&1 &
+          node --version
+          node tools/sandfall/sf_m0_browser_probe.mjs \
+            --port 9222 --url 'http://127.0.0.1:8030/?test=1&rapier=1' \
+            --output sf-m0-evidence/browser.json --screenshot sf-m0-evidence/browser.png \
+            --timeout-ms 240000
+      - name: Retain exact Web export, build receipt and browser proof or failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m0-compat-web
+          path: |
+            build/web/
+            sf-m0-evidence/
+          retention-days: 14
+          if-no-files-found: warn
