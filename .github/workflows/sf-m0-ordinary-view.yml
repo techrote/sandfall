@@ -1,0 +1,87 @@
+name: SF-M0 ordinary interactive Web render and input qualification
+
+on:
+  push:
+    branches: [sf-m0/source-import-20261030]
+    paths:
+      - .github/workflows/sf-m0-ordinary-view.yml
+      - tools/sandfall/sf_m0_ordinary_browser.mjs
+      - tools/sandfall/sf_m0_png_stats.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sandfall-sf-m0-ordinary-view
+  cancel-in-progress: false
+
+jobs:
+  normal-web:
+    name: Normal Web scene, real UI resume, nonblank render
+    runs-on: ubuntu-24.04
+    timeout-minutes: 13
+    steps:
+      - name: Checkout source and browser assertions with full revision identity
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - name: Restore frozen source-built compat Web export
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m0-compat-web
+          run-id: 41115189216
+          github-token: ${{ github.token }}
+          path: .
+      - name: Verify real export identity, SHA256SUMS and unmodified engine inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json, subprocess
+          root=Path("build/web")
+          info=json.loads((root/"build-info.json").read_text())
+          expected="6352756931c58e702eb5c15c05d44515091274b2"
+          assert info["source_commit"]==expected,info
+          assert info["rapier"]=="0.35.2" and info["profile"]=="compat",info
+          count=0
+          for row in (root/"SHA256SUMS").read_text().splitlines():
+              digest,p=row.split("  ",1)
+              assert hashlib.sha256((root/p).read_bytes()).hexdigest()==digest,p
+              count+=1
+          assert count>=18,count
+          diff=subprocess.check_output(["git","diff","--name-only",expected,"HEAD"],text=True).splitlines()
+          forbidden=tuple(("godot/","native/","third_party/"))
+          unexpected=[p for p in diff if p.startswith(forbidden) or p in {"tools/build_web.py","Makefile"}]
+          assert not unexpected, unexpected
+          print("SF_M0_ORDINARY_FROZEN_EXPORT_VALID",expected,"SHA256SUMS entries",count)
+          PY
+      - name: Launch actual Chrome normal Web scene, resume and inspect output
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sf-m0-ordinary
+          python3 tools/serve_web.py --directory build/web --port 8040 > sf-m0-ordinary/http.log 2>&1 &
+          CHROME="$(command -v google-chrome-stable || command -v google-chrome)"
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
+            --remote-debugging-port=9231 \
+            --user-data-dir="$RUNNER_TEMP/sf-m0-ordinary-chrome" about:blank \
+            >sf-m0-ordinary/chrome.log 2>&1 &
+          node --check tools/sandfall/sf_m0_png_stats.mjs
+          node --check tools/sandfall/sf_m0_ordinary_browser.mjs
+          timeout 340 node tools/sandfall/sf_m0_ordinary_browser.mjs \
+            --port 9231 --url 'http://127.0.0.1:8040/?test=1' \
+            --output sf-m0-ordinary/browser.json \
+            --screenshot sf-m0-ordinary/browser.png --timeout-ms 210000
+      - name: Preserve raw normal-run evidence or failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m0-ordinary-visual
+          path: sf-m0-ordinary/
+          retention-days: 21
+          if-no-files-found: warn
