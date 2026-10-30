@@ -155,7 +155,7 @@ The current Web entry controller **inherits actor-heavy main.gd** and its Web ti
 | **RUN / MODIFIED** | 0 or greater | Frozen | Yes, journal accepted actions | Disabled |
 | **FAULT** | Current/possibly partial | No | No until recovery | Disabled |
 
-Run must not simply unpause a mutable authoring document: **freeze a revision and construct a clean session**. At the first successfully completed simulation tick, clear/invalidate the pre-Run Edit history. Pause, rate changes and reentering Run do not resurrect it. Only an explicit **Reset & Edit** produces a new tick-zero authoring session and **new empty undo history**.
+Run must not simply unpause a mutable authoring document: **freeze a revision and construct a clean session**. At the first attempted simulation tick that advances **either** solver, clear/invalidate the pre-Run Edit history, including when the coupled tick subsequently fails. Refuse Run history even before the first tick. Pause, rate changes and reentering Run do not resurrect it. Only an explicit **Reset & Edit** produces a new tick-zero authoring session and **new empty undo history**.
 
 Undo transactions in Edit restore **authored** cell material ID, state bytes and temperature, object definitions and affected presentation metadata; they MUST NOT compute inverse chemistry, undo Rapier contact caches, rewind physics or transplant an old solver state into the present tick. One pointer stroke is a single transaction. The history is not stored in the portable project archive. Edit MAY reconstruct static native/render previews but MUST execute **zero native and Rapier simulation ticks**.
 
@@ -165,7 +165,7 @@ When Run is paused even before its first tick, its Undo/Redo controls remain dis
 
 **Reset** rebuilds the frozen initial scene (material tuple payload, object positions/velocity, solver options, queued-events baseline, masks, collider readiness and initial tick). Gallery may autoplay again after readiness; explicit **Reset & Edit** stays paused in Edit. It never depends on reversing chemical/thermal changes.
 
-To satisfy the selected separate Edit/Run workflow, a future v1 **Apply Interventions to New Draft** action MAY deliberately promote eligible **declarative edits**. It MUST take the frozen initial definition, replay approved paint/object edit commands at tick 0 into a **new** authoring revision, show a preview/conflicts, and require confirmation. Runtime side effects, time-dependent physics outcomes and unreconstructible commands are **not** promoted. The new run may behave differently; no trajectory or continuation identity is implied. Direct “save this evolved world as initial state” is not silently substituted.
+To satisfy the selected separate Edit/Run workflow, full v1 MUST provide **Apply Interventions to New Draft** for eligible **declarative edits**. This is a later implementation milestone, not permission to modify an evolved World. It MUST take the frozen initial definition, replay approved paint/object edit commands at tick 0 into a **new** authoring revision, show a preview/conflicts, and require confirmation. Runtime side effects, time-dependent physics outcomes and unreconstructible commands are **not** promoted. The new run may behave differently; no trajectory or continuation identity is implied. Direct “save this evolved world as initial state” is not silently substituted.
 
 # 5. MZPaint-tailored painting and UI
 
@@ -275,7 +275,7 @@ The UI may show passive subjects using a decorative icon or skin, but their phys
 **Fixed dt = 1/60 s.** Supported pacing: **0.25× / 0.5× / 1× / 2× / 4×**, plus Pause and Single Step. Pacing changes how many fixed coupled ticks are executed per wall-clock interval; it must not change native dt, Rapier dt, gravity or solver constants.
 
 - Pause: **0** native ticks and **0** Rapier steps.
-- Step: exactly **1 complete native+Rapier tick** (or a reported failure/refusal), and remain paused.
+- Step: exactly **1 complete native tick**, and exactly **1 Rapier step when a Rapier bridge is active** (otherwise no Rapier step), or a reported failure/refusal; remain paused.
 - Runtime speed: count actual completed ticks, not just callbacks. Do not silently drop ticks to claim 4× speed.
 - Under load, bound the backlog, report effective speed/owed ticks and degrade transparently.
 - Scene triggers, clocks and procedural events use simulation ticks, not frame number or wall-clock time.
@@ -417,7 +417,7 @@ The sixteen-body target requires actual representative benchmarks and normal Web
 | SF-T01 | Source import / Web boot | Preserved upstream history, pinned dependencies/runtime manifests, actual compatibility Web launch |
 | SF-T02 | Zero actor input | No steering/jump/action ingestion; passive body moves only through environment; focus/modal input gates are effective |
 | SF-T03 | Edit at tick 0 | Material/thermal state, deterministic footprints, fill/selection and object edits; exact undo/redo with zero physics ticks |
-| SF-T04 | First-tick history fence | One complete tick clears and disables history; pausing/changing speed does not restore; Reset & Edit starts empty history |
+| SF-T04 | First-tick history fence | Any first advancement, including a partial failed coupled tick, invalidates history; pausing/changing speed does not restore; Reset & Edit starts empty history |
 | SF-T05 | Paused/Step/speed | Paused = zero coupled steps, Step = exactly one fixed dt, speed presets change pacing but not state-update dt |
 | SF-T06 | Pristine → Modified → Reset | Accepted material/body/solver edit marks Modified; camera/style-only does not; reset restores initial hashes/body poses |
 | SF-T07 | Rapier body capacity | 0/1/3/8/**16** boxes render, sample, collide, save/load, reset and retire; 17 refuses atomically |
