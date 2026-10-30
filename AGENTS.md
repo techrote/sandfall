@@ -1,3 +1,62 @@
+# Sandfall — active repository instructions
+
+This is a **history-preserving CyberSand fork**. **Sandfall's project-specific
+requirements and release/qualification gates take precedence over the inherited
+CyberSand project programme.** Read
+[Sandfall v1 architecture and implementation](docs/SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md)
+and the [SF-M0 browser/source evidence](docs/audits/2026-10-30-sf-m0-browser-timeout.md)
+before working. The imported upstream agent guide follows as a technical
+reference; its CyberSand issue numbering, owners, historical handover and release
+milestones are **not Sandfall assignments**.
+
+## Sandfall-specific requirements
+
+- Audit actual live Sandfall main/branch/PR SHAs, exact-head GitHub Actions,
+  reviews, repo instructions, LFS materialization, source/runtime provenance
+  and competing owners before every implementation or merge.
+- **Frozen upstream source:** CyberSand commit
+  **1d376fb38ff5df83691e468baa0639270a5f40e6**. Preserve original Git
+  ancestry and object IDs. Never silently merge moving CyberSand main, rewrite
+  historical negative evidence or fabricate absent workspace files.
+- **Pinned UI and experience:** specdocz revision
+  **039008723172a951c7694079cd06c7a2ea137d40** (MZPaint and Zero-Player
+  Level study). The Sandfall v1 spec defines their normative/research roles.
+- Sandfall v1 is **zero-player**: no player movement, jetpack or actor-action
+  controls in its application host. Painting, camera, simulation time and
+  Rapier object authoring remain. **Imported CyberSand's player-capable Web
+  controller is not yet the final Sandfall product.**
+- Preserve authoritative native cell semantics, immutable copied render
+  snapshots and main-thread Rapier ownership. Use fixed-step coupling; test
+  interventions/reset without claiming full-stack deterministic rewind.
+- **Edit / Run** is a separate authoring boundary. Undo/redo is permitted
+  only in Edit at tick zero; once physics has advanced, history cannot be
+  re-enabled by pause or rate changes. Sandfall project files will be ordinary
+  ZIPs containing one structured **project/** folder. **16 simultaneous
+  coupled Rapier boxes** is a v1 target, not the legacy three-body proof.
+- Git LFS runtime files require actual payload SHA-256 and size verification;
+  committed pointers alone cannot establish a runnable platform.
+- On SF-M0, consult the [source import audit](docs/audits/2026-10-30-sf-m0-source-import.md).
+  Keep **native**, **actual-browser coupled physics**, **ordinary visual/browser**,
+  **threaded** and **human visual** evidence separate. A skipped draft workflow
+  or successful build-only export is not a browser pass.
+- The imported checker has six missing *companion-workspace* references
+  and eight stale **desktop** source/runtime digests. The narrow
+  Sandfall SF-M0 reconciliation allowlist permits a fresh Web build only
+  when these are the exact sole errors; it does not declare inherited
+  desktop binaries qualified. Retain original errors and negative tests.
+- **Owner hold:** [SF-M0 PR #2](https://github.com/techrote/sandfall/pull/2)
+  remains **DRAFT and UNMERGED** until explicitly authorized. Do not
+  auto-merge, mark ready, or imply full v1 completion.
+
+## Historical upstream instructions retained below
+
+The following CyberSand guide is retained for native technical invariants,
+existing CI controls, and scientific provenance. Where it describes active
+CyberSand-specific issues, desktop publication, workspace files or owners,
+treat it as historical source context, not a Sandfall work assignment.
+
+---
+
 # CyberSand repository guide for coding agents
 
 Before changes, read the [handover](docs/operations/cybersand-codex-development-handover.md),
