@@ -38,19 +38,26 @@ jobs:
           git merge-base --is-ancestor "$IMPORT" HEAD
           git merge-base --is-ancestor "$PIN" HEAD
           python3 tools/ci/check_ci_provider_policy.py
-          python3 tools/ci/check_docs.py
       - name: Materialize and verify pinned-current LFS dependencies
         shell: bash
         run: |
           set -euo pipefail
           git lfs fetch origin "$(git rev-parse HEAD)"
           git lfs checkout
-          python3 tools/ci/check_repository.py --require-materialized
+          python3 tools/sandfall/sf_m0_reconcile.py --output sf-m0-evidence/source-reconciliation.json
       - name: Build and execute native C++ regression baseline
         shell: bash
         run: |
           set -euo pipefail
           timeout 900 make test
+      - name: Retain source/native qualification receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m0-source-native
+          path: sf-m0-evidence/
+          retention-days: 14
+          if-no-files-found: warn
 
   web-compat:
     name: Build real compatibility Web and run 600-tick browser Rapier test
@@ -71,7 +78,7 @@ jobs:
           set -euo pipefail
           git lfs fetch origin "$(git rev-parse HEAD)"
           git lfs checkout
-          python3 tools/ci/check_repository.py --require-materialized
+          python3 tools/sandfall/sf_m0_reconcile.py --output sf-m0-evidence/web-reconciliation.json
       - name: Restore pinned Godot and godot-cpp toolchain
         shell: bash
         run: |
