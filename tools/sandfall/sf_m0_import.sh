@@ -17,6 +17,9 @@ fi
 
 git lfs version || fail "git-lfs missing"
 git lfs install --local
+# git merge --no-commit still requires a committer identity for merge state.
+git config user.name "github-actions[bot]"
+git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 git remote add cybersand "$SOURCE_REPO"
 # Full commit/tree ancestry, with blobs fetched only as needed by the pinned tree.
 git -c protocol.version=2 fetch --no-tags --filter=blob:none cybersand \
@@ -42,7 +45,7 @@ source_entries="$(git ls-tree -r --name-only "$SOURCE_SHA" | wc -l | tr -d ' ')"
 cat > docs/audits/2026-10-30-sf-m0-source-import.md <<RECEIPT
 # SF-M0 — exact history-preserving CyberSand source import
 
-- Status: real Git merge from the exact frozen upstream commit, source-checked in the import workflow.
+- Status: real Git merge from the exact frozen upstream commit, source-checked in the import workflow.\n- Retained failed first bootstrap attempt: run 41106067342 (missing Git committer identity, rejected before any merge/push); corrected in next source run.
 - Sandfall first-parent baseline: $SANDFALL_BASE
 - CyberSand exact second parent: $SOURCE_SHA
 - CyberSand source tree: $SOURCE_TREE
