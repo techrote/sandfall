@@ -17,7 +17,7 @@ Sandfall entry point, remove inherited actor authority, then provide Gallery,
 Sandbox, initial Edit/Run ownership, camera, pause, exact Step, reset and a fresh
 Web export. It is on `sf-m1/host-input-cut-20261030`, based on the held SF-M0
 checkpoint. **PR #2 remains draft and unmerged; its branch is not advanced by
-SF-M1.** The new work is intended as a separate stacked draft PR.
+SF-M1.** The new work is published as separate stacked draft PR #3.
 
 Fresh reconciliation before implementation found:
 
@@ -83,8 +83,8 @@ a fresh gesture.
 ## Validation ledger before first fresh export
 
 These are **working-tree** checks, not a claim that a committed Web artifact has
-passed. Final source/build/browser receipts will supersede this provisional
-qualification section without changing the recorded failures.
+passed. The terminal source/build/browser receipts below supersede this
+provisional qualification scope without changing the recorded failures.
 
 The fresh local Linux GDExtension is
 `457d714b354f15e2f9a5c8c428e31870473bb71e4e8552367f2c37cc6bc567d4`
@@ -143,7 +143,7 @@ focused-native job passed in
 job `124348276507`, artifact `13017516804`, ZIP SHA-256
 `21a7abacb5c21223024bb87df973e2dbc83a816255f45a4288bc9d4d183cd0c0`.
 The artifact contains 42 Python tests, two separate legacy staging tests and
-twelve focused native executables with their actual logs/input hashes.
+twelve focused native tests with their actual logs/input hashes.
 Documentation/provenance passed narrowly in
 [run 41139007203](https://github.com/techrote/sandfall/actions/runs/41139007203),
 artifact `13017931144`, ZIP SHA-256
@@ -171,8 +171,131 @@ leaving the cached hash unchanged. Real legacy keys and left/right world-pointer
 events are checked in paused Run as well as Edit. Receipts identify committed
 versus working-tree harness files and retain their actual SHA-256 values.
 
-**Fresh export and complete ordinary-browser qualification remain pending.**
-Source implementation and local lifecycle PASS do not close those gates.
+## Terminal qualification at bbe72707
+
+**SF-M1's bounded compatibility-Web executable gates PASS** at
+`bbe72707aa679790b66a143a71c09e7f21570993` on
+[draft PR #3](https://github.com/techrote/sandfall/pull/3). The complete
+[qualification run 41139800406](https://github.com/techrote/sandfall/actions/runs/41139800406)
+is terminal SUCCESS. The separately run
+[documentation/provenance gate 41139806971](https://github.com/techrote/sandfall/actions/runs/41139806971)
+is PASS with the original inherited limitations retained. Neither PR is ready
+for review or merged; PR #2's branch remains `ea96e062…`.
+
+| Exact-source job | Result |
+|---|---|
+| `124351024899` source/native | 42 Python tests, two retained staging tests, 22 JavaScript tests/groups and twelve focused native tests plus C header/lifecycle/settled checks PASS |
+| `124351024764` fresh exports/Godot | Fresh dedicated and retained legacy exports; twelve dedicated-entry and ten legacy Godot script invocations PASS; no Godot/SCRIPT errors |
+| `124353911141` ordinary 800×450/DPR1 | 54 checks PASS; 623 actual native / 623 Rapier ticks, 5,220 moves, 111,322 contacts, 149 displaced cells |
+| `124353911430` ordinary 640×400/DPR2 | 54 checks PASS; 608 actual native / 608 Rapier ticks, 5,220 moves, 108,319 contacts, 149 displaced cells |
+| `124353911074` retained special 600-step contract | Functional PASS: exactly 600 native / 600 Rapier ticks, 106,717 contacts, 149 displaced cells; original pause/menu, save/restore and reset checks preserved |
+
+The new-host backend test separately executes **exactly** 600 paired ticks with
+5,220 moves, 106,717 contacts and 149 displaced cells, byte-identical native
+physical save/restore, bounded body float32 restore, pause and source reset.
+Its explicitly injected post-Rapier native refusal retains native 0/Rapier 1,
+enters Fault and refuses further advancement. This negative is not presented as
+a successful coupled tick. C++ sources, the Rapier bridge and the original
+legacy 600-tick fixture are unchanged from the held SF-M0 parent. The full
+164-test native result remains historical SF-M0 evidence; it was not rerun or
+relabeled as a full SF-M1 suite.
+
+### Ordinary input and actual-world rendering
+
+Both Chrome `156.0.8078.47` runs use the ordinary dedicated application with only
+read-only `?test=1` observations. Both runtime and committed harness identities
+match `bbe72707`, and all served bytes match the independent verified export.
+There are no mutable test commands, direct menu state setters or fabricated
+ticks. The build profile is compatibility Web with one native worker.
+
+| Observation | 800×450 / DPR1 | 640×400 / DPR2 |
+|---|---:|---:|
+| Native-only exact Step | 46→47; Rapier 0→0 | 44→45; Rapier 0→0 |
+| Coupled exact Step | Both 41→42 | Both 46→47 |
+| Genuine CDP inputs / required trusted DOM deliveries | 124 / 89 | 124 / 89 |
+| Maximum pointer delivery error | 0 CSS pixels | 0 CSS pixels |
+| Final PNG dimensions | 800×450 | 640×400 |
+| Actual world ROI, excluding UI | `[114,686) × [65,385)` | `[66,574) × [58,342)` |
+| Bright pixels / quantized colours | 16.02094% / 44 | 17.07125% / 74 |
+| Complete run duration | 46.194 seconds | 43.381 seconds |
+
+Real controls prove blank Sandbox/Edit at zero, template selection, a new Run
+from frozen initial values, Pause, both Step contracts, Reset and Reset & Edit,
+and Gallery autoplay after installation at zero with ready terrain. Four reset
+checks per case reproduce initial material hashes/body poses in new generations.
+The live native revision remains unchanged through paused legacy keys, primary/
+secondary world clicks, camera operations, menu/Continue and focus negatives.
+
+In both runs an old trusted Step-button release actually reaches the focused
+canvas after a real hidden-tab interval, with no fresh press, and causes no Step.
+Held P echoes after refocus do not resume. Middle-drag, modal and outside-release
+negatives clear input and cannot pan or mutate the world without a fresh gesture.
+Every input precedes the sole terminal screenshot. Independent PNG decoding
+reproduces the ROI statistics, and review visibly confirms terrain, water, sand
+and three bodies. These are application rendering checks, not owner human
+presentation acceptance or a performance benchmark.
+
+The ordinary application consoles contain no errors, warnings or exceptions;
+all 31 HTTP responses per case are 200; CDP polling failures are zero. Chrome
+stderr separately retains 22 headless-runner DBus/desktop-service errors per
+case. The retained legacy functional harness has three CDP polling timeouts and
+a terminal screenshot timeout: **no legacy PNG or new legacy visual PASS is
+claimed**. Its functional result is supported by actual terminal counters and
+unchanged assertions; the dedicated ordinary matrix supplies visual evidence.
+
+### Export and retained artifact identities
+
+The fresh dedicated CI artifact is
+[13017918272](https://github.com/techrote/sandfall/actions/runs/41139800406/artifacts/13017918272),
+ZIP SHA-256 `25984cf2a0038878a260e9cace944265da55cddf3d511ca9cd02477fe4700a72`.
+It contains exactly nineteen final files plus the original manifest. Downloaded
+bytes passed the unchanged strict verifier independently of CI.
+
+| CI export component | SHA-256 |
+|---|---|
+| `SHA256SUMS` | `2f8db6c9634375d629f944e51d0c862c182836e494b03d20d0b02a220a9a62a4` |
+| Native compatibility WASM | `559a466fddff84e809436052a020029c7241d99d412668b80e384966b598a595` |
+| `index.pck` | `37bb2ef1adbc94025384e5938432548f8e9e9366a0a8d266cd6cfb496499a622` |
+| Godot `index.side.wasm` | `85473bead1cf62c408d034189fae423594c45fef403fc0707a72bb8e2b87a6d2` |
+| Rapier compatibility WASM | `5ff6933670c1377c24dcbac30d67758a307165eacdcbd33b25bf01669577c4c2` |
+
+| Retained Actions artifact | ID | ZIP SHA-256 |
+|---|---:|---|
+| Ordinary DPR1 | `13018738214` | `4c3bd89d80893e8617e3d6ddfb2ba7400113b4fb15a67bb0be4b66e2ac1088cb` |
+| Ordinary DPR2 | `13018623172` | `223489026d279fe625edbd816623bfe0532ed63076a1fa203e463e3a7f978204` |
+| Legacy 600 contract | `13018698570` | `7fce7a0887b78eb7647a6481b3397a4ab9fc032edaa592fa188aeac842d5a2b7` |
+| Build/Godot evidence | `13017888647` | `5c59798919d2747d61ef36c2e2048cc56273ab1c97164bfc5e489d34a9295e72` |
+| Source/native | `13017672822` | `7d7100d561345b47051ef9846ddf3c5dd9f8d843d75f3a462d8245796150fce3` |
+| Legacy fresh export | `13017533912` | `096f4bf18534e610979b5eb490c059c899fed2f729afab98cfc41d2b7535a8c8` |
+| Documentation | `13018587082` | `aba645a5a1d75a169b5863f63664765a9f99923930840e7248f53b98a79937cd` |
+
+Actions artifacts retain thirty days. The repository's
+[durable evidence bundle](sf-m1-2026-10-30/qualification-bbe72707/README.md)
+preserves both screenshots, complete machine observations, Chrome/HTTP/harness
+logs, build/test logs, source/native receipts and negative results. Large JSON
+and logs are losslessly gzip-compressed; its manifest checks original bytes and
+stored bytes separately. Build binaries remain in their complete downloadable
+artifacts rather than being copied into ordinary source Git.
+
+### Local packaging refusals and final review
+
+The successful local build's raw dedicated and legacy directories each exposed
+an extra incomplete temporary PCK with a zero directory offset. Its producer
+was not established. The strict inventory verifier refused both raw directories;
+those refusals, names, hashes, headers and original files remain retained.
+For the dedicated local package only, an explicit packaging receipt records a
+copy of the nineteen manifest-listed files plus the unchanged original manifest
+into a separate directory. All bytes remain identical and the unchanged strict
+verifier passes. No local browser PASS is claimed, and the local raw legacy
+directory remains inventory-refused. **The clean CI exports and actual CI
+browser results are the final qualification authority.**
+
+Independent final source and evidence review found no unresolved blocking
+finding. It reviewed command/input epoch retirement, button release admission,
+fixed tick order, actual partial-failure counters, camera isolation, immutable
+render publication, source-bound exports and both browser traces/screenshots.
+Documentation/evidence-only descendants must retain the actual build SHA and
+pass source-equivalence checks; they do not retroactively relabel these bytes.
 
 ## Explicit remaining scope and inherited limitations
 
@@ -180,6 +303,12 @@ Compatibility Web, threaded Web, native tests, ordinary browser rendering and
 human presentation acceptance remain separate lanes. This change qualifies
 neither a threaded deployment nor human exhibition feel. It retains the
 three-body fixture and makes no sixteen-body generalization claim.
+
+Both compatibility-browser cases used COOP/COEP headers and observed
+`crossOriginIsolated=true`; that does not establish threaded execution or
+unisolated hosting support. The additional hosting/profile matrix and owner
+human visual review remain outstanding. Fresh scoped native/Godot execution
+does not establish a new platform-wide desktop qualification.
 
 The six missing companion-workspace references remain: Q01
 `../../SOURCE-PROVENANCE.json`; Q04 `../../docs/WEB_THREADING.md`; Q28

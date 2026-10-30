@@ -1,0 +1,6 @@
+{
+  "schema": "sandfall-sf-m1-web-artifact-verification-v1",
+  "status": "failed",
+  "build_source_commit": "bbe72707aa679790b66a143a71c09e7f21570993",
+  "error": "SHA256SUMS is not the complete export file inventory"
+}

@@ -1,8 +1,9 @@
 # Sandfall
 
 **Status: SF-M0 remains on held [draft PR #2](https://github.com/techrote/sandfall/pull/2).
-The separate SF-M1 branch implements the dedicated zero-player application host;
-fresh Web qualification is in progress. The full editor remains a later milestone.**
+The dedicated zero-player host is implemented and compatibility-Web qualified on
+stacked [draft PR #3](https://github.com/techrote/sandfall/pull/3). The full editor
+remains a later milestone. Neither PR is merged or ready for review.**
 
 Sandfall is a Web-native, interactive, **zero-player cellular + Rapier physics exhibition and editor** derived from CyberSand. “Zero-player” removes player/actor movement and action controls, **not** painting, object creation, time control or camera interaction.
 
@@ -37,10 +38,26 @@ The dedicated `godot/sandfall_main.tscn` now owns Gallery/Sandbox, separate init
 Edit/Run state, camera, pause, exact Step and reset without inherited actor or
 launcher authority. See the [SF-M1 milestone](docs/SF-M1-HOST-INPUT-CUT.md) and
 [dated implementation/qualification audit](docs/audits/2026-10-30-sf-m1-host-input.md)
-for current source, executed checks and fresh-export status. The retained legacy
+for current source, executed checks and fresh-export identity. The ordinary
+800×450/DPR1 and 640×400/DPR2 runs pass 54 checks each, including real UI/focus
+input, exact Step/reset, at least 600 actual coupled ticks and visible world
+screenshots. The retained legacy
 scene is used explicitly for historical regression contracts. Threaded Web,
 human exhibition review, full editing, sixteen-body authoring and the portable
 archive retain their separate gates.
 **PR #2 stays draft and unmerged until the owner explicitly authorizes otherwise.**
+
+The [fresh Web export at bbe72707](https://github.com/techrote/sandfall/actions/runs/41139800406/artifacts/13017918272)
+contains the runnable application and its SHA-256 manifest. After extracting it,
+serve the directory over HTTP with `python3 serve_web.py --directory . --port 8040`
+and open `http://127.0.0.1:8040/`. Gallery autoplays after readiness; Sandbox
+starts in Edit at tick zero. Run, Pause, Step, Reset, Reset & Edit and camera
+controls are clickable; P toggles pause, Escape opens the menu, and middle drag/
+wheel control the camera. No painting/history or arbitrary object-authoring UI
+is claimed in this initial host cut.
+
+**Next engineering task:** SF-M2's authored initial document and exact Edit
+transactions/history, before expanding the material tools. Owner human visual
+acceptance and threaded/unisolated-hosting qualification remain separate gates.
 
 This root filename is deliberately **README.md**, matching normal Git conventions and avoiding the prior **readme.md / README.md** case conflict on Windows during upstream import.

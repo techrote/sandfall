@@ -1,0 +1,173 @@
+{
+  "schema": "sandfall-sf-m1-web-artifact-verification-v1",
+  "status": "passed",
+  "scope": "export identity and source equivalence; browser execution separately required",
+  "build_source_commit": "bbe72707aa679790b66a143a71c09e7f21570993",
+  "harness_source_commit": "bbe72707aa679790b66a143a71c09e7f21570993",
+  "profile": "compat",
+  "rapier": "0.35.2",
+  "application_entry": "sandfall",
+  "entry_scene": "res://sandfall_main.tscn",
+  "manifest_sha256": "2f8db6c9634375d629f944e51d0c862c182836e494b03d20d0b02a220a9a62a4",
+  "artifacts": [
+    {
+      "path": "LICENSE_STATUS.md",
+      "sha256": "3bfb7c5ddd1418ab38621d1e5b841c9e9c4845e9166a196143c8a71f3cd46b70",
+      "size": 780
+    },
+    {
+      "path": "RAPIER_LICENSE.txt",
+      "sha256": "b876a61b43cc648b56428d56a484784a88d4231809e4d7f4fd8dbdb6772400e8",
+      "size": 1102
+    },
+    {
+      "path": "RAPIER_THIRDPARTY.txt",
+      "sha256": "63405a03af6a0a85dace7cc08001b34f28e8792dd2b7fb4de09137a6b58392df",
+      "size": 15824
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "df8aa85bb2be5b09eb92b1660f03db12484cf685ffc44ee8802c7334180e0c6c",
+      "size": 4729
+    },
+    {
+      "path": "build-info.json",
+      "sha256": "e581a7993ab3e15d03aedf8ebbdc2579c36ef217102db6e023a2898cfbea1fe0",
+      "size": 1390
+    },
+    {
+      "path": "export-project.godot",
+      "sha256": "7f080b0acefa15421f7008d097f3e759724a4709e06d87afcd7cca7f3f464de7",
+      "size": 859
+    },
+    {
+      "path": "godot_rapier.wasm",
+      "sha256": "5ff6933670c1377c24dcbac30d67758a307165eacdcbd33b25bf01669577c4c2",
+      "size": 2751606
+    },
+    {
+      "path": "index.apple-touch-icon.png",
+      "sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5",
+      "size": 11944
+    },
+    {
+      "path": "index.audio.position.worklet.js",
+      "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
+      "size": 2973
+    },
+    {
+      "path": "index.audio.worklet.js",
+      "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
+      "size": 7298
+    },
+    {
+      "path": "index.html",
+      "sha256": "32c6ab3257856ba3d8298eae6fff717071536e80ef7cf3b2f245a4e33fb14dda",
+      "size": 5498
+    },
+    {
+      "path": "index.icon.png",
+      "sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5",
+      "size": 5700
+    },
+    {
+      "path": "index.js",
+      "sha256": "631bbecee5e5136b5f29ed7dedb31a5d022d65da4b639b6e52a48d0c5e3d3154",
+      "size": 2859484
+    },
+    {
+      "path": "index.pck",
+      "sha256": "37bb2ef1adbc94025384e5938432548f8e9e9366a0a8d266cd6cfb496499a622",
+      "size": 4482324
+    },
+    {
+      "path": "index.png",
+      "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e",
+      "size": 21443
+    },
+    {
+      "path": "index.side.wasm",
+      "sha256": "85473bead1cf62c408d034189fae423594c45fef403fc0707a72bb8e2b87a6d2",
+      "size": 44072184
+    },
+    {
+      "path": "index.wasm",
+      "sha256": "d37e06f7126849a81fa099f1cf89f0d8ccbb87502b8c857492490dff66fad95a",
+      "size": 1508095
+    },
+    {
+      "path": "libcybersand_native.web.nothreads.wasm",
+      "sha256": "559a466fddff84e809436052a020029c7241d99d412668b80e384966b598a595",
+      "size": 4245499
+    },
+    {
+      "path": "serve_web.py",
+      "sha256": "22c2e55cc248070b2f68ffceb0cf3d7401c6d4ef7d4202de20884d9adee97d4a",
+      "size": 1979
+    }
+  ],
+  "logical_viewport": {
+    "width": 1280,
+    "height": 800,
+    "stretch_mode": "canvas_items",
+    "stretch_aspect": "keep",
+    "aspect_source": "godot-4.7-default",
+    "aspect_default_source": "https://github.com/godotengine/godot/blob/5b4e0cb0f/core/config/project_settings.cpp",
+    "canvas_resize_policy": 2,
+    "focus_canvas_on_start": true,
+    "staging_replacements": [
+      {
+        "before": "viewport_width=1920",
+        "after": "viewport_width=1280"
+      },
+      {
+        "before": "viewport_height=1080",
+        "after": "viewport_height=800"
+      },
+      {
+        "before": "window_width_override=1920",
+        "after": "window_width_override=1280"
+      },
+      {
+        "before": "window_height_override=1080",
+        "after": "window_height_override=800"
+      }
+    ],
+    "source_blobs": {
+      "godot/project.godot": "be6be220dc50fc4c05077fddb2281d7a7a32caf8",
+      "tools/build_web.py": "22b90d528ae67b1ffd5219ff962be4b5ab938c5a",
+      "godot/export_presets.cfg": "77bacf2f42068625be5d3a534b6f1f6d79345764",
+      "godot/sandfall_main.tscn": "1c7b866eb9dbc657e7673e0285fc10699acc2531"
+    }
+  },
+  "source_equivalence": {
+    "committed_changed_paths": [],
+    "tracked_dirty_paths": [],
+    "staged_changed_paths": [],
+    "unstaged_changed_paths": [],
+    "untracked_paths": [
+      "sf-m1-build/compiler-version.txt",
+      "sf-m1-build/emscripten-version.txt",
+      "sf-m1-build/godot-release-checksums.txt",
+      "sf-m1-build/reconciliation.json",
+      "sf-m1-build/source-sha.txt"
+    ],
+    "build_sensitive_changed_paths": [],
+    "checked_prefixes": [
+      "godot/",
+      "native/",
+      "third_party/",
+      "tools/web/"
+    ],
+    "checked_files": [
+      ".gitattributes",
+      ".gitmodules",
+      "LICENSE_STATUS.md",
+      "Makefile",
+      "THIRD_PARTY_NOTICES.md",
+      "tools/build_web.py",
+      "tools/requirements-build.txt",
+      "tools/serve_web.py"
+    ]
+  }
+}

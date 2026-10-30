@@ -1,0 +1,12 @@
+{
+  "schema": "sandfall-sf-m1-retained-unlisted-export-v1",
+  "source_commit": "bbe72707aa679790b66a143a71c09e7f21570993",
+  "original_path": "/workspace/scratch/9977b5ec8836/sandfall/build/web/index.pck-LjAHSm",
+  "sha256": "2e0a965a2ba11cc5a45eae88b012e5b34a77512ceb7ee7d1732d2994e34f47d3",
+  "size": 4325488,
+  "mtime_utc": "2026-10-30T22:53:43.038626+00:00",
+  "header_hex": "47445043040000000400000007000000000000000200000070000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "pck_directory_offset_le_u64_at_32": 0,
+  "scope": "original local legacy export inventory refused; incomplete PCK residue retained; not runtime acceptance",
+  "producer": "not independently established; same local export residue pattern as dedicated Sandfall export"
+}

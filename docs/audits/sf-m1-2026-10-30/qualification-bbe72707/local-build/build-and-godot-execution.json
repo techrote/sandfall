@@ -1,0 +1,43 @@
+{
+  "schema": "sandfall-sf-m1-build-and-godot-execution-v1",
+  "status": "passed",
+  "source_commit": "bbe72707aa679790b66a143a71c09e7f21570993",
+  "process_exit_code": 0,
+  "scope": "fresh Web+Linux compilation, Godot import,12actualGodot scripts and Web export; separate artifact/browser qualification required",
+  "test_scripts": [
+    "res://tests/test_cell_world.gd",
+    "res://tests/test_material_appearance_lut.gd",
+    "res://tests/test_native_render_bridge_regression.gd",
+    "res://tests/test_render_patch_handoff_regression.gd",
+    "res://tests/test_native_fire_presentation_regression.gd",
+    "res://tests/test_native_edge_contact_regression.gd",
+    "res://tests/test_web_demo_setup.gd",
+    "res://tests/test_rapier_backend_preflight.gd",
+    "res://tests/test_rapier_drop_in.gd",
+    "res://tests/test_rapier_manual_step.gd",
+    "res://tests/test_sandfall_simulation_host.gd",
+    "res://tests/test_sandfall_session.gd"
+  ],
+  "observed_utc": "2026-10-30T22:50:46.701650+00:00",
+  "log": {
+    "path": "/workspace/scratch/9977b5ec8836/evidence/sf-m1-bbe72707/sandfall-export-and-godot-tests.log",
+    "sha256": "07b4cc9ad27807c8295ed685c751c6ce8d96f744cc7577ea9744ae9ac3c34f7d",
+    "size": 210367
+  },
+  "built_artifacts": [
+    {
+      "artifact": "libcybersand_native.web.nothreads.wasm",
+      "size": 4245579,
+      "sha256": "81581a404c5ebea2c698a8cb60244e663caa300466ef3a59953daa1400eb7d48"
+    },
+    {
+      "artifact": "libcybersand_native.linux.x86_64.so",
+      "size": 4215336,
+      "sha256": "457d714b354f15e2f9a5c8c428e31870473bb71e4e8552367f2c37cc6bc567d4"
+    }
+  ],
+  "result_files": {
+    "backend-result.json": "ca4b0bad380a101f64352d2c028affbd7725859c8a5b58f2fdcb3768ff46ec4c",
+    "session-result.json": "c8cc794c6a86b9900b9c2037554996a8eaa4fa28117173f6e389056435fbc63d"
+  }
+}

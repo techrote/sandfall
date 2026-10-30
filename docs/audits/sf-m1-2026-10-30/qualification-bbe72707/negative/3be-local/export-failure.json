@@ -1,0 +1,49 @@
+{
+  "schema": "sandfall-sf-m1-fresh-export-attempt-v1",
+  "status": "failed",
+  "source_commit": "3be1c34c932d3db056dc1974eb7ce5f911f6b125",
+  "source_head_at_receipt": "3be1c34c932d3db056dc1974eb7ce5f911f6b125",
+  "observed_utc": "2026-10-30T22:39:58.696892+00:00",
+  "phase": "inherited Godot material appearance test before Web export",
+  "failure": "default output viewport is not 1920x1080",
+  "expected_legacy_viewport": [
+    1920,
+    1080
+  ],
+  "actual_source_and_staged_viewport": [
+    1280,
+    800
+  ],
+  "completed_scope": [
+    "fresh native WASM compilation",
+    "fresh Linux GDExtension compilation",
+    "Godot import without parse errors",
+    "11 Godot interaction tests"
+  ],
+  "export_produced": false,
+  "browser_qualification": false,
+  "log": {
+    "path": "/workspace/scratch/9977b5ec8836/evidence/sf-m1-3be1c34c/sandfall-export-and-godot-tests.log",
+    "sha256": "7dab878233ff0b3dd4ce14f6c367c70053d2d035cd8b7014d1fccfadf38c6eef",
+    "size": 54001
+  },
+  "built_artifacts": [
+    {
+      "artifact": "libcybersand_native.web.nothreads.wasm",
+      "size": 4245579,
+      "sha256": "81581a404c5ebea2c698a8cb60244e663caa300466ef3a59953daa1400eb7d48"
+    },
+    {
+      "artifact": "libcybersand_native.linux.x86_64.so",
+      "size": 4215336,
+      "sha256": "457d714b354f15e2f9a5c8c428e31870473bb71e4e8552367f2c37cc6bc567d4"
+    }
+  ],
+  "process_exit_code": 1,
+  "failure_origin": {
+    "test": "res://tests/test_material_appearance_lut.gd",
+    "test_exit_code": 1,
+    "godot_error": "ERROR: default output viewport is not 1920x1080",
+    "disposition": "Application layout assertion is moved to the dedicated Sandfall entry test at bbe72707; all palette semantics checks remain."
+  }
+}

@@ -10,14 +10,17 @@ related-documents: [SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md, audits/2026-10-3
 
 # SF-M1 — Sandfall application host and input cut
 
-**Implementation in progress on a separate branch.** This plan decomposes SF-M1 from the
+**Bounded implementation and compatibility-Web executable gates passed on a separate branch.** This plan decomposes SF-M1 from the
 [approved Sandfall v1 specification](SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md#122-ordered-implementation-milestones).
 That specification remains the architecture and product authority. This file
 does not change its owner decisions or introduce a second architecture. The
 [dated implementation/qualification audit](audits/2026-10-30-sf-m1-host-input.md)
 records the implemented dedicated entry, neutral solver composition, initial
-Edit/Run lifecycle and local tests. Fresh Web/browser qualification is pending
-at this first source checkpoint; the acceptance clauses below remain binding.
+Edit/Run lifecycle and exact-source qualification at
+`bbe72707aa679790b66a143a71c09e7f21570993`: both ordinary-browser cases, fresh
+exports, native/Godot tests and the retained legacy 600-tick contract PASS.
+Threaded Web and owner human visual acceptance remain separate. The acceptance
+clauses below remain binding for later changes.
 
 **PR #2 remains draft and unmerged under the owner hold.** A completed executable
 SF-M0 checkpoint does not authorize marking it ready, merging it, or claiming
@@ -183,9 +186,13 @@ limitations separately. Do not mark PR #2 ready or merge it during this work.
 | SF-M4 | Portable `.sandfall` ZIP-of-`project/` codec, staged import/export, expanded exhibitions, optional passive subject and intervention promotion |
 | SF-M5 | Full compatibility/threaded matrix, chemistry/thermal history and refusal coverage, 16-body stress, Fluid Messenger and human presentation qualification |
 
-The implementation has completed the bounded A–D source cut and local actual
-native/Rapier lifecycle tests after fresh SF-M0 prerequisite checks. The next
-gate is **SF-M1-E: fresh exact-source exports and ordinary browser acceptance**.
+The implementation has completed bounded A–E source and executable acceptance
+after fresh SF-M0 prerequisite checks. Fresh source-bound compatibility exports,
+actual native/Rapier lifecycle tests, the unchanged legacy 600-tick browser
+contract and both ordinary input/rendering cases pass. Owner human visual
+acceptance and the additional threaded/hosting/platform matrix remain explicit
+separate gates. The next engineering task is **SF-M2's initial authoring document
+and exact Edit transaction/history boundary**, within its already agreed scope.
 The milestone handoff must distinguish implemented behavior,
 executed tests and remaining gates; a new entry scene alone is not SF-M1
 completion, and SF-M1 completion is not full v1 qualification.
