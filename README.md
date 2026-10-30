@@ -1,8 +1,8 @@
 # Sandfall
 
-**Status: SF-M0 source import and compatibility Web bootstrap are on
-[draft PR #2](https://github.com/techrote/sandfall/pull/2). The Sandfall application
-host and editor remain subsequent implementation milestones.**
+**Status: SF-M0 remains on held [draft PR #2](https://github.com/techrote/sandfall/pull/2).
+The separate SF-M1 branch implements the dedicated zero-player application host;
+fresh Web qualification is in progress. The full editor remains a later milestone.**
 
 Sandfall is a Web-native, interactive, **zero-player cellular + Rapier physics exhibition and editor** derived from CyberSand. “Zero-player” removes player/actor movement and action controls, **not** painting, object creation, time control or camera interaction.
 
@@ -33,12 +33,14 @@ content within the actual world viewport. Exact CI receipts, durable raw
 evidence, original failures and remaining qualification boundaries are in the
 [dated ordinary-Web audit](docs/audits/2026-10-30-sf-m0-ordinary-web.md).
 
-**Next engineering step:** freshly reconcile the published head, then begin the
-dedicated scene and actor-authority removal in
-[SF-M1 — Sandfall application host and input cut](docs/SF-M1-HOST-INPUT-CUT.md).
-The inherited player-capable Web scene is bootstrap evidence, not the final
-zero-player Sandfall host. Threaded Web, human exhibition review, the full
-editor, sixteen-body authoring and portable archive remain separate milestones.
+The dedicated `godot/sandfall_main.tscn` now owns Gallery/Sandbox, separate initial
+Edit/Run state, camera, pause, exact Step and reset without inherited actor or
+launcher authority. See the [SF-M1 milestone](docs/SF-M1-HOST-INPUT-CUT.md) and
+[dated implementation/qualification audit](docs/audits/2026-10-30-sf-m1-host-input.md)
+for current source, executed checks and fresh-export status. The retained legacy
+scene is used explicitly for historical regression contracts. Threaded Web,
+human exhibition review, full editing, sixteen-body authoring and the portable
+archive retain their separate gates.
 **PR #2 stays draft and unmerged until the owner explicitly authorizes otherwise.**
 
 This root filename is deliberately **README.md**, matching normal Git conventions and avoiding the prior **readme.md / README.md** case conflict on Windows during upstream import.

@@ -17,8 +17,10 @@ and [root instructions](../AGENTS.md). The
 [retained browser-timeout history](audits/2026-10-30-sf-m0-browser-timeout.md) and
 [ordinary-Web qualification](audits/2026-10-30-sf-m0-ordinary-web.md) separate
 source identity, native tests, coupled browser physics and actual UI/rendering.
-[SF-M1 preparation](SF-M1-HOST-INPUT-CUT.md) defines the bounded next host/input
-cut. PR #2 remains draft and unmerged by owner instruction.
+[SF-M1](SF-M1-HOST-INPUT-CUT.md) defines the bounded host/input contract; its
+[dated implementation audit](audits/2026-10-30-sf-m1-host-input.md) records the
+dedicated application and current fresh-export qualification. PR #2 remains
+draft and unmerged by owner instruction.
 
 ## Retained CyberSand technical reference
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build CyberSand's C++ engine for Godot Web without altering desktop files.
+"""Build the retained native engine and either application entry for Godot Web.
 
 Requires pinned godot-cpp, activated Emscripten 4.0.20, SCons 4.10.1,
 Godot 4.7 and its Web templates. See ../../docs/LOCAL_DEVELOPMENT.md
@@ -108,23 +108,34 @@ def compile_extension(cpp: Path, dest: Path, platform: str, threaded: bool) -> P
     print("BUILT", artifact.name, len(data), hashlib.sha256(data).hexdigest(), flush=True)
     return artifact
 
-def stage_project(library: Path, native_library: Path | None, cellular_only: bool, threaded: bool) -> Path:
+def stage_project(library: Path, native_library: Path | None, cellular_only: bool, threaded: bool,
+                  entry: str = "legacy") -> Path:
+    if entry not in ("legacy", "sandfall"):
+        raise RuntimeError(f"Unknown Web application entry: {entry}")
     if not cellular_only:
         verify_rapier(threaded)
-    stage = ROOT / "build" / ("web-project-threaded" if threaded else "web-project")
+    prefix = "web-sandfall-project" if entry == "sandfall" else "web-project"
+    stage = ROOT / "build" / (prefix + ("-threaded" if threaded else ""))
     if not stage.resolve().is_relative_to((ROOT / "build").resolve()):
         raise RuntimeError("Web staging path escapes the build directory")
     if stage.exists():
         shutil.rmtree(stage)  # Only this tool's disposable, fixed staging directory.
     shutil.copytree(ROOT / "godot", stage, ignore=shutil.ignore_patterns(".godot", "native_extension"))
     binaries = stage / "addons/cybersand_native/bin"
+    if entry == "sandfall":
+        # Never execute or export inherited desktop libraries while qualifying
+        # the replacement host. The source build below supplies its own bytes.
+        shutil.rmtree(binaries)
+        binaries.mkdir(parents=True)
     shutil.copy2(library, binaries / library.name)
     if native_library:
         shutil.copy2(native_library, binaries / native_library.name)
     project = (stage / "project.godot").read_text()
-    for desktop_scene in ("main.tscn", "feature_launcher.tscn"):
-        project = project.replace(f'run/main_scene="res://{desktop_scene}"', 'run/main_scene="res://web_main.tscn"')
-    if 'run/main_scene="res://web_main.tscn"' not in project:
+    scene = "sandfall_main.tscn" if entry == "sandfall" else "web_main.tscn"
+    for desktop_scene in ("main.tscn", "feature_launcher.tscn", "web_main.tscn", "sandfall_main.tscn"):
+        project = project.replace(f'run/main_scene="res://{desktop_scene}"', f'run/main_scene="res://{scene}"')
+    if (f'run/main_scene="res://{scene}"' not in project
+            or (entry == "sandfall" and not (stage / scene).is_file())):
         raise RuntimeError("Unexpected project main-scene configuration")
     project = project.replace('FeatureNavigation="*res://scripts/feature_navigation.gd"\n', '')
     if cellular_only:
@@ -150,6 +161,7 @@ def verify_rapier(threaded: bool) -> dict:
 
 def write_runtime_identity(stage: Path, library: Path, args: argparse.Namespace) -> dict:
     data = library.read_bytes()
+    entry = getattr(args, "entry", "legacy")
     identity = {
         "schema_version": 1,
         "status": "source-built-web-export-unqualified",
@@ -165,10 +177,27 @@ def write_runtime_identity(stage: Path, library: Path, args: argparse.Namespace)
         "godot_cpp": CPP_REV,
         "emscripten": "4.0.20",
         "native_worker_threads": "auto" if args.profile == "threaded" else 1,
+        "application_entry": entry,
+        "entry_scene": "res://sandfall_main.tscn" if entry == "sandfall" else "res://web_main.tscn",
     }
     destination = stage / "addons/cybersand_native/runtime-provenance.web.json"
     destination.write_text(json.dumps(identity, indent=2) + "\n", encoding="utf-8")
     return identity
+
+def clean_sandfall_source(expected_commit: str) -> None:
+    # This script is executable directly (tools/ is then the import root), and
+    # is also imported by staging tests from the repository root.
+    try:
+        from sandfall.sf_m0_verify_web_artifact import build_sensitive, changed_paths, git
+    except ModuleNotFoundError:
+        from tools.sandfall.sf_m0_verify_web_artifact import build_sensitive, changed_paths, git
+    if git(ROOT, "rev-parse", "HEAD") != expected_commit:
+        raise RuntimeError("Sandfall source HEAD changed during its Web build")
+    dirty = set(changed_paths(ROOT, "HEAD") + changed_paths(ROOT, "--cached", "HEAD"))
+    dirty.update(git(ROOT, "ls-files", "--others", "--exclude-standard", "-z").split("\0"))
+    sensitive = sorted(path for path in dirty if build_sensitive(path))
+    if sensitive:
+        raise RuntimeError("Sandfall Web source is not committed: " + ", ".join(sensitive))
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -176,6 +205,8 @@ def main() -> None:
     parser.add_argument("--godot", default=os.environ.get("GODOT_BIN", "godot"))
     parser.add_argument("--templates", type=Path, default=os.environ.get("WEB_TEMPLATE_ROOT"))
     parser.add_argument("--profile", choices=["compat", "threaded"], default="compat")
+    parser.add_argument("--entry", choices=["legacy", "sandfall"], default="legacy",
+                        help="Dedicated Sandfall host or retained SF-M0 fixture (default)")
     parser.add_argument("--cellular-only", action="store_true")
     parser.add_argument("--compile-only", action="store_true")
     parser.add_argument("--export-only", action="store_true", help="Export the already-built side module")
@@ -191,6 +222,15 @@ def main() -> None:
         parser.error("--native-tests requires a separate --native-cpp checkout")
     if args.source_commit and not re.fullmatch(r"[0-9a-f]{40}", args.source_commit):
         parser.error("--source-commit must be a full Git commit ID")
+    build_source_commit = args.source_commit or output(["git", "-C", str(ROOT), "rev-parse", "HEAD"])
+    if args.entry == "sandfall":
+        if args.export_only or args.source_commit or args.cellular_only:
+            parser.error("Sandfall qualification requires a fresh Git-checkout build with Rapier")
+        # Copying uncommitted or untracked source into a PCK cannot establish an
+        # exact build SHA. Generated ignored imports are excluded by staging.
+        clean_sandfall_source(build_source_commit)
+        if not args.native_tests:
+            parser.error("Sandfall export requires --native-tests and a fresh --native-cpp checkout")
     for compiler in ("emcc", "em++"):
         if not re.search(r"\b4\.0\.20\b", output([compiler, "--version"]).splitlines()[0]):
             raise RuntimeError("Emscripten 4.0.20 is required by the M13 handover")
@@ -214,9 +254,14 @@ def main() -> None:
         raise RuntimeError(f"Expected Godot {GODOT_VERSION}")
     if args.templates is None:
         parser.error("Set WEB_TEMPLATE_ROOT or --templates to extracted Godot 4.7 Web templates")
-    stage = stage_project(library, native_library, args.cellular_only, threaded)
+    if args.entry == "sandfall":
+        clean_sandfall_source(build_source_commit)
+    stage = stage_project(library, native_library, args.cellular_only, threaded, args.entry)
     web_runtime_identity = write_runtime_identity(stage, library, args)
-    output_dir = ROOT / "build" / ("web-threaded" if threaded else "web")
+    output_name = "web-sandfall" if args.entry == "sandfall" else "web"
+    output_dir = ROOT / "build" / (output_name + ("-threaded" if threaded else ""))
+    if output_dir.exists():
+        shutil.rmtree(output_dir)  # This tool's fixed disposable export only.
     output_dir.mkdir(parents=True, exist_ok=True)
     preset = (ROOT / "godot/export_presets.cfg").read_text()
     for kind in ("debug", "release"):
@@ -238,6 +283,8 @@ def main() -> None:
                  "test_web_demo_setup.gd"]
         if not args.cellular_only:
             tests += ["test_rapier_backend_preflight.gd", "test_rapier_drop_in.gd", "test_rapier_manual_step.gd"]
+        if args.entry == "sandfall":
+            tests += ["test_sandfall_simulation_host.gd", "test_sandfall_session.gd"]
         for name in tests:
             run([args.godot, "--headless", "--path", str(stage), "--script", f"res://tests/{name}"], timeout=240)
     run([args.godot, "--headless", "--path", str(stage), "--export-release", "Web Demo", str(output_dir / "index.html")], timeout=240)
@@ -254,6 +301,8 @@ def main() -> None:
         for source_name, export_name in (("LICENSE", "RAPIER_LICENSE.txt"), ("THIRDPARTY.txt", "RAPIER_THIRDPARTY.txt")):
             shutil.copy2(ROOT / "godot/addons/godot-rapier2d" / source_name, output_dir / export_name)
     shutil.copy2(ROOT / "tools/serve_web.py", output_dir / "serve_web.py")
+    if args.entry == "sandfall":
+        clean_sandfall_source(build_source_commit)
     identity = {"source_commit": args.source_commit or output(["git", "-C", str(ROOT), "rev-parse", "HEAD"]),
                 "source_identity_kind": "snapshot-base-with-local-setup-changes" if args.source_commit else "git-checkout",
                 "godot": GODOT_VERSION, "godot_cpp": CPP_REV,
@@ -262,7 +311,11 @@ def main() -> None:
                 "auto_worker_policy": "logical<4:2; logical<12:4; otherwise:6",
                 "rapier": "disabled" if args.cellular_only else "0.35.2",
                 "rapier_sha256": None if args.cellular_only else artifact["sha256"],
+                "application_entry": args.entry,
+                "entry_scene": "res://" + ("sandfall_main.tscn" if args.entry == "sandfall" else "web_main.tscn"),
+                "staged_project_sha256": hashlib.sha256((stage / "project.godot").read_bytes()).hexdigest(),
                 "water_runtime": web_runtime_identity}
+    shutil.copy2(stage / "project.godot", output_dir / "export-project.godot")
     (output_dir / "build-info.json").write_text(json.dumps(identity, indent=2) + "\n")
     (output_dir / "SHA256SUMS").write_text("".join(
         f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}\n"

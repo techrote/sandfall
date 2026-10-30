@@ -1,0 +1,317 @@
+name: Sandfall SF-M1 fresh host and input qualification
+
+on:
+  push:
+    branches: ['sf-m1/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sandfall-sf-m1-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-native:
+    name: Source, inherited limitations and focused native regressions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - name: Checkout the exact source head, including draft PRs
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - name: Verify frozen history, actual LFS bytes and documented exceptions
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor 1d376fb38ff5df83691e468baa0639270a5f40e6 HEAD
+          test "$(git rev-parse '1d376fb38ff5df83691e468baa0639270a5f40e6^{tree}')" = 97eb0f4eeedde9bbe8b83047ca45c82d8a377d66
+          git lfs fetch origin "$(git rev-parse HEAD)"
+          git lfs checkout
+          python3 tools/ci/check_ci_provider_policy.py
+          python3 tools/sandfall/sf_m0_reconcile.py --output sf-m1-evidence/source-reconciliation.json
+      - name: Execute build identity, geometry, pixel and input assertion negatives
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sf-m1-evidence
+          node --version > sf-m1-evidence/node-version.txt
+          python3 -m unittest discover -s tools/sandfall -p 'test_sf_m*.py' 2>&1 | tee sf-m1-evidence/python-tests.log
+          python3 -m unittest tools.ci.test_feature_web_staging 2>&1 | tee sf-m1-evidence/legacy-staging-tests.log
+          for test in tools/sandfall/test_sf_m*.mjs; do
+            node "$test"
+          done 2>&1 | tee sf-m1-evidence/browser-helper-tests.log
+          node --check tools/sandfall/sf_m1_browser.mjs
+      - name: Execute unchanged native coupling, rendering and lifecycle contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/sandfall/sf_m0_native_smoke.py --output-dir sf-m1-evidence/native-focused
+      - name: Retain exact-head source and focused native results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m1-source-native
+          path: sf-m1-evidence/
+          retention-days: 30
+          if-no-files-found: warn
+
+  web-export:
+    name: Fresh Sandfall and retained legacy Web exports plus real Godot tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 85
+    env:
+      SCONS_JOBS: '2'
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - name: Checkout exact source with frozen ancestry
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - name: Restore and verify pinned native and Rapier dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          git lfs fetch origin "$(git rev-parse HEAD)"
+          git lfs checkout
+          python3 tools/sandfall/sf_m0_reconcile.py --output sf-m1-build/reconciliation.json
+      - name: Provision pinned Godot, SCons and separate Web/native godot-cpp builds
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/sf-web-python"
+          "$RUNNER_TEMP/sf-web-python/bin/pip" install --require-hashes -r tools/requirements-build.txt
+          for checkout in godot-cpp-web godot-cpp-native; do
+            git init "$RUNNER_TEMP/$checkout"
+            git -C "$RUNNER_TEMP/$checkout" remote add origin https://github.com/godotengine/godot-cpp.git
+            git -C "$RUNNER_TEMP/$checkout" fetch --depth=1 origin 101ae38034304346a46ea9ea84ae156d3e860496
+            git -C "$RUNNER_TEMP/$checkout" checkout --detach FETCH_HEAD
+            test "$(git -C "$RUNNER_TEMP/$checkout" rev-parse HEAD)" = 101ae38034304346a46ea9ea84ae156d3e860496
+          done
+          curl -fL --retry 3 'https://downloads.godotengine.org/?flavor=stable&platform=linux.64&slug=linux.x86_64.zip&version=4.7' -o "$RUNNER_TEMP/godot.zip"
+          echo "0b1a6c54c2c619c12e169fe9241edda4b81080b519451cec2984bf0d2c6cb73c  $RUNNER_TEMP/godot.zip" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/godot"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          GODOT_BIN="$RUNNER_TEMP/godot/Godot_v4.7-stable_linux.x86_64"
+          chmod +x "$GODOT_BIN"
+          test "$("$GODOT_BIN" --version)" = 4.7.stable.official.5b4e0cb0f
+          echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
+          git rev-parse HEAD > sf-m1-build/source-sha.txt
+          g++ --version > sf-m1-build/compiler-version.txt
+      - name: Obtain checksum-validated Godot 4.7 Web export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://github.com/godotengine/godot-builds/releases/download/4.7-stable'
+          curl -fL --retry 3 "$base/SHA512-SUMS.txt" -o "$RUNNER_TEMP/SHA512-SUMS.txt"
+          curl -fL --retry 3 "$base/Godot_v4.7-stable_export_templates.tpz" -o "$RUNNER_TEMP/Godot_v4.7-stable_export_templates.tpz"
+          (cd "$RUNNER_TEMP"; grep ' Godot_v4.7-stable_export_templates.tpz$' SHA512-SUMS.txt | sha512sum --check --strict)
+          python3 - <<'PYCODE'
+          import os, pathlib, zipfile
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])
+          out=root/"web-templates"
+          out.mkdir(exist_ok=True)
+          with zipfile.ZipFile(root/"Godot_v4.7-stable_export_templates.tpz") as archive:
+              for member in archive.namelist():
+                  name=pathlib.PurePosixPath(member).name
+                  if name.startswith("web_dlink") and name.endswith(".zip"):
+                      (out/name).write_bytes(archive.read(member))
+          expected={f"web_dlink_{kind}.zip" for kind in ("debug","release")}
+          expected|={f"web_dlink_nothreads_{kind}.zip" for kind in ("debug","release")}
+          assert expected<=set(p.name for p in out.iterdir()), expected
+          PYCODE
+          cp "$RUNNER_TEMP/SHA512-SUMS.txt" sf-m1-build/godot-release-checksums.txt
+      - name: Install Emscripten 4.0.20
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch 4.0.20 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          "$RUNNER_TEMP/emsdk/emsdk" install 4.0.20
+          "$RUNNER_TEMP/emsdk/emsdk" activate 4.0.20
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          emcc --version > sf-m1-build/emscripten-version.txt
+      - name: Build the new host from this SHA and execute actual Godot native/Rapier tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          "$RUNNER_TEMP/sf-web-python/bin/python" tools/build_web.py \
+            --cpp "$RUNNER_TEMP/godot-cpp-web" --native-cpp "$RUNNER_TEMP/godot-cpp-native" \
+            --godot "$GODOT_BIN" --templates "$RUNNER_TEMP/web-templates" \
+            --profile compat --entry sandfall --native-tests \
+            2>&1 | tee sf-m1-build/sandfall-build-and-godot-tests.log
+          python3 tools/sandfall/sf_m1_verify_web_artifact.py \
+            --web-root build/web-sandfall --expected-build-sha "$(git rev-parse HEAD)" \
+            --output sf-m1-build/artifact-verification.json
+      - name: Export the retained legacy fixture using the same freshly compiled side module
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          "$RUNNER_TEMP/sf-web-python/bin/python" tools/build_web.py \
+            --cpp "$RUNNER_TEMP/godot-cpp-web" --native-cpp "$RUNNER_TEMP/godot-cpp-native" \
+            --godot "$GODOT_BIN" --templates "$RUNNER_TEMP/web-templates" \
+            --profile compat --entry legacy --export-only --native-tests \
+            2>&1 | tee sf-m1-build/legacy-export-and-godot-tests.log
+      - name: Retain fresh dedicated Sandfall export
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m1-fresh-web
+          path: build/web-sandfall/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Retain freshly exported legacy contract fixture
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m1-legacy-web
+          path: build/web/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Retain source, compile, import, Godot execution and artifact receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m1-build-evidence
+          path: sf-m1-build/
+          retention-days: 30
+          if-no-files-found: warn
+
+  ordinary-web:
+    name: Sandfall ordinary UI ${{ matrix.width }}x${{ matrix.height }} DPR${{ matrix.dpr }}
+    needs: web-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - width: 800
+            height: 450
+            dpr: 1
+          - width: 640
+            height: 400
+            dpr: 2
+    steps:
+      - name: Checkout exact browser harness source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - name: Download this run's freshly built dedicated application
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m1-fresh-web
+          path: build/web-sandfall
+      - name: Independently verify bytes, exact build SHA, entry and layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/sandfall/sf_m1_verify_web_artifact.py \
+            --web-root build/web-sandfall --expected-build-sha "$(git rev-parse HEAD)" \
+            --output sf-m1-browser/artifact-verification.json
+      - name: Real pointer/keyboard input, both session modes, exact Step, reset and 600 coupled ticks
+        shell: bash
+        env:
+          VIEW_WIDTH: ${{ matrix.width }}
+          VIEW_HEIGHT: ${{ matrix.height }}
+          VIEW_DPR: ${{ matrix.dpr }}
+        run: |
+          set -euo pipefail
+          node --version > sf-m1-browser/node-version.txt
+          python3 tools/serve_web.py --directory build/web-sandfall --port 8040 > sf-m1-browser/http.log 2>&1 &
+          SERVER_PID=$!
+          CHROME="$(command -v google-chrome-stable || command -v google-chrome)"
+          "$CHROME" --version > sf-m1-browser/chrome-version.txt
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
+            --remote-debugging-port=9231 --user-data-dir="$RUNNER_TEMP/sf-m1-chrome" \
+            about:blank > sf-m1-browser/chrome.log 2>&1 &
+          CHROME_PID=$!
+          trap 'kill "$SERVER_PID" "$CHROME_PID" 2>/dev/null || true' EXIT
+          timeout 1740 node tools/sandfall/sf_m1_browser.mjs \
+            --port 9231 --url 'http://127.0.0.1:8040/?test=1' \
+            --verification sf-m1-browser/artifact-verification.json \
+            --width "$VIEW_WIDTH" --height "$VIEW_HEIGHT" --dpr "$VIEW_DPR" \
+            --output sf-m1-browser/browser.json --screenshot sf-m1-browser/browser.png \
+            --timeout-ms 1200000 2>&1 | tee sf-m1-browser/harness.log
+      - name: Retain real screenshots, observations and logs, including failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m1-ordinary-${{ matrix.width }}x${{ matrix.height }}-dpr${{ matrix.dpr }}
+          path: sf-m1-browser/
+          retention-days: 30
+          if-no-files-found: warn
+
+  legacy-contract:
+    name: Retained legacy 600-tick contact, displacement, pause, save/restore and reset contract
+    needs: web-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Checkout unchanged fixture assertions at exact source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          lfs: false
+      - name: Download this run's freshly exported retained host
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m1-legacy-web
+          path: build/web
+      - name: Verify the legacy export is fresh and exercise original actual coupling oracle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sf-m1-legacy
+          node --version > sf-m1-legacy/node-version.txt
+          python3 - <<'PYCODE'
+          import hashlib,json,pathlib,subprocess
+          root=pathlib.Path("build/web")
+          info=json.loads((root/"build-info.json").read_text())
+          assert info["source_commit"]==subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
+          assert info["application_entry"]=="legacy" and info["entry_scene"]=="res://web_main.tscn"
+          entries={}
+          for line in (root/"SHA256SUMS").read_text().splitlines():
+              digest,name=line.split("  ",1)
+              assert pathlib.PurePosixPath(name).name==name and name not in entries
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==digest, name
+              entries[name]=digest
+          assert set(entries)=={p.name for p in root.iterdir() if p.name!="SHA256SUMS"}
+          pathlib.Path("sf-m1-legacy/build-identity.json").write_text(json.dumps(info,indent=2)+"\n")
+          PYCODE
+          python3 tools/serve_web.py --directory build/web --port 8030 > sf-m1-legacy/http.log 2>&1 &
+          SERVER_PID=$!
+          CHROME="$(command -v google-chrome-stable || command -v google-chrome)"
+          "$CHROME" --version > sf-m1-legacy/chrome-version.txt
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
+            --remote-debugging-port=9222 --user-data-dir="$RUNNER_TEMP/sf-m1-legacy-chrome" \
+            about:blank > sf-m1-legacy/chrome.log 2>&1 &
+          CHROME_PID=$!
+          trap 'kill "$SERVER_PID" "$CHROME_PID" 2>/dev/null || true' EXIT
+          timeout 840 node tools/sandfall/sf_m0_browser_probe.mjs \
+            --port 9222 --url 'http://127.0.0.1:8030/?test=1&rapier=1' \
+            --output sf-m1-legacy/browser.json --screenshot sf-m1-legacy/browser.png \
+            --timeout-ms 720000 2>&1 | tee sf-m1-legacy/harness.log
+      - name: Retain original-contract execution results and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m1-legacy-600-contract
+          path: sf-m1-legacy/
+          retention-days: 30
+          if-no-files-found: warn

@@ -23,8 +23,10 @@ milestones are **not Sandfall assignments**.
   Level study). The Sandfall v1 spec defines their normative/research roles.
 - Sandfall v1 is **zero-player**: no player movement, jetpack or actor-action
   controls in its application host. Painting, camera, simulation time and
-  Rapier object authoring remain. **Imported CyberSand's player-capable Web
-  controller is not yet the final Sandfall product.**
+  Rapier object authoring remain. The dedicated entry is `godot/sandfall_main.tscn`;
+  compose its neutral services in `godot/scripts/sandfall/`. Do not reintroduce
+  inherited host/controller or `FeatureNavigation` authority. Legacy scenes
+  remain explicit regression references.
 - Preserve authoritative native cell semantics, immutable copied render
   snapshots and main-thread Rapier ownership. Use fixed-step coupling; test
   interventions/reset without claiming full-stack deterministic rewind.
@@ -51,8 +53,14 @@ milestones are **not Sandfall assignments**.
   Never send later input or start overlapping captures after capture begins;
   verify trusted DOM pointer coordinates against the intended CSS targets.
 - [SF-M1 preparation](docs/SF-M1-HOST-INPUT-CUT.md) is a bounded host/input-cut
-  plan. Start implementation only after fresh terminal SF-M0 executable gates;
-  keep full editing, sixteen-body authoring and archive work in later milestones.
+  contract; its [dated audit](docs/audits/2026-10-30-sf-m1-host-input.md) owns
+  current implementation and qualification. The SF-M1 branch starts only after
+  fresh terminal SF-M0 gates and must not advance held PR #2. Keep full editing,
+  sixteen-body authoring and archive work in later milestones. New host exports
+  use `tools/build_web.py --entry sandfall --native-tests`; default legacy
+  exports are not evidence for the new entry. Session/input epochs retire queued
+  commands and pressed UI gestures on blur/modal/reset/fault. Camera operations
+  must not move native simulation interest.
 - The imported checker has six missing *companion-workspace* references
   and eight stale **desktop** source/runtime digests. The narrow
   Sandfall SF-M0 reconciliation allowlist permits a fresh Web build only
