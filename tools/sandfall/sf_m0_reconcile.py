@@ -65,14 +65,6 @@ def run(root: Path, output: Path) -> int:
     record["unexpected_errors"] = sorted(set(errors) - EXPECTED)
     record["missing_expected_errors"] = sorted(EXPECTED - set(errors))
     record["current_lfs_count"] = len(original.get("materialized_runtime_files", []))
-    record["safe_for_fresh_web_build"] = (
-        process.returncode == 1
-        and len(errors) == len(EXPECTED)
-        and set(errors) == EXPECTED
-        and original.get("unmaterialized_runtime_files") == []
-        and record["current_lfs_count"] == 18
-        and original.get("documentation", {}).get("errors") == list(EXPECTED_DOC_ERRORS)
-    )
     # Document list order is not semantic: exact error contents still checked above.
     record["safe_for_fresh_web_build"] = (
         process.returncode == 1 and len(errors) == len(EXPECTED)
