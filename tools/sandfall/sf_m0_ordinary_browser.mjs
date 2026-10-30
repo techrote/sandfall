@@ -72,38 +72,32 @@ let state = null, screenshot = null, pixels = null, canvas = null, title = null;
 let attempts = 0, keyPresses = 0, mouseAttempts = 0, pollErrors = 0;
 const inputEvents = [];
 const observations = [];
+// In busy software-WebGL browsers even the CDP *acknowledgement* for an
+// input event may take tens of seconds. Emit genuine CDP input messages but
+// score success only from a subsequently observed Godot menu/tick change.
+// Never count "sent" as "delivered".
+const sendInput = (method, params) =>
+  ws.send(JSON.stringify({id: ++nextId, method, params}));
 const sendEscape = async () => {
   keyPresses++;
-  const startedInput = Date.now();
-  try {
-    await cmd("Input.dispatchKeyEvent", {type: "keyDown", key: "Escape", code: "Escape",
-      windowsVirtualKeyCode: 27, nativeVirtualKeyCode: 27}, 42000);
-    await sleep(40);
-    await cmd("Input.dispatchKeyEvent", {type: "keyUp", key: "Escape", code: "Escape",
-      windowsVirtualKeyCode: 27, nativeVirtualKeyCode: 27}, 42000);
-    inputEvents.push({action: "escape", ok: true, ms: Date.now() - startedInput});
-  } catch (error) {
-    inputEvents.push({action: "escape", ok: false, ms: Date.now() - startedInput,
-      error: String(error)});
-  }
+  sendInput("Input.dispatchKeyEvent", {type: "keyDown", key: "Escape",
+    code: "Escape", windowsVirtualKeyCode: 27, nativeVirtualKeyCode: 27});
+  await sleep(70);
+  sendInput("Input.dispatchKeyEvent", {type: "keyUp", key: "Escape",
+    code: "Escape", windowsVirtualKeyCode: 27, nativeVirtualKeyCode: 27});
+  inputEvents.push({action: "escape", sent: true, delivered: "not-assumed"});
 };
 const clickContinue = async rect => {
   mouseAttempts++;
   const [left, top, width, height] = rect;
   const x = Math.round(left + width / 2), y = Math.round(top + height / 2);
-  const startedInput = Date.now();
-  try {
-    await cmd("Input.dispatchMouseEvent", {type: "mousePressed", button: "left",
-      x, y, clickCount: 1}, 42000);
-    await sleep(50);
-    await cmd("Input.dispatchMouseEvent", {type: "mouseReleased", button: "left",
-      x, y, clickCount: 1}, 42000);
-    inputEvents.push({action: "continue-click", x, y, ok: true,
-      ms: Date.now() - startedInput});
-  } catch (error) {
-    inputEvents.push({action: "continue-click", x, y, ok: false,
-      ms: Date.now() - startedInput, error: String(error)});
-  }
+  sendInput("Input.dispatchMouseEvent", {type: "mousePressed", button: "left",
+    x, y, clickCount: 1});
+  await sleep(90);
+  sendInput("Input.dispatchMouseEvent", {type: "mouseReleased", button: "left",
+    x, y, clickCount: 1});
+  inputEvents.push({action: "continue-click", x, y, sent: true,
+    delivered: "not-assumed"});
 };
 
 while (Date.now() - started < timeoutMs) {
