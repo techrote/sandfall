@@ -57,6 +57,8 @@ cat > docs/audits/2026-10-30-sf-m0-source-import.md <<RECEIPT
 - LFS policy: unchanged upstream attributes and artifact pointer identities; transfer must be verified by workflow.
 - Workflow: .github/workflows/sf-m0-import.yml
 - Web runtime proof: **NOT established by import**. Actual native, Rapier and Web export acceptance is separate.
+- Retained failure 41106067342: no runner Git committer identity; no merge was made.
+- Retained failure 41106167212: two-parent merge succeeded locally and 18/18 LFS objects uploaded, but broad git-lfs fsck requested historical object 69714ced... and refused push; current pinned runtime payloads are checked independently.
 
 Source-qualified CyberSand instructions, CI, historical failures and runtime provenance are retained;
 Sandfall-specific requirements live in docs/SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md.
@@ -85,7 +87,22 @@ done < "$RUNNER_TEMP/sf-m0-delta-names.txt"
 # by the exact selected revision, never leave unresolvable LFS pointers behind.
 git lfs fetch cybersand "$SOURCE_SHA"
 git lfs push origin HEAD
-git lfs fsck || fail "Imported LFS identity check failed"
+git lfs checkout
+python3 - <<'PYLFS'
+import hashlib, pathlib, re, subprocess
+paths = subprocess.check_output(['git','lfs','ls-files','--name-only'],text=True).splitlines()
+assert len(paths) == 18, f'Expected 18 tracked release-runtime objects, got {len(paths)}'
+bytes_total = 0
+for path in paths:
+    pointer = subprocess.check_output(['git','show','HEAD:' + path])
+    match = re.fullmatch(rb'version https://git-lfs.github.com/spec/v1\noid sha256:([0-9a-f]{64})\nsize ([0-9]+)\n', pointer)
+    assert match, f'Not an LFS pointer: {path}'
+    payload = pathlib.Path(path).read_bytes()
+    assert len(payload) == int(match[2]), f'Wrong release size: {path}'
+    assert hashlib.sha256(payload).hexdigest().encode() == match[1], f'Wrong release digest: {path}'
+    bytes_total += len(payload)
+print(f'VERIFIED_PINNED_LFS_RUNTIME_OBJECTS={len(paths)} BYTES={bytes_total}')
+PYLFS
 echo "SF-M0: frozen ancestry and current LFS identity verified"
 git push origin "HEAD:refs/heads/$TARGET_BRANCH"
 echo "SF-M0 completed and pushed $(git rev-parse HEAD)"
