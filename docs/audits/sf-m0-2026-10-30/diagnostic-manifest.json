@@ -1,0 +1,43 @@
+{
+  "scope": "diagnostic-only blank-page Chrome capture/input race; not Sandfall acceptance",
+  "observed_date": "2026-10-30",
+  "chrome_version": "156.0.8078.79",
+  "requested_viewport": {
+    "width": 640,
+    "height": 400,
+    "dpr": 2
+  },
+  "requested_css_pointer": {
+    "x": 201.25,
+    "y": 300
+  },
+  "surface_capture_overlap_trials": 4,
+  "surface_overlap_observed_css_pointer": {
+    "x": 100.625,
+    "y": 150
+  },
+  "view_capture_overlap_trials": 4,
+  "view_overlap_observed_css_pointer": {
+    "x": 201.25,
+    "y": 300
+  },
+  "files": {
+    "surface-capture-diagnostic.mjs": {
+      "sha256": "58b301af8f3713370735a343bd9100fa8a9f35ee2185ea525d0529a352ca0fd6",
+      "size": 3730
+    },
+    "surface-capture-observations.json": {
+      "sha256": "8aa9a9ba8216de5be21b61b9f914992a05168ad49a9e2c8b2aa769ef9ffa366f",
+      "size": 24534
+    },
+    "view-capture-diagnostic.mjs": {
+      "sha256": "3d489b67dee5467f246f6318dc06ca0375284249328bdeaffe8990f650d9aa11",
+      "size": 3737
+    },
+    "view-capture-observations.json": {
+      "sha256": "3c0bcd6cbfa8b04328df845351975cbb48794bb14aca433d25e9e9c2a43e1ad0",
+      "size": 24916
+    }
+  },
+  "reproduction_note": "Original diagnostic scripts retained verbatim. They expect the original workspace-relative Chrome executable and evidence directories; adapt those local paths when reproducing."
+}

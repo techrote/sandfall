@@ -2,8 +2,10 @@
 
 **Disposition:** the original coordinate/input blocker is reproduced from its
 retained evidence and corrected in the browser harness. The unchanged, verified
-compatibility export passes a local real-Chrome run. Exact committed CI results
-are recorded below when available. **PR #2 remains draft and unmerged.**
+compatibility export passes the original 800 × 450 case in exact committed CI.
+The additional DPR-2 case exposed a separate screenshot/input race; its evidence
+and correction are recorded below, pending the corrected terminal matrix.
+**PR #2 remains draft and unmerged.**
 
 ## Live reconciliation and authority
 
@@ -71,6 +73,39 @@ the off-canvas pointer valid. No application input defect was demonstrated.
 The original 3.44% bright pixels and 37 colours sampled menu/UI pixels in a
 generic screen region. They were **not material-viewport rendering proof**.
 
+## DPR-2 screenshot/input race
+
+The first corrected CI run, `41126992330` at
+`476619679b13505e788404e300eb21777636d56e`, passed the original DPR-1 case
+but failed the additional DPR-2 case. The latter requested the correct CSS
+Continue point `(201.25, 300)`; trusted canvas events arrived at
+`(100.625, 150)`. Focus, canvas bounds and DPR were correct. An optional initial
+menu surface screenshot had exceeded its 60-second CDP promise deadline, and
+the harness then sent input while Chromium's underlying capture remained active.
+
+An independent Chrome **156.0.8078.79** blank-page experiment reproduced the
+same effect without Godot. During four of four surface-capture overlaps, the
+pointer arrived at half the requested CSS coordinates. Before capture and
+after completion it arrived correctly. Four view-capture (`fromSurface:false`)
+controls also delivered correct coordinates during overlap. The observed DOM
+viewport/DPR values remained unchanged throughout.
+
+The [raw diagnostic observations, original scripts and hashes](sf-m0-2026-10-30/diagnostic-manifest.json)
+are committed evidence. These are diagnostic experiments, not Sandfall
+acceptance. Chromium's
+[current capture implementation](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/content/browser/devtools/protocol/page_handler.cc)
+(observed blob `bd840dee1d34d9c23f1f4786e2b4e63995250782`) independently
+corroborates temporary emulation changes and restoration on the capture callback;
+the installed-runtime experiment establishes the actual behavior here.
+
+The second correction leaves coordinate mathematics unchanged. All genuine
+input and pause checks finish before the terminal world screenshot. A guard
+forbids subsequent input, and a failed capture cannot launch another overlapping
+capture. Acceptance also requires trusted DOM pointer coordinates to match both
+intended CSS targets. The larger software-rendered DPR-2 surface has a bounded
+150-second capture budget and 900-second overall harness budget; no assertion
+or required tick count is weakened. Failed screenshots remain failures.
+
 ## Correction and executable acceptance
 
 The correction changes the harness, source verifier, tests and CI only:
@@ -103,6 +138,10 @@ The CI matrix covers the original **800 × 450 / DPR 1** shape and
 Failures retain screenshots/JSON/logs and cannot be converted to success by a
 diagnostic intervention. The overall process and individual CDP operations are
 bounded; input is sent once so late acknowledgements cannot double-toggle menus.
+Screenshots follow all input; a JavaScript/CDP timeout is not cancellation of
+an in-flight Chromium capture. The original coupled-fixture and both failed
+browser artifacts are copied unchanged into subsequent CI evidence, with
+origin/hash receipts that distinguish preserved executions from the current run.
 
 Regression coverage includes the original offscreen click, both letterboxing
 directions, offset canvases, differing DPR/backing policies, screenshot scaling,
@@ -158,9 +197,43 @@ and confirms **164 tests passed** at `63527569...`.
 
 ## Exact committed CI receipts
 
-Pending the first push of this correction. Record actual harness commit, run,
-job and artifact IDs here after terminal results; do not treat queued jobs or
-draft workflow skips as passes.
+### First correction: `476619679b13505e788404e300eb21777636d56e`
+
+| Gate | Terminal result and retained receipt |
+|---|---|
+| Ordinary 800 × 450 / DPR 1 | **PASS** — [job 124307960792](https://github.com/techrote/sandfall/actions/runs/41126992330/job/124307960792), [artifact 13011307729](https://github.com/techrote/sandfall/actions/runs/41126992330/artifacts/13011307729) |
+| Ordinary 640 × 400 / DPR 2 | **FAIL** — [job 124307960289](https://github.com/techrote/sandfall/actions/runs/41126992330/job/124307960289), [artifact 13011023580](https://github.com/techrote/sandfall/actions/runs/41126992330/artifacts/13011023580); capture/input race described above |
+| Focused native render/coupling/lifecycle | **PASS** — [job 124307960749](https://github.com/techrote/sandfall/actions/runs/41126992330/job/124307960749), [artifact 13011725580](https://github.com/techrote/sandfall/actions/runs/41126992330/artifacts/13011725580); 12 tests, C-header and lifecycle executables, 117 stable input hashes |
+| Documentation/provenance reconciliation | **PASS, narrow scope** — [run 41127001296](https://github.com/techrote/sandfall/actions/runs/41127001296), [artifact 13011037420](https://github.com/techrote/sandfall/actions/runs/41127001296/artifacts/13011037420); all 18 LFS payloads verified, original six/eight failures retained |
+
+The overall ordinary workflow is **failed** at this commit because DPR 2 failed.
+Its DPR-1 PASS is genuine: Continue closed the menu, normal advancement reached
+tick 20, Escape reopened and held at 22, Continue resumed to 26, and P paused
+at 28 through screenshot capture. Native material movement was 25,244; paint
+commands and render rejections were zero. All 19 HTTP-delivered export/manifest
+hashes and the three executing JavaScript hashes matched the verified receipt.
+
+The DPR-1 actual world interior was x `[128,672)`, y `[109,413)`: 55,328 sampled
+pixels, **33.4189% bright**, 23.0462% colourful, **467 quantized colours**.
+Screenshot SHA-256:
+`04532c2705d37ac3ea552bb38b055f40ca730d977d58913d5a798a1012409b87`.
+Browser receipt SHA-256:
+`132c387e8c57896eb0d549efb63c196acc3573b70d065bd72c6862ead342ecd6`.
+
+| Artifact ZIP | SHA-256 |
+|---|---|
+| DPR 1 / 13011307729 | `c1de4b883fa87dac4852acd480ea6bcd5f8485783ba33c95dc66c8d15bab7728` |
+| DPR 2 failure / 13011023580 | `e7291cf0c5210813e4bd530e09d75a9328d02fa2b2a1e60da9b639726858f554` |
+| Focused native / 13011725580 | `d11947fda17ec6910bc309e9c13e7221c6faf7cb7f026470fd1c029a0e7893f4` |
+| Documentation / 13011037420 | `199453cabb63533147dca781c8a36561669378a1b321ca9181a3c3d0c7112fff` |
+
+Each browser matrix job also passed 20 Python regressions (seven reconciliation,
+13 artifact-verifier), nine geometry cases, five PNG cases and the CI-provider
+policy. The native JSON receipt hash is
+`f0de5471d8a474a1016833ecac3a23e055ae980c1cc30b5105e22b1fa73e9816`.
+Artifacts have 30-day retention. Skipped inherited draft workflows are not
+acceptance passes. The capture-sequencing correction requires a new terminal
+matrix before SF-M1 implementation begins.
 
 ## Remaining qualification boundaries and next milestone
 
@@ -177,10 +250,18 @@ reconciliation is permission to qualify a fresh source-matched Web build; it
 does not qualify those desktop binaries. No missing files or historical hashes
 were fabricated or rewritten.
 
-**Threaded Web:** no new source-matched threaded build/browser matrix was run in
-this checkpoint. Cross-origin isolation in a one-worker compatibility run is
-not threaded acceptance. **Human visual acceptance:** outstanding; a person
-must review scene legibility and pacing before exhibition qualification.
+**Threaded Web:** not executed or qualified in this checkpoint; no environmental
+impossibility is claimed. The outstanding gate is an exact-source threaded
+export with pinned modules/templates, secure COOP/COEP deployment, actual
+cross-origin isolation and worker-policy observations, coupled 600-tick
+acceptance, ordinary input/rendering, and retained hashes/logs/screenshots.
+Cross-origin isolation in a one-worker compatibility run is not threaded
+acceptance. The complete v1 profile matrix remains SF-M5.
+
+**Human visual acceptance:** outstanding; a person must review a Gallery scene's
+legibility and pacing before exhibition qualification. Record source/export,
+scene, browser/device, reviewer/date and disposition. Automated screenshot
+inspection and the inherited bootstrap do not establish final Gallery acceptance.
 
 After the executable ordinary-Web CI gates pass, proceed with the bounded
 [SF-M1 host/input-cut plan](../SF-M1-HOST-INPUT-CUT.md). Full MZPaint authoring and

@@ -121,8 +121,11 @@ cannot autoplay a half-installed scene. Both entries work through real UI input.
 
 Preserve the specification's
 [fixed-tick sequencing and failure boundary](SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md#32-fixed-tick-sequencing-and-failure-boundary):
-terrain readiness, eligible prior feedback, one manual Rapier step, body samples,
-one native tick, then copied render publication. Keep the fixed step at 1/60 s.
+terrain readiness, eligible prior feedback, one manual Rapier step and body
+samples when the bridge is active, one native tick, then copied render
+publication. An inactive bridge supplies empty coupling and performs no Rapier
+step, as specified in [physics time](SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md#71-physics-time).
+Keep the fixed step at 1/60 s.
 This task adds no asynchronous Web solver or new body-capacity claim.
 
 Expose camera pan/zoom, Run/Pause, exact Step, Reset and Reset & Edit through
@@ -132,8 +135,10 @@ physics. Fault stops future advancement and clears pending input/step requests;
 do not claim atomic rollback after one solver has already advanced.
 
 **Accept when:** pause leaves both solver counts unchanged across normal browser
-frames; one accepted Step adds exactly one native and one Rapier step; a held
-or repeated key does not create unintended extra requests; camera-only changes
+frames; one accepted Step adds exactly one native tick and, only when the bridge
+is active, one Rapier step, then remains paused. Test both the empty/inactive
+bridge and body-bearing/active bridge cases. A held or repeated key does not
+create unintended extra requests; camera-only changes
 do not alter physics state. Reset reconstructs the source-defined initial
 material payload and body poses at tick zero with cleared pending feedback,
 masks and input, then follows the entry's readiness/start policy. Reset & Edit

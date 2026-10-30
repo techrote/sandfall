@@ -13,7 +13,7 @@ const port = Number(argv.get("--port") || "9231");
 const url = argv.get("--url") || "http://127.0.0.1:8040/?test=1";
 const output = resolve(argv.get("--output") || "sf-m0-ordinary/browser.json");
 const screenshotPath = resolve(argv.get("--screenshot") || "sf-m0-ordinary/browser.png");
-const timeoutMs = Number(argv.get("--timeout-ms") || "480000");
+const timeoutMs = Number(argv.get("--timeout-ms") || "900000");
 const width = Number(argv.get("--width") || "800");
 const height = Number(argv.get("--height") || "450");
 const dpr = Number(argv.get("--dpr") || "1");
@@ -39,6 +39,7 @@ const failures = [];
 const servedIdentity = [];
 let ws, nextId = 0, state = null, metrics = null, domInputEvents = [], phase = "startup";
 let pollErrors = 0, initialTick = null, firstAdvanceTick = null, menuPauseTick = null;
+let captureStarted = false;
 const pending = new Map();
 
 const cmd = (method, params = {}, deadlineMs = 30000) => new Promise((resolve, reject) => {
@@ -115,6 +116,10 @@ async function waitFor(label, predicate, budgetMs = 90000) {
 }
 
 async function input(method, params) {
+  // Chromium surface capture temporarily changes input scaling at DPR > 1.
+  // A timed-out CDP promise does not cancel the underlying capture. Therefore
+  // all captures are terminal with respect to input, even diagnostic captures.
+  if (captureStarted) throw Error("Browser input cannot follow screenshot capture");
   const event = {elapsed_ms:Date.now()-started,phase,method,params,acknowledged:false};
   inputEvents.push(event);
   // An acknowledgement is diagnostic, not an acceptance criterion. Send each
@@ -146,10 +151,13 @@ async function key(key, code, keyCode) {
 }
 
 async function capture(name, scoreWorld = false) {
+  captureStarted = true;
   const snap = {name,phase,elapsed_ms:Date.now()-started,state,metrics};
   captures.push(snap);
   try {
-    const r = await cmd("Page.captureScreenshot", {format:"png",fromSurface:true}, 60000);
+    // A 1280x800 SwiftShader readback can exceed 60 seconds. Keep it bounded
+    // without racing subsequent input against an unfinished Chromium capture.
+    const r = await cmd("Page.captureScreenshot", {format:"png",fromSurface:true}, 150000);
     const bytes = Buffer.from(r.data,"base64");
     const path = name === "world" ? screenshotPath : screenshotPath.replace(/\.png$/, "-"+name+".png");
     mkdirSync(dirname(path),{recursive:true});
@@ -238,7 +246,8 @@ try {
     throw Error("Unexpected ordinary compatibility startup state");
   if (state.tick!==0) throw Error("Initial menu advanced simulation before Continue");
   initialTick=state.tick;
-  await capture("menu");
+  // Capture only after the final genuine input and stable pause. Capturing the
+  // initial menu can leave DPR emulation changed after a CDP timeout.
   phase="first-continue-click";
   await clickContinue();
   await waitFor("first-continue-closed",s=>s.menu===false);
@@ -269,15 +278,24 @@ try {
   const world=captures.find(c=>c.name==="world");
   if (!world?.pixels || world.pixels.bright_fraction<.008 || world.pixels.unique_4bit_rgb<8)
     throw Error("Actual world viewport is blank or insufficiently varied: "+JSON.stringify(world?.pixels));
-  const trustedPointer=domInputEvents.filter(e=>e.isTrusted&&e.type==="pointerdown"&&e.target==="CANVAS");
+  const trustedPointer=domInputEvents.filter(e=>e.isTrusted&&e.type.startsWith("pointer")&&e.target==="CANVAS");
   const trustedKey=domInputEvents.filter(e=>e.isTrusted&&e.type==="keydown"&&e.target==="CANVAS");
-  if (trustedPointer.length!==2 || !trustedKey.some(e=>e.key==="Escape") || !trustedKey.some(e=>e.code==="KeyP"))
+  if (trustedPointer.length!==4 || !trustedKey.some(e=>e.key==="Escape") || !trustedKey.some(e=>e.code==="KeyP"))
     throw Error("Missing independently observed trusted pointer/keyboard delivery to canvas");
+  const targets=inputEvents.filter(e=>e.action==="continue-target");
+  for (let i=0;i<trustedPointer.length;i++) {
+    const event=trustedPointer[i], target=targets[Math.floor(i/2)]?.mapped.center;
+    if (!target || !event.focused || event.type!==(i%2?"pointerup":"pointerdown") ||
+        Math.abs(event.x-target.x)>1 || Math.abs(event.y-target.y)>1)
+      throw Error("Trusted canvas pointer differs from the intended CSS target");
+  }
   if (state.paint_commands!==0) throw Error("UI clicks unexpectedly painted into the simulation");
 } catch (error) {
   failures.push(String(error));
   console.error("SF_M0_ORDINARY_FAILURE",String(error));
-  if (ws?.readyState===WebSocket.OPEN) await capture("failure");
+  // A CDP timeout does not cancel capture. Do not start a second overlapping
+  // screenshot, or issue any further input, after the first capture began.
+  if (ws?.readyState===WebSocket.OPEN && !captureStarted) await capture("failure");
 } finally {
   const evidence={schema:"sandfall-sf-m0-ordinary-visual-v2",url,
     observed_at:new Date().toISOString(),duration_ms:Date.now()-started,
