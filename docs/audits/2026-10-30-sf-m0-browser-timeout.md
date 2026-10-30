@@ -1,6 +1,6 @@
 # SF-M0 — Browser timeout and imported-CI provenance, 2026-10-30
 
-**Status: Investigating; original browser qualification FAILED. No full Web/Rapier acceptance, no clean inherited documentation check and no merged PR.**
+**Status: Original 240-second run failed; a separately source-matched frozen-artifact 600-tick browser requalification subsequently PASSED. Exact-latest-HEAD Web rebuild, full release/provenance clearance and PR merge remain separate gates.**
 
 ## Actual retained browser evidence
 
@@ -101,3 +101,29 @@ On [SF-M0 run #41111665444](https://github.com/techrote/sandfall/actions/runs/41
 The inherited complete native `make test` suite separately timed out on prior 900-second runs while producing passing subgroup results. Extending its independent fixed bound to 2400 seconds is not a test bypass; a complete exit-0 is still required to claim full-suite acceptance. Scoped native smoke [run #41111311098](https://github.com/techrote/sandfall/actions/runs/41111311098) passed on the separately scoped triage branch and is **not** a substitute for the full run at this branch head.
 
 The strict Sandfall documentation/reconciliation check had already passed at **4d3e7f4b8e592a363d3bbccfc22ede3404ab2026** ([run #41111990171](https://github.com/techrote/sandfall/actions/runs/41111990171)), retaining all six missing-workspace references and eight historical desktop runtime/source digest mismatches. The user has prohibited merging PR #2 while browser qualification remains red.
+
+## 2026-10-30 — Exact preserved Web binary passes the full 600-step browser fixture
+
+**Successful independent browser retest:** [Actions run #41115365746](https://github.com/techrote/sandfall/actions/runs/41115365746), workflow source **761ad79b000df6ee3d185e2238160c4d75bcf12b**. The runner downloaded **immutable previously built Web artifact #13003989008** from failing [run #41111665444](https://github.com/techrote/sandfall/actions/runs/41111665444), verified its archive SHA-256 **d6596493e321329bd49ae3e13cd72b4cc93fb20711d639dde16a3f2611dfbd51**, and checked every one of **18** exported SHA256SUMS entries. Original Web export was constructed from source **98722560be89ccc3ab84eb3d526c5dde99c5cab0** (Rapier2D v0.35.2; compatibility/one worker). Retest did **not** rebuild or silently relabel that binary as latest-HEAD output.
+
+**Actual HeadlessChrome 156 / Linux / Web runtime observations:**
+
+| Proof | Actual observation |
+|---|---|
+| Browser, Rapier WASM, native C++ capability and exception preflight | All six startup flags true |
+| Full coupled physics fixture | `rapier_test.ok: true`; 600 of 600 native/Rapier steps |
+| Native material/body contacts | **106,717** |
+| Native material displacements | **149** |
+| Maximum floor-body centre Y | **160.317276**, below admitted limit **161.0** |
+| Pause/menu / save-import / reset fixtures | No reported failures; complete fixture returned `failures: []` |
+| Thread profile | Compatibility, **one native worker** |
+| Wall-clock progress | SF-M0 completion phase at **210,288 ms**; terminal evidence retained |
+| Result artifact | [#13004833328](https://github.com/techrote/sandfall/actions/runs/41115365746/artifacts/13004833328); SHA-256 **8b4736759f8f8859bcdde625239255a2c2bccb76dee9d122a7867cce5de7460b** |
+
+This **decisively demonstrates the original red Web result was caused by an insufficient 240-second harness budget on a slow software-rendered browser**, not by a physics deadlock in that exact binary. The retest retained the 600-tick, positive-coupling and save/restore acceptance tests, with the unchanged 90-second no-progress guard. The result does **not** prove a new binary built at subsequent Sandfall commits, a visual pixel-appearance gate, threaded Web, 16-body capability or full cross-platform determinism.
+
+**Native:** The previously unfinished [run #41111665444](https://github.com/techrote/sandfall/actions/runs/41111665444) later reported **164 native tests passed**, full native job success, on source **98722560be89ccc3ab84eb3d526c5dde99c5cab0**. The workflow overall remained red only because its prior 240s browser job failed. In retest #41115365746, the **current-head scoped native smoke passed** separately; it cannot substitute for the complete native suite at a newer exact HEAD.
+
+**Docs:** Active Sandfall documentation/provenance passed on [run #41111990171](https://github.com/techrote/sandfall/actions/runs/41111990171) and later heads, under the explicit six inherited absent-workspace and eight stale desktop-runtime error reconciliation. They were recorded, not rewritten as historical passes.
+
+**Hold:** PR #2 stays draft/unmerged, and the new source-built Web workflow with the corrected wall-clock budget is independently required for latest-source qualification. Do not promote a source-matched frozen artifact result into a stronger release or physics claim.
