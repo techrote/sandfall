@@ -31,11 +31,8 @@ func _run() -> void:
 		CyberMaterialAppearanceLut.FLAIR_CLASS_COUNT == 50,
 		"expanded GPU flair class count changed"
 	)
-	_expect(
-		int(ProjectSettings.get_setting("display/window/size/viewport_width")) == 1920 and
-			int(ProjectSettings.get_setting("display/window/size/viewport_height")) == 1080,
-		"default output viewport is not 1920x1080"
-	)
+	# Application viewport policy is tested by its entry/host suite. It does
+	# not change palette compilation; Sandfall and Web use a 1280x800 layout.
 
 	var atlas: Image = CyberMaterialAppearanceLut.create_texture().get_image()
 	_expect(

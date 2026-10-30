@@ -38,6 +38,7 @@ export function assertOrdinaryState(state, { requireReady = true } = {}) {
     assert.equal(state.workers, 1, "This receipt qualifies compatibility Web with exactly one native worker");
     integer(state.tick, "native tick");
     integer(state.rapier_steps, "Rapier step");
+    integer(state.native?.native_revision, "live native revision");
     integer(state.generation, "session generation");
     assert.ok(state.simulation_interest && typeof state.simulation_interest === "object",
       "Camera-independent simulation interest was not observed");
@@ -87,6 +88,11 @@ export function assertPausedStable(before, after, { camera = false } = {}) {
   assert.equal(after.tick, before.tick, "Native ticks advanced during pause/camera/input-only work");
   assert.equal(after.rapier_steps, before.rapier_steps, "Rapier advanced during pause/camera/input-only work");
   assert.equal(after.current_hash, before.current_hash, "Material payload changed during pause/camera/input-only work");
+  // Material hashes are cached at lifecycle boundaries. The independently
+  // refreshed native revision rejects a mutation even if that cached hash did
+  // not change between two paused browser observations.
+  assert.equal(after.native.native_revision, before.native.native_revision,
+    "Live native revision changed during pause/camera/input-only work");
   assert.equal(after.definition_hash, before.definition_hash, "Initial definition changed outside explicit selection");
   assert.equal(after.initial_hash, before.initial_hash, "Initial native payload changed outside explicit selection");
   samePhysicalValue(after.body_poses, before.body_poses, "paused body poses");

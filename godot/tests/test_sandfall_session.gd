@@ -184,6 +184,12 @@ func _partial_fault() -> void:
 func _dedicated_entry() -> void:
 	_expect(str(ProjectSettings.get_setting("application/run/main_scene")) == "res://sandfall_main.tscn",
 		"Project still starts an inherited host")
+	_expect(int(ProjectSettings.get_setting("display/window/size/viewport_width")) == 1280
+		and int(ProjectSettings.get_setting("display/window/size/viewport_height")) == 800
+		and int(ProjectSettings.get_setting("display/window/size/window_width_override")) == 1280
+		and int(ProjectSettings.get_setting("display/window/size/window_height_override")) == 800
+		and str(ProjectSettings.get_setting("display/window/stretch/mode")) == "canvas_items",
+		"Dedicated Sandfall layout does not use the source-bound 1280x800 canvas_items contract")
 	_expect(not ProjectSettings.has_setting("autoload/FeatureNavigation"), "Inherited launcher autoload retains authority")
 	var scene: PackedScene = load("res://sandfall_main.tscn")
 	var app: Control = scene.instantiate()

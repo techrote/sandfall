@@ -133,9 +133,46 @@ outside-release negatives and a nonblank screenshot inside the actual world
 viewport. Input finishes before the sole terminal screenshot. Raw failure and
 success logs, observations, screenshots and hashes are retained by the jobs.
 
-**At this first implementation checkpoint the fresh export and complete browser
-matrix are pending.** Source implementation and local lifecycle PASS are not yet
-complete SF-M1 Web qualification.
+### First committed-source export refusal
+
+The first implementation commit is
+`3be1c34c932d3db056dc1974eb7ce5f911f6b125` on
+[stacked draft PR #3](https://github.com/techrote/sandfall/pull/3). Its source and
+focused-native job passed in
+[run 41138966322](https://github.com/techrote/sandfall/actions/runs/41138966322),
+job `124348276507`, artifact `13017516804`, ZIP SHA-256
+`21a7abacb5c21223024bb87df973e2dbc83a816255f45a4288bc9d4d183cd0c0`.
+The artifact contains 42 Python tests, two separate legacy staging tests and
+twelve focused native executables with their actual logs/input hashes.
+Documentation/provenance passed narrowly in
+[run 41139007203](https://github.com/techrote/sandfall/actions/runs/41139007203),
+artifact `13017931144`, ZIP SHA-256
+`a77b045743bd6cd67a519906192548f8dde1a696448cee9c609dad6d2e175d1b`.
+
+The **fresh export attempt at `3be1c34c` failed honestly before producing its PCK**:
+native WASM/Linux compilation and Godot import passed, as did eleven Godot cell
+interaction tests, but the inherited material-appearance test hard-coded the old
+1920×1080 application viewport. Sandfall and Web staging use 1280×800. The full
+failed compile/import/test log is retained at
+`evidence/sf-m1-3be1c34c/sandfall-export-and-godot-tests.log` in the execution
+workspace; the CI run independently retains its failure artifacts.
+
+The correction moves the unrelated layout assertion to the dedicated application
+entry test, where all four 1280×800 dimensions and `canvas_items` are asserted.
+Every palette assertion remains: all 132 ID slots, all 256 palette/program rows,
+50 flair classes and native material acceptance. No synthetic 1920×1080 project
+is substituted for the actual Sandfall project. Changed Godot tests are build
+inputs, so a new commit and fresh export are required.
+
+Independent review also found that a cached material hash alone could conceal a
+paused input mutation. Browser stability now additionally requires equality of
+the live native revision and has a negative test that changes the revision while
+leaving the cached hash unchanged. Real legacy keys and left/right world-pointer
+events are checked in paused Run as well as Edit. Receipts identify committed
+versus working-tree harness files and retain their actual SHA-256 values.
+
+**Fresh export and complete ordinary-browser qualification remain pending.**
+Source implementation and local lifecycle PASS do not close those gates.
 
 ## Explicit remaining scope and inherited limitations
 

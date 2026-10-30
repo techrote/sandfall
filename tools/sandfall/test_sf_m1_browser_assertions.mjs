@@ -15,6 +15,7 @@ function state(overrides = {}) {
     body_poses:[[1,2,0,0,0,0,false],[3,4,0,0,0,0,false],[5,6,0,0,0,0,false]],
     initial_body_poses:[[1,1,0,0,0,0,false],[3,3,0,0,0,0,false],[5,5,0,0,0,0,false]],
     actor_count:0,paint_commands:0,render_rejections:0,pending_steps:0,
+    native:{native_revision:41},
     input:{held_keys:[],pointer_buttons:0,gesture_active:false,pending_ui_gestures:0,clear_serial:2},
     camera:{origin:[0,0],zoom:1},simulation_interest:{origin:[0,0],size:[480,270]},
     moves:10,contacts_total:3,displaced_total:5,...overrides};
@@ -39,6 +40,7 @@ test("paused camera may move presentation but cannot mutate cells, bodies or int
   const before = state();
   assertPausedStable(before,state({camera:{origin:[20,0],zoom:1.2}}));
   assert.throws(()=>assertPausedStable(before,state({current_hash:hash})),/Material payload changed/);
+  assert.throws(()=>assertPausedStable(before,state({native:{native_revision:42}})),/Live native revision changed/);
   assert.throws(()=>assertPausedStable(before,state({simulation_interest:{origin:[20,0],size:[480,270]}})),/simulation interest/);
   const changed = structuredClone(before);
   changed.body_poses[0][0] += 1;
@@ -64,6 +66,7 @@ test("Edit refuses solver advancement and actor authority is always a failure", 
   assert.throws(()=>assertEdit({...edit,tick:1}),/advanced in Edit/);
   assert.throws(()=>assertEdit({...edit,rapier_steps:1}),/Rapier advanced in Edit/);
   assert.throws(()=>assertOrdinaryState(state({actor_count:1})),/actor\/controller/);
+  assert.throws(()=>assertOrdinaryState(state({native:{}})),/live native revision/);
   assert.throws(()=>assertOrdinaryState(state({rapier_test:{success:true}})),/Special Rapier/);
 });
 

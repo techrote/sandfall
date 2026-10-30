@@ -3,9 +3,11 @@
 // read-only. Every state transition below uses genuine CDP browser input; this
 // harness cannot call a Godot command, edit a tick, or set acceptance success.
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { analyzePng, pngDimensions } from "./sf_m0_png_stats.mjs";
 import { mapGodotRect, cssRectToScreenshotROI } from "./sf_m0_geometry.mjs";
 import {
@@ -42,6 +44,12 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const copy = value => structuredClone(value);
 const harnessInputs = ["sf_m1_browser.mjs", "sf_m1_browser_assertions.mjs", "sf_m0_geometry.mjs", "sf_m0_png_stats.mjs"]
   .map(path => ({path, sha256:sha256(readFileSync(new URL(path, import.meta.url)))}));
+const repoRoot = fileURLToPath(new URL("../../",import.meta.url));
+const harnessHead = execFileSync("git",["-C",repoRoot,"rev-parse","HEAD"],{encoding:"utf8"}).trim();
+const dirtyHarness = execFileSync("git",["-C",repoRoot,"status","--porcelain","--",
+  ...harnessInputs.map(value=>"tools/sandfall/"+value.path)],{encoding:"utf8"}).trim().split("\n").filter(Boolean);
+const harnessCheckout = {head_commit:harnessHead,
+  identity_kind:dirtyHarness.length ? "working-tree-harness" : "committed-harness",dirty_paths:dirtyHarness};
 const started = Date.now();
 const observations = [], consoleEvents = [], inputEvents = [], expectedDOM = [];
 const captures = [], transitions = [], checks = [], checkpoints = [], failures = [], servedIdentity = [];
@@ -96,6 +104,7 @@ async function observe() {
   const sample = {elapsed_ms:Date.now()-started,phase,frame:state.frame,app_ready:state.app_ready,
     ready:state.ready,entry:state.entry,scene_id:state.scene_id,mode:state.mode,
     generation:state.generation,menu:state.menu,paused:state.paused,tick:state.tick,
+    native_revision:state.native?.native_revision,
     rapier_steps:state.rapier_steps,rapier_active:state.rapier_active,moves:state.moves,
     contacts_total:state.contacts_total,displaced_total:state.displaced_total,
     workers:state.workers,actor_count:state.actor_count,pending_steps:state.pending_steps,
@@ -214,6 +223,29 @@ async function keyEvent(type, key, code, keyCode, {repeat = false} = {}) {
 async function key(key, code, keyCode) {
   await keyEvent("keyDown",key,code,keyCode);
   await keyEvent("keyUp",key,code,keyCode);
+}
+
+async function legacyKeys() {
+  for (const [keyValue,code,keyCode] of [["w","KeyW",87],["a","KeyA",65],["s","KeyS",83],
+      ["d","KeyD",68],[" ","Space",32],["e","KeyE",69],["q","KeyQ",81],["Shift","ShiftLeft",16]])
+    await key(keyValue,code,keyCode);
+}
+
+async function worldClick(button) {
+  await observe();
+  const point = worldPoint();
+  const startIndex = domInputEvents.length;
+  const mask = button === "left" ? 1 : 2;
+  const domButton = button === "left" ? 0 : 2;
+  inputEvents.push({action:`world-${button}-no-tool`,elapsed_ms:Date.now()-started,
+    world_godot:state.view,point,metrics:copy(metrics)});
+  await input("Input.dispatchMouseEvent",{type:"mouseMoved",...point,buttons:0});
+  await input("Input.dispatchMouseEvent",{type:"mousePressed",button,buttons:mask,...point,clickCount:1});
+  await input("Input.dispatchMouseEvent",{type:"mouseReleased",button,buttons:0,...point,clickCount:1});
+  await observe();
+  for (const type of ["pointerdown","pointerup"])
+    expectedDOM.push({action:`world-${button}-no-tool`,type,button:domButton,...point,
+      start_index:startIndex,end_index:domInputEvents.length});
 }
 
 function worldPoint(dx = 0, dy = 0) {
@@ -391,9 +423,7 @@ try {
   await stable("disabled-Edit-Step-does-not-advance",nativeInitial);
   check("Edit-Step-refused",()=>assertEdit(state));
   phase = "legacy-actor-keys-in-Edit";
-  for (const [keyValue,code,keyCode] of [["w","KeyW",87],["a","KeyA",65],["s","KeyS",83],
-      ["d","KeyD",68],[" ","Space",32],["e","KeyE",69],["q","KeyQ",81],["Shift","ShiftLeft",16]])
-    await key(keyValue,code,keyCode);
+  await legacyKeys();
   await stable("legacy-keys-have-no-actor-or-world-authority",nativeInitial,{camera:true});
   check("legacy-input-left-no-held-authority",()=>assertInputClear(state));
 
@@ -504,6 +534,14 @@ try {
   await cmd("Target.closeTarget",{targetId:secondaryTarget});
   secondaryTarget = null;
 
+  const pausedLegacyBaseline = checkpoint("before-paused-Run-legacy-and-paint-input");
+  phase = "legacy-actor-and-pointer-paint-paths-in-paused-Run";
+  await legacyKeys();
+  await worldClick("left");
+  await worldClick("right");
+  await stable("paused-Run-legacy-keys-and-pointers-cannot-mutate-native-world",pausedLegacyBaseline,{camera:true});
+  check("paused-Run-negative-input-leaves-no-held-authority",()=>assertInputClear(state));
+
   // Modal entry retires an in-progress real pointer gesture. Continue preserves
   // an existing user pause and cannot replay the gesture through the modal.
   const modalPhysical = checkpoint("before-modal-gesture");
@@ -581,7 +619,7 @@ try {
     duration_ms:Date.now()-started,status:failures.length ? "failed" : "passed",failures,
     deadlines_ms:{phase_wait_total:timeoutMs,capture:150000,post_capture_observation:30000,cleanup:5000},
     requested_viewport:{width,height,dpr},browser_version:browserVersion,logical_viewport:layout,
-    served_identity:servedIdentity,harness_inputs:harnessInputs,
+    served_identity:servedIdentity,harness_inputs:harnessInputs,harness_checkout:harnessCheckout,
     verification:{path:verificationPath,sha256:sha256(verificationBytes),
       build_source_commit:verification.build_source_commit,harness_source_commit:verification.harness_source_commit,
       source_equivalence:verification.source_equivalence},
