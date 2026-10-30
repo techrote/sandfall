@@ -1,0 +1,67 @@
+name: SF-M0 browser triage against retained immutable Web artifact
+
+on:
+  push:
+    branches:
+      - sf-m0/browser-triage-20261030
+    paths:
+      - .github/workflows/sf-m0-browser-triage.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  actual-browser-triage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout isolated diagnostic scripts
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 1
+          lfs: false
+      - name: Download exactly the original source-built Web package and failure logs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m0-compat-web
+          run-id: 41108783470
+          github-token: ${{ github.token }}
+          path: .
+      - name: Reverify immutable source and package integrity
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib
+          root=pathlib.Path("build/web")
+          j=json.loads((root/"build-info.json").read_text())
+          assert j["source_commit"]=="5a2f6868aa8dbcb10febc6d3af2a2debfa246c18"
+          assert j["rapier"]=="0.35.2" and j["profile"]=="compat"
+          for line in (root/"SHA256SUMS").read_text().splitlines():
+              h,p=line.split("  ",1)
+              assert hashlib.sha256((root/p).read_bytes()).hexdigest()==h,p
+          print("REUSED_SOURCE_MATCHED_WEB_EXPORT",j["source_commit"])
+          PY
+      - name: Run independent bounded Chromium startup and tick-progress triage
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sf-m0-triage
+          python3 build/web/serve_web.py --directory build/web --port 8035 >sf-m0-triage/http.log 2>&1 &
+          CHROME="$(command -v google-chrome-stable || command -v google-chrome)"
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
+            --remote-debugging-port=9228 \
+            --user-data-dir="$RUNNER_TEMP/sf-m0-browser-triage" about:blank >sf-m0-triage/chrome.log 2>&1 &
+          node tools/sandfall/sf_m0_browser_triage.mjs \
+            --port 9228 --url 'http://127.0.0.1:8035/?test=1&rapier=1' \
+            --duration-ms 110000 \
+            --output sf-m0-triage/browser.json --screenshot sf-m0-triage/browser.png
+      - name: Retain raw diagnostic observations
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m0-compat-browser-triage
+          path: sf-m0-triage/
+          retention-days: 14
+          if-no-files-found: warn
