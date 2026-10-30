@@ -1,0 +1,1 @@
+PASS soliding lifecycle model: 384 complete transitions, 12 prepare/ack/commit guard refusals, 8 finalize quarantine guards, exact tuple/owner ledger, stale/cancel/capacity/exhaustion, eligibility/exclusion/quarantine

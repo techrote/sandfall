@@ -26,14 +26,16 @@ Portable **.sandfall** files are ordinary **ZIP archives containing a structured
 
 The exact CyberSand history is imported. A source-matched compatibility Web
 export and 600-tick native/Rapier fixture passed, as did the full 164-test native
-suite. The ordinary browser coordinate defect is corrected in the test harness;
-the first real-Chrome retest resumed through Continue, advanced 28 ticks,
-responded to Escape/P and rendered visible material content. Exact CI receipts,
-original failures and remaining qualification boundaries are in the
+suite. The ordinary browser blocker is resolved at `86f4c942...`: both
+800 × 450 / DPR 1 and 640 × 400 / DPR 2 passed real Continue/Escape/P input,
+advanced at least 18 / 24 normal native ticks and captured visible material
+content within the actual world viewport. Exact CI receipts, durable raw
+evidence, original failures and remaining qualification boundaries are in the
 [dated ordinary-Web audit](docs/audits/2026-10-30-sf-m0-ordinary-web.md).
 
-**Next engineering step:** complete the recorded ordinary-Web executable gates,
-then follow [SF-M1 — Sandfall application host and input cut](docs/SF-M1-HOST-INPUT-CUT.md).
+**Next engineering step:** freshly reconcile the published head, then begin the
+dedicated scene and actor-authority removal in
+[SF-M1 — Sandfall application host and input cut](docs/SF-M1-HOST-INPUT-CUT.md).
 The inherited player-capable Web scene is bootstrap evidence, not the final
 zero-player Sandfall host. Threaded Web, human exhibition review, the full
 editor, sixteen-body authoring and portable archive remain separate milestones.

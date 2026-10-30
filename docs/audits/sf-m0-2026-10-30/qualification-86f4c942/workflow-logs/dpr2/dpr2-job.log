@@ -1,0 +1,411 @@
+﻿2026-10-30T21:32:21.6585551Z Current runner version: '2.338.2'
+2026-10-30T21:32:21.6602850Z ##[group]Runner Image Provisioner
+2026-10-30T21:32:21.6603443Z Hosted Compute Agent
+2026-10-30T21:32:21.6603798Z Version: 20261021.618
+2026-10-30T21:32:21.6604230Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-30T21:32:21.6604668Z Build Date: 2026-10-21T00:45:21Z
+2026-10-30T21:32:21.6605091Z Worker ID: {facf086c-b57d-474b-b6a1-585f6bb34b18}
+2026-10-30T21:32:21.6605553Z Region: centralus
+2026-10-30T21:32:21.6605920Z Cloud: Azure
+2026-10-30T21:32:21.6606263Z ##[endgroup]
+2026-10-30T21:32:21.6607005Z ##[group]Operating System
+2026-10-30T21:32:21.6607367Z Ubuntu
+2026-10-30T21:32:21.6607723Z 24.04.5
+2026-10-30T21:32:21.6608035Z LTS
+2026-10-30T21:32:21.6608386Z ##[endgroup]
+2026-10-30T21:32:21.6608760Z ##[group]Runner Image
+2026-10-30T21:32:21.6609153Z Image: ubuntu-24.04
+2026-10-30T21:32:21.6609685Z Version: 20261025.353.1
+2026-10-30T21:32:21.6610453Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-30T21:32:21.6611342Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-10-30T21:32:21.6611892Z ##[endgroup]
+2026-10-30T21:32:21.6612599Z ##[group]GITHUB_TOKEN Permissions
+2026-10-30T21:32:21.6613941Z Actions: read
+2026-10-30T21:32:21.6614331Z Contents: read
+2026-10-30T21:32:21.6614666Z Metadata: read
+2026-10-30T21:32:21.6614988Z ##[endgroup]
+2026-10-30T21:32:21.6616274Z Secret source: Actions
+2026-10-30T21:32:21.6616843Z Cache mode: write
+2026-10-30T21:32:21.6617312Z Prepare workflow directory
+2026-10-30T21:32:21.6816246Z Prepare all required actions
+2026-10-30T21:32:21.6846177Z Getting action download info
+2026-10-30T21:32:22.1289766Z Download action repository 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683' (SHA:11bd71901bbe5b1630ceea73d27597364c9af683)
+2026-10-30T21:32:22.1995694Z Download action repository 'actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-10-30T21:32:22.6575441Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-30T21:32:22.8522873Z Complete job name: Ordinary Web 640x400 DPR2
+2026-10-30T21:32:22.9067820Z ##[group]Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+2026-10-30T21:32:22.9068378Z with:
+2026-10-30T21:32:22.9068630Z   fetch-depth: 0
+2026-10-30T21:32:22.9068889Z   lfs: false
+2026-10-30T21:32:22.9069148Z   repository: techrote/sandfall
+2026-10-30T21:32:22.9071410Z   token: ***
+2026-10-30T21:32:22.9071663Z   ssh-strict: true
+2026-10-30T21:32:22.9071924Z   ssh-user: git
+2026-10-30T21:32:22.9072196Z   persist-credentials: true
+2026-10-30T21:32:22.9072488Z   clean: true
+2026-10-30T21:32:22.9072762Z   sparse-checkout-cone-mode: true
+2026-10-30T21:32:22.9073080Z   fetch-tags: false
+2026-10-30T21:32:22.9073349Z   show-progress: true
+2026-10-30T21:32:22.9073617Z   submodules: false
+2026-10-30T21:32:22.9073886Z   set-safe-directory: true
+2026-10-30T21:32:22.9074274Z ##[endgroup]
+2026-10-30T21:32:23.1217057Z Syncing repository: techrote/sandfall
+2026-10-30T21:32:23.1218753Z ##[group]Getting Git version info
+2026-10-30T21:32:23.1219697Z Working directory is '/home/runner/work/sandfall/sandfall'
+2026-10-30T21:32:23.1220681Z [command]/usr/bin/git version
+2026-10-30T21:32:23.1296137Z git version 2.56.0
+2026-10-30T21:32:23.1310695Z ##[endgroup]
+2026-10-30T21:32:23.1319219Z Temporarily overriding HOME='/home/runner/work/_temp/30e6f8e3-7c6f-49aa-9474-60c23eef3d83' before making global git config changes
+2026-10-30T21:32:23.1320918Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T21:32:23.1322775Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sandfall/sandfall
+2026-10-30T21:32:23.1376303Z Deleting the contents of '/home/runner/work/sandfall/sandfall'
+2026-10-30T21:32:23.1379928Z ##[group]Initializing the repository
+2026-10-30T21:32:23.1384525Z [command]/usr/bin/git init /home/runner/work/sandfall/sandfall
+2026-10-30T21:32:23.1488537Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-30T21:32:23.1489702Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-30T21:32:23.1490262Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-30T21:32:23.1490702Z hint: call:
+2026-10-30T21:32:23.1490947Z hint:
+2026-10-30T21:32:23.1491293Z hint: 	git config --global init.defaultBranch <name>
+2026-10-30T21:32:23.1491664Z hint:
+2026-10-30T21:32:23.1492028Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-30T21:32:23.1492583Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-30T21:32:23.1493021Z hint:
+2026-10-30T21:32:23.1493273Z hint: 	git branch -m <name>
+2026-10-30T21:32:23.1493562Z hint:
+2026-10-30T21:32:23.1493938Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-30T21:32:23.1505789Z Initialized empty Git repository in /home/runner/work/sandfall/sandfall/.git/
+2026-10-30T21:32:23.1515189Z [command]/usr/bin/git remote add origin https://github.com/techrote/sandfall
+2026-10-30T21:32:23.1557189Z ##[endgroup]
+2026-10-30T21:32:23.1557684Z ##[group]Disabling automatic garbage collection
+2026-10-30T21:32:23.1560339Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-30T21:32:23.1588877Z ##[endgroup]
+2026-10-30T21:32:23.1589642Z ##[group]Setting up auth
+2026-10-30T21:32:23.1594739Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T21:32:23.1631123Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T21:32:23.1947297Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T21:32:23.1984863Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T21:32:23.2173756Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-30T21:32:23.2212956Z ##[endgroup]
+2026-10-30T21:32:23.2275369Z ##[group]Fetching the repository
+2026-10-30T21:32:23.2276166Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-10-30T21:32:26.1395820Z From https://github.com/techrote/sandfall
+2026-10-30T21:32:26.1396366Z  * [new branch]      docs/sandfall-v1-architecture-20261030 -> origin/docs/sandfall-v1-architecture-20261030
+2026-10-30T21:32:26.1396703Z  * [new branch]      main       -> origin/main
+2026-10-30T21:32:26.1397023Z  * [new branch]      sf-m0/browser-triage-20261030 -> origin/sf-m0/browser-triage-20261030
+2026-10-30T21:32:26.1397383Z  * [new branch]      sf-m0/source-import-20261030 -> origin/sf-m0/source-import-20261030
+2026-10-30T21:32:26.1406251Z [command]/usr/bin/git branch --list --remote origin/sf-m0/source-import-20261030
+2026-10-30T21:32:26.1437883Z   origin/sf-m0/source-import-20261030
+2026-10-30T21:32:26.1445829Z [command]/usr/bin/git rev-parse refs/remotes/origin/sf-m0/source-import-20261030
+2026-10-30T21:32:26.1473160Z 86f4c942bdd0e917d2edd74f5a872f8ae0806aa6
+2026-10-30T21:32:26.1476257Z ##[endgroup]
+2026-10-30T21:32:26.1476701Z ##[group]Determining the checkout info
+2026-10-30T21:32:26.1477166Z ##[endgroup]
+2026-10-30T21:32:26.1480485Z [command]/usr/bin/git sparse-checkout disable
+2026-10-30T21:32:26.1529691Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-30T21:32:26.1562351Z ##[group]Checking out the ref
+2026-10-30T21:32:26.1565309Z [command]/usr/bin/git checkout --progress --force -B sf-m0/source-import-20261030 refs/remotes/origin/sf-m0/source-import-20261030
+2026-10-30T21:32:26.5375844Z Switched to a new branch 'sf-m0/source-import-20261030'
+2026-10-30T21:32:26.5378633Z branch 'sf-m0/source-import-20261030' set up to track 'origin/sf-m0/source-import-20261030'.
+2026-10-30T21:32:26.5639832Z ##[endgroup]
+2026-10-30T21:32:26.5687454Z [command]/usr/bin/git log -1 --format=%H
+2026-10-30T21:32:26.5717971Z 86f4c942bdd0e917d2edd74f5a872f8ae0806aa6
+2026-10-30T21:32:26.5893464Z ##[group]Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+2026-10-30T21:32:26.5893698Z with:
+2026-10-30T21:32:26.5893845Z   name: sandfall-sf-m0-compat-web
+2026-10-30T21:32:26.5893994Z   run-id: 41115189216
+2026-10-30T21:32:26.5895351Z   github-token: ***
+2026-10-30T21:32:26.5895502Z   path: .
+2026-10-30T21:32:26.5895619Z   merge-multiple: false
+2026-10-30T21:32:26.5895759Z   repository: techrote/sandfall
+2026-10-30T21:32:26.5895932Z ##[endgroup]
+2026-10-30T21:32:26.6831455Z Downloading single artifact
+2026-10-30T21:32:26.6917784Z (node:2132) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:32:26.6918334Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:32:26.7081128Z (node:2132) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T21:32:26.9262144Z Preparing to download the following artifacts:
+2026-10-30T21:32:26.9262695Z - sandfall-sf-m0-compat-web (ID: 13004589535, Size: 17066391, Expected Digest: sha256:0a82292331a13b47566c868532a9554801a75b2877b120a9dda29179d40fcc09)
+2026-10-30T21:32:26.9279912Z Downloading artifact '13004589535' from 'techrote/sandfall'
+2026-10-30T21:32:27.1026597Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/44321ed0-623f-821a-89d3-bcdef05efe64/workflow-job-run-94dac7cc-cd34-5483-97a0-6a1464db6ffe/artifacts/beba839c984dc49672b10bc681ef5c901259d918db102e6d13bdb08ef6c00187.zip
+2026-10-30T21:32:27.1027828Z Starting download of artifact to: /home/runner/work/sandfall/sandfall
+2026-10-30T21:32:27.3567018Z (node:2132) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-10-30T21:32:27.9723970Z SHA256 digest of downloaded artifact is 0a82292331a13b47566c868532a9554801a75b2877b120a9dda29179d40fcc09
+2026-10-30T21:32:27.9724382Z Artifact download completed successfully.
+2026-10-30T21:32:27.9724554Z Total of 1 artifact(s) downloaded
+2026-10-30T21:32:27.9727458Z Download artifact has finished successfully
+2026-10-30T21:32:27.9872577Z ##[group]Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+2026-10-30T21:32:27.9872799Z with:
+2026-10-30T21:32:27.9872926Z   name: sandfall-sf-m0-ordinary-visual
+2026-10-30T21:32:27.9873077Z   run-id: 41121317805
+2026-10-30T21:32:27.9874409Z   github-token: ***
+2026-10-30T21:32:27.9874563Z   path: sf-m0-ordinary/original-failure-41121317805
+2026-10-30T21:32:27.9874735Z   merge-multiple: false
+2026-10-30T21:32:27.9874866Z   repository: techrote/sandfall
+2026-10-30T21:32:27.9875003Z ##[endgroup]
+2026-10-30T21:32:28.0773533Z Downloading single artifact
+2026-10-30T21:32:28.0830714Z (node:2144) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:32:28.0831254Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:32:28.0958778Z (node:2144) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T21:32:28.2855649Z Preparing to download the following artifacts:
+2026-10-30T21:32:28.2856070Z - sandfall-sf-m0-ordinary-visual (ID: 13009056837, Size: 44434, Expected Digest: sha256:f0fca61f8cc5bac06ea5212b56f7f0063f65a5e1b39c11fd27a1f8db3cedb663)
+2026-10-30T21:32:28.2879907Z Downloading artifact '13009056837' from 'techrote/sandfall'
+2026-10-30T21:32:28.5149117Z Redirecting to blob download url: https://productionresultssa8.blob.core.windows.net/actions-results/1b092fea-0243-8bf2-a6e9-c9595f358cb2/workflow-job-run-a8da925e-708c-53c4-b2ed-297fd21fa888/artifacts/a877a2bebe8474b040903dab015ebde90f688e36422022a7a167328e23502bd8.zip
+2026-10-30T21:32:28.5150506Z Starting download of artifact to: /home/runner/work/sandfall/sandfall/sf-m0-ordinary/original-failure-41121317805
+2026-10-30T21:32:28.7299707Z (node:2144) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-10-30T21:32:28.7696668Z SHA256 digest of downloaded artifact is f0fca61f8cc5bac06ea5212b56f7f0063f65a5e1b39c11fd27a1f8db3cedb663
+2026-10-30T21:32:28.7697146Z Artifact download completed successfully.
+2026-10-30T21:32:28.7697410Z Total of 1 artifact(s) downloaded
+2026-10-30T21:32:28.7701133Z Download artifact has finished successfully
+2026-10-30T21:32:28.7819878Z ##[group]Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+2026-10-30T21:32:28.7820100Z with:
+2026-10-30T21:32:28.7820233Z   name: sandfall-sf-m0-ordinary-640x400-dpr2
+2026-10-30T21:32:28.7820391Z   run-id: 41126992330
+2026-10-30T21:32:28.7821784Z   github-token: ***
+2026-10-30T21:32:28.7821924Z   path: sf-m0-ordinary/dpr2-failure-41126992330
+2026-10-30T21:32:28.7822085Z   merge-multiple: false
+2026-10-30T21:32:28.7822218Z   repository: techrote/sandfall
+2026-10-30T21:32:28.7822353Z ##[endgroup]
+2026-10-30T21:32:28.8729429Z Downloading single artifact
+2026-10-30T21:32:28.8816687Z (node:2156) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:32:28.8817312Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:32:28.8931021Z (node:2156) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T21:32:29.1057780Z Preparing to download the following artifacts:
+2026-10-30T21:32:29.1058570Z - sandfall-sf-m0-ordinary-640x400-dpr2 (ID: 13011023580, Size: 57416, Expected Digest: sha256:e7291cf0c5210813e4bd530e09d75a9328d02fa2b2a1e60da9b639726858f554)
+2026-10-30T21:32:29.1090717Z Downloading artifact '13011023580' from 'techrote/sandfall'
+2026-10-30T21:32:29.2785112Z Redirecting to blob download url: https://productionresultssa5.blob.core.windows.net/actions-results/4fa2c619-51d8-89e1-a815-1d30f4fb7c96/workflow-job-run-1eba9d8f-ae68-58be-bf5d-6cddd4a706e6/artifacts/e3da88a8ac7794b688659062ffdaf4f9d2b05a9f8722c8cae4ff8e373dbaad17.zip
+2026-10-30T21:32:29.2785852Z Starting download of artifact to: /home/runner/work/sandfall/sandfall/sf-m0-ordinary/dpr2-failure-41126992330
+2026-10-30T21:32:29.4524924Z (node:2156) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-10-30T21:32:29.5207346Z SHA256 digest of downloaded artifact is e7291cf0c5210813e4bd530e09d75a9328d02fa2b2a1e60da9b639726858f554
+2026-10-30T21:32:29.5207812Z Artifact download completed successfully.
+2026-10-30T21:32:29.5208089Z Total of 1 artifact(s) downloaded
+2026-10-30T21:32:29.5211779Z Download artifact has finished successfully
+2026-10-30T21:32:29.5359611Z ##[group]Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+2026-10-30T21:32:29.5359845Z with:
+2026-10-30T21:32:29.5359984Z   name: sandfall-sf-m0-ordinary-640x400-dpr2
+2026-10-30T21:32:29.5360148Z   run-id: 41128785495
+2026-10-30T21:32:29.5361457Z   github-token: ***
+2026-10-30T21:32:29.5361614Z   path: sf-m0-ordinary/dpr2-capture-timeout-41128785495
+2026-10-30T21:32:29.5361801Z   merge-multiple: false
+2026-10-30T21:32:29.5361933Z   repository: techrote/sandfall
+2026-10-30T21:32:29.5362211Z ##[endgroup]
+2026-10-30T21:32:29.6305048Z Downloading single artifact
+2026-10-30T21:32:29.6362043Z (node:2168) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:32:29.6362413Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:32:29.6486401Z (node:2168) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T21:32:29.8693242Z Preparing to download the following artifacts:
+2026-10-30T21:32:29.8693934Z - sandfall-sf-m0-ordinary-640x400-dpr2 (ID: 13011774471, Size: 124868, Expected Digest: sha256:531b8132176a48837c96432235108759f7cf7f8316bb53b6a6237e7d64c852d2)
+2026-10-30T21:32:29.8715765Z Downloading artifact '13011774471' from 'techrote/sandfall'
+2026-10-30T21:32:30.0950856Z Redirecting to blob download url: https://productionresultssa32.blob.core.windows.net/actions-results/fac59a28-ebb1-8ce5-8088-1d1006d3104d/workflow-job-run-e37e5020-41b6-572c-b284-61e4fdab4eda/artifacts/e3da88a8ac7794b688659062ffdaf4f9d2b05a9f8722c8cae4ff8e373dbaad17.zip
+2026-10-30T21:32:30.0951623Z Starting download of artifact to: /home/runner/work/sandfall/sandfall/sf-m0-ordinary/dpr2-capture-timeout-41128785495
+2026-10-30T21:32:30.2571287Z (node:2168) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-10-30T21:32:30.3220703Z SHA256 digest of downloaded artifact is 531b8132176a48837c96432235108759f7cf7f8316bb53b6a6237e7d64c852d2
+2026-10-30T21:32:30.3221167Z Artifact download completed successfully.
+2026-10-30T21:32:30.3221452Z Total of 1 artifact(s) downloaded
+2026-10-30T21:32:30.3224746Z Download artifact has finished successfully
+2026-10-30T21:32:30.3346903Z ##[group]Run set -euo pipefail
+2026-10-30T21:32:30.3347147Z [36;1mset -euo pipefail[0m
+2026-10-30T21:32:30.3347297Z [36;1mmkdir -p sf-m0-ordinary[0m
+2026-10-30T21:32:30.3347589Z [36;1mpython3 -m unittest discover -s tools/sandfall -p 'test_sf_m0_*.py' 2>&1 | tee sf-m0-ordinary/python-tests.log[0m
+2026-10-30T21:32:30.3347957Z [36;1mnode tools/sandfall/test_sf_m0_geometry.mjs > sf-m0-ordinary/geometry-tests.log 2>&1[0m
+2026-10-30T21:32:30.3348273Z [36;1mnode tools/sandfall/test_sf_m0_png_stats.mjs > sf-m0-ordinary/png-tests.log 2>&1[0m
+2026-10-30T21:32:30.3348540Z [36;1mnode --check tools/sandfall/sf_m0_ordinary_browser.mjs[0m
+2026-10-30T21:32:30.3348750Z [36;1mpython3 tools/ci/check_ci_provider_policy.py[0m
+2026-10-30T21:32:30.3368525Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-30T21:32:30.3368716Z ##[endgroup]
+2026-10-30T21:32:30.8641179Z ....................
+2026-10-30T21:32:30.8641828Z ----------------------------------------------------------------------
+2026-10-30T21:32:30.8642347Z Ran 20 tests in 0.363s
+2026-10-30T21:32:30.8642521Z 
+2026-10-30T21:32:30.8642590Z OK
+2026-10-30T21:32:30.8643345Z {"status": "refused", "current_lfs_count": 18, "original_checker_status": "failed", "inherited_documentation_failures": 6, "inherited_stale_desktop_source_digests": 8, "unexpected_errors": [], "missing_expected_errors": [], "saved": "/tmp/tmp_map1we0/diagnostic.json"}
+2026-10-30T21:32:30.8644770Z {"status": "refused", "current_lfs_count": 18, "original_checker_status": "failed", "inherited_documentation_failures": 6, "inherited_stale_desktop_source_digests": 8, "unexpected_errors": [], "missing_expected_errors": [], "saved": "/tmp/tmpup2g3orj/diagnostic.json"}
+2026-10-30T21:32:30.8646259Z {"status": "inherited_blockers_acknowledged_for_fresh_web_only", "current_lfs_count": 18, "original_checker_status": "failed", "inherited_documentation_failures": 6, "inherited_stale_desktop_source_digests": 8, "unexpected_errors": [], "missing_expected_errors": [], "saved": "/tmp/tmpp7vgb2to/diagnostic.json"}
+2026-10-30T21:32:30.8652120Z {"status": "refused", "current_lfs_count": 0, "original_checker_status": null, "inherited_documentation_failures": 6, "inherited_stale_desktop_source_digests": 8, "unexpected_errors": ["Invalid checker output"], "missing_expected_errors": ["Linux x86_64 Godot 4.7 (actual GitHub-hosted headless execution) requires rebuild for source input: godot/native_extension/cyber_demo_bridge.hpp", "Linux x86_64 Godot 4.7 (actual GitHub-hosted headless execution) requires rebuild for source input: godot/native_extension/cyber_native_cell_world.cpp", "Linux x86_64 Godot 4.7 (actual GitHub-hosted headless execution) requires rebuild for source input: godot/native_extension/cyber_native_cell_world.hpp", "Linux x86_64 Godot 4.7 (actual GitHub-hosted headless execution) requires rebuild for source input: native/include/cybersand/prepared_world.hpp", "Q01: missing expected-fact source ../../SOURCE-PROVENANCE.json", "Q04: missing expected-fact source ../../docs/WEB_THREADING.md", "Q28: missing expected-fact source ../../docs/LOCAL_DEVELOPMENT.md", "Q28: missing expected-fact source ../../tools/dev.py", "Q29: missing expected-fact source ../../tools/dev.py", "Q30: missing expected-fact source ../../validation/browser-results.json", "Windows x86_64 Godot 4.7 (actual GitHub-hosted headless execution) requires rebuild for source input: godot/native_extension/cyber_demo_bridge.hpp", "Windows x86_64 Godot 4.7 (actual GitHub-hosted headless execution) requires rebuild for source input: godot/native_extension/cyber_native_cell_world.cpp", "Windows x86_64 Godot 4.7 (actual GitHub-hosted headless execution) requires rebuild for source input: godot/native_extension/cyber_native_cell_world.hpp", "Windows x86_64 Godot 4.7 (actual GitHub-hosted headless execution) requires rebuild for source input: native/include/cybersand/prepared_world.hpp"], "saved": "/tmp/tmp0uxf7vlp/failed.json"}
+2026-10-30T21:32:30.8658517Z {"status": "refused", "current_lfs_count": 18, "original_checker_status": "failed", "inherited_documentation_failures": 6, "inherited_stale_desktop_source_digests": 8, "unexpected_errors": [], "missing_expected_errors": ["Windows x86_64 Godot 4.7 (actual GitHub-hosted headless execution) requires rebuild for source input: native/include/cybersand/prepared_world.hpp"], "saved": "/tmp/tmpux8460kl/diagnostic.json"}
+2026-10-30T21:32:30.8660492Z {"status": "refused", "current_lfs_count": 18, "original_checker_status": "failed", "inherited_documentation_failures": 6, "inherited_stale_desktop_source_digests": 8, "unexpected_errors": ["New missing source input: changed-source.cpp"], "missing_expected_errors": [], "saved": "/tmp/tmppm0qf7w7/diagnostic.json"}
+2026-10-30T21:32:30.8661873Z {"status": "refused", "current_lfs_count": 17, "original_checker_status": "failed", "inherited_documentation_failures": 6, "inherited_stale_desktop_source_digests": 8, "unexpected_errors": [], "missing_expected_errors": [], "saved": "/tmp/tmpewoau74o/diagnostic.json"}
+2026-10-30T21:32:31.4733002Z {
+2026-10-30T21:32:31.4733593Z   "status": "passed",
+2026-10-30T21:32:31.4734097Z   "scope": "active CI provider and runner routing",
+2026-10-30T21:32:31.4734392Z   "errors": [],
+2026-10-30T21:32:31.4734560Z   "policy": {
+2026-10-30T21:32:31.4734749Z     "routine_provider": "GitHub-hosted Actions",
+2026-10-30T21:32:31.4735089Z     "external_provider_config": "forbidden unless policy is explicitly changed",
+2026-10-30T21:32:31.4735430Z     "runner_indirection": "forbidden"
+2026-10-30T21:32:31.4735645Z   }
+2026-10-30T21:32:31.4735797Z }
+2026-10-30T21:32:31.4790193Z ##[group]Run set -euo pipefail
+2026-10-30T21:32:31.4790428Z [36;1mset -euo pipefail[0m
+2026-10-30T21:32:31.4790605Z [36;1mpython3 tools/sandfall/sf_m0_verify_web_artifact.py \[0m
+2026-10-30T21:32:31.4790889Z [36;1m  --web-root build/web --expected-build-sha 6352756931c58e702eb5c15c05d44515091274b2 \[0m
+2026-10-30T21:32:31.4791174Z [36;1m  --output sf-m0-ordinary/artifact-verification.json[0m
+2026-10-30T21:32:31.4791366Z [36;1mpython3 - <<'PY'[0m
+2026-10-30T21:32:31.4791533Z [36;1mimport hashlib, json, pathlib, shutil, subprocess[0m
+2026-10-30T21:32:31.4791856Z [36;1mroot=pathlib.Path("sf-m0-ordinary")[0m
+2026-10-30T21:32:31.4792043Z [36;1mnegative=root/"original-failure-41121317805"[0m
+2026-10-30T21:32:31.4792253Z [36;1mrecord={"source_run":41121317805,"artifact_id":13009056837,[0m
+2026-10-30T21:32:31.4792543Z [36;1m  "original_zip_sha256":"f0fca61f8cc5bac06ea5212b56f7f0063f65a5e1b39c11fd27a1f8db3cedb663",[0m
+2026-10-30T21:32:31.4792944Z [36;1m  "files":{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(negative.iterdir()) if p.is_file()},[0m
+2026-10-30T21:32:31.4793297Z [36;1m  "retained_status":json.loads((negative/"browser.json").read_text())["status"]}[0m
+2026-10-30T21:32:31.4793542Z [36;1massert record["retained_status"]=="failed"[0m
+2026-10-30T21:32:31.4793795Z [36;1m(root/"original-failure-origin.json").write_text(json.dumps(record,indent=2)+"\n")[0m
+2026-10-30T21:32:31.4794053Z [36;1mdpr2_failure=root/"dpr2-failure-41126992330"[0m
+2026-10-30T21:32:31.4794276Z [36;1mdpr2_browser=json.loads((dpr2_failure/"browser.json").read_text())[0m
+2026-10-30T21:32:31.4794541Z [36;1mdpr2_origin={"schema":"sandfall-retained-browser-failure-v1",[0m
+2026-10-30T21:32:31.4794798Z [36;1m  "evidence_kind":"preserved failed execution; NOT the current run",[0m
+2026-10-30T21:32:31.4795024Z [36;1m  "source_run":41126992330,"artifact_id":13011023580,[0m
+2026-10-30T21:32:31.4795290Z [36;1m  "original_zip_sha256":"e7291cf0c5210813e4bd530e09d75a9328d02fa2b2a1e60da9b639726858f554",[0m
+2026-10-30T21:32:31.4795550Z [36;1m  "retained_status":dpr2_browser["status"],[0m
+2026-10-30T21:32:31.4795744Z [36;1m  "files":{p.relative_to(dpr2_failure).as_posix():[0m
+2026-10-30T21:32:31.4796135Z [36;1m    {"sha256":hashlib.sha256(p.read_bytes()).hexdigest(),"size":p.stat().st_size}[0m
+2026-10-30T21:32:31.4796416Z [36;1m    for p in sorted(dpr2_failure.rglob("*")) if p.is_file()}}[0m
+2026-10-30T21:32:31.4796630Z [36;1massert dpr2_origin["retained_status"]=="failed"[0m
+2026-10-30T21:32:31.4796884Z [36;1m(root/"dpr2-failure-origin.json").write_text(json.dumps(dpr2_origin,indent=2)+"\n")[0m
+2026-10-30T21:32:31.4797161Z [36;1mcapture_failure=root/"dpr2-capture-timeout-41128785495"[0m
+2026-10-30T21:32:31.4797415Z [36;1mcapture_browser=json.loads((capture_failure/"browser.json").read_text())[0m
+2026-10-30T21:32:31.4797684Z [36;1mcapture_origin={"schema":"sandfall-retained-browser-failure-v1",[0m
+2026-10-30T21:32:31.4797951Z [36;1m  "evidence_kind":"preserved failed execution; NOT the current run",[0m
+2026-10-30T21:32:31.4798181Z [36;1m  "source_run":41128785495,"artifact_id":13011774471,[0m
+2026-10-30T21:32:31.4798440Z [36;1m  "original_zip_sha256":"531b8132176a48837c96432235108759f7cf7f8316bb53b6a6237e7d64c852d2",[0m
+2026-10-30T21:32:31.4798701Z [36;1m  "retained_status":capture_browser["status"],[0m
+2026-10-30T21:32:31.4798905Z [36;1m  "retained_tick":capture_browser["final_state"]["tick"],[0m
+2026-10-30T21:32:31.4799118Z [36;1m  "retained_failures":capture_browser["failures"],[0m
+2026-10-30T21:32:31.4799457Z [36;1m  "files":{p.relative_to(capture_failure).as_posix():[0m
+2026-10-30T21:32:31.4799783Z [36;1m    {"sha256":hashlib.sha256(p.read_bytes()).hexdigest(),"size":p.stat().st_size}[0m
+2026-10-30T21:32:31.4800058Z [36;1m    for p in sorted(capture_failure.rglob("*")) if p.is_file()}}[0m
+2026-10-30T21:32:31.4800280Z [36;1massert capture_origin["retained_status"]=="failed"[0m
+2026-10-30T21:32:31.4800701Z [36;1m(root/"dpr2-capture-timeout-origin.json").write_text(json.dumps(capture_origin,indent=2)+"\n")[0m
+2026-10-30T21:32:31.4801030Z [36;1m# Preserve the original 600-tick execution alongside the new ordinary[0m
+2026-10-30T21:32:31.4801297Z [36;1m# UI evidence. Copying it is not a new fixture execution at this HEAD.[0m
+2026-10-30T21:32:31.4801520Z [36;1moriginal=pathlib.Path("sf-m0-evidence")[0m
+2026-10-30T21:32:31.4801732Z [36;1mcoupled=json.loads((original/"browser.json").read_text())[0m
+2026-10-30T21:32:31.4801928Z [36;1mstate=coupled["state"][0m
+2026-10-30T21:32:31.4802078Z [36;1mphysics=state["rapier_test"][0m
+2026-10-30T21:32:31.4802355Z [36;1massert coupled["status"]=="passed" and coupled["failures"]==[][0m
+2026-10-30T21:32:31.4802592Z [36;1massert physics["ok"] is True and physics["failures"]==[][0m
+2026-10-30T21:32:31.4802817Z [36;1massert physics["ticks"]==600 and state["rapier_steps"]==600[0m
+2026-10-30T21:32:31.4803043Z [36;1massert physics["contacts"]>0 and physics["displaced"]>0[0m
+2026-10-30T21:32:31.4803294Z [36;1mbuild=json.loads(pathlib.Path("build/web/build-info.json").read_text())[0m
+2026-10-30T21:32:31.4803571Z [36;1massert build["source_commit"]=="6352756931c58e702eb5c15c05d44515091274b2"[0m
+2026-10-30T21:32:31.4803805Z [36;1mretained=root/"original-coupled-41115189216"[0m
+2026-10-30T21:32:31.4803984Z [36;1mretained.mkdir(exist_ok=True)[0m
+2026-10-30T21:32:31.4804130Z [36;1mfiles={}[0m
+2026-10-30T21:32:31.4804322Z [36;1mfor name in ("browser.json","chrome.log","http.log","web-reconciliation.json"):[0m
+2026-10-30T21:32:31.4804546Z [36;1m    source=original/name[0m
+2026-10-30T21:32:31.4804697Z [36;1m    destination=retained/name[0m
+2026-10-30T21:32:31.4804853Z [36;1m    payload=source.read_bytes()[0m
+2026-10-30T21:32:31.4805021Z [36;1m    shutil.copy2(source,destination)[0m
+2026-10-30T21:32:31.4805208Z [36;1m    assert destination.read_bytes()==payload, name[0m
+2026-10-30T21:32:31.4805457Z [36;1m    files[name]={"sha256":hashlib.sha256(payload).hexdigest(),"size":len(payload)}[0m
+2026-10-30T21:32:31.4805729Z [36;1morigin={"schema":"sandfall-retained-coupled-execution-v1",[0m
+2026-10-30T21:32:31.4805984Z [36;1m  "evidence_kind":"preserved original execution; NOT a re-execution",[0m
+2026-10-30T21:32:31.4806215Z [36;1m  "source_run":41115189216,"artifact_id":13004589535,[0m
+2026-10-30T21:32:31.4806409Z [36;1m  "build_source_commit":build["source_commit"],[0m
+2026-10-30T21:32:31.4806669Z [36;1m  "original_zip_sha256":"0a82292331a13b47566c868532a9554801a75b2877b120a9dda29179d40fcc09",[0m
+2026-10-30T21:32:31.4806996Z [36;1m  "original_observed_at":coupled["observed_at"],"retained_status":coupled["status"],[0m
+2026-10-30T21:32:31.4807294Z [36;1m  "validation":{"ticks":physics["ticks"],"rapier_steps":state["rapier_steps"],[0m
+2026-10-30T21:32:31.4807606Z [36;1m    "contacts":physics["contacts"],"displaced":physics["displaced"],"failures":physics["failures"]},[0m
+2026-10-30T21:32:31.4807857Z [36;1m  "files":files}[0m
+2026-10-30T21:32:31.4808071Z [36;1m(root/"original-coupled-origin.json").write_text(json.dumps(origin,indent=2)+"\n")[0m
+2026-10-30T21:32:31.4808403Z [36;1m(root/"source-sha.txt").write_text(subprocess.check_output(["git","rev-parse","HEAD"],text=True))[0m
+2026-10-30T21:32:31.4808646Z [36;1mPY[0m
+2026-10-30T21:32:31.4824225Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-30T21:32:31.4824408Z ##[endgroup]
+2026-10-30T21:32:31.9879748Z {"status": "passed", "receipt": "sf-m0-ordinary/artifact-verification.json", "error": null}
+2026-10-30T21:32:32.0273726Z ##[group]Run set -euo pipefail
+2026-10-30T21:32:32.0273951Z [36;1mset -euo pipefail[0m
+2026-10-30T21:32:32.0274195Z [36;1mpython3 tools/serve_web.py --directory build/web --port 8040 > sf-m0-ordinary/http.log 2>&1 &[0m
+2026-10-30T21:32:32.0274449Z [36;1mSERVER_PID=$![0m
+2026-10-30T21:32:32.0274648Z [36;1mCHROME="$(command -v google-chrome-stable || command -v google-chrome)"[0m
+2026-10-30T21:32:32.0274897Z [36;1m"$CHROME" --version > sf-m0-ordinary/chrome-version.txt[0m
+2026-10-30T21:32:32.0275128Z [36;1m"$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \[0m
+2026-10-30T21:32:32.0275400Z [36;1m  --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \[0m
+2026-10-30T21:32:32.0275632Z [36;1m  --remote-debugging-port=9231 \[0m
+2026-10-30T21:32:32.0275845Z [36;1m  --user-data-dir="$RUNNER_TEMP/sf-m0-ordinary-chrome" about:blank \[0m
+2026-10-30T21:32:32.0276067Z [36;1m  > sf-m0-ordinary/chrome.log 2>&1 &[0m
+2026-10-30T21:32:32.0276244Z [36;1mCHROME_PID=$![0m
+2026-10-30T21:32:32.0276419Z [36;1mtrap 'kill "$SERVER_PID" "$CHROME_PID" 2>/dev/null || true' EXIT[0m
+2026-10-30T21:32:32.0276800Z [36;1m# Bound the real million-pixel SwiftShader/DPR2 path without lowering[0m
+2026-10-30T21:32:32.0277062Z [36;1m# any tick, input-transition or world-render acceptance requirement.[0m
+2026-10-30T21:32:32.0277311Z [36;1mtimeout 1140 node tools/sandfall/sf_m0_ordinary_browser.mjs \[0m
+2026-10-30T21:32:32.0277548Z [36;1m  --port 9231 --url 'http://127.0.0.1:8040/?test=1' \[0m
+2026-10-30T21:32:32.0277776Z [36;1m  --verification sf-m0-ordinary/artifact-verification.json \[0m
+2026-10-30T21:32:32.0278024Z [36;1m  --width "$VIEW_WIDTH" --height "$VIEW_HEIGHT" --dpr "$VIEW_DPR" \[0m
+2026-10-30T21:32:32.0278240Z [36;1m  --output sf-m0-ordinary/browser.json \[0m
+2026-10-30T21:32:32.0278451Z [36;1m  --screenshot sf-m0-ordinary/browser.png --timeout-ms 900000 \[0m
+2026-10-30T21:32:32.0278670Z [36;1m  2>&1 | tee sf-m0-ordinary/browser-harness.log[0m
+2026-10-30T21:32:32.0294833Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-30T21:32:32.0295021Z env:
+2026-10-30T21:32:32.0295131Z   VIEW_WIDTH: 640
+2026-10-30T21:32:32.0295247Z   VIEW_HEIGHT: 400
+2026-10-30T21:32:32.0295359Z   VIEW_DPR: 2
+2026-10-30T21:32:32.0295472Z ##[endgroup]
+2026-10-30T21:33:11.3190194Z SF_M0_ORDINARY_POLL Error: Runtime.evaluate CDP deadline expired
+2026-10-30T21:33:58.4348532Z SF_M0_ORDINARY_OBSERVATION {"phase":"initial-menu","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":84678}
+2026-10-30T21:34:45.5031609Z SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":131748}
+2026-10-30T21:34:57.1900282Z SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":4,"menu":false,"paused":false,"moves":4381,"elapsed_ms":143435}
+2026-10-30T21:35:08.7401852Z SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":4,"menu":false,"paused":false,"moves":4381,"elapsed_ms":154984}
+2026-10-30T21:35:20.4090418Z SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":4,"menu":false,"paused":false,"moves":4381,"elapsed_ms":166654}
+2026-10-30T21:35:32.1732979Z SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":4,"menu":false,"paused":false,"moves":4381,"elapsed_ms":178417}
+2026-10-30T21:35:43.9244290Z SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":4,"menu":false,"paused":false,"moves":4381,"elapsed_ms":190167}
+2026-10-30T21:35:55.3583216Z SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":14,"menu":false,"paused":false,"moves":12638,"elapsed_ms":201603}
+2026-10-30T21:36:06.9930124Z SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":14,"menu":false,"paused":false,"moves":12638,"elapsed_ms":213238}
+2026-10-30T21:36:18.5849469Z SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":14,"menu":false,"paused":false,"moves":12638,"elapsed_ms":224829}
+2026-10-30T21:36:30.2490032Z SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":14,"menu":false,"paused":false,"moves":12638,"elapsed_ms":236493}
+2026-10-30T21:36:41.7281449Z SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":14,"menu":false,"paused":false,"moves":12638,"elapsed_ms":247972}
+2026-10-30T21:36:53.1923786Z SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":24,"menu":false,"paused":false,"moves":21682,"elapsed_ms":259433}
+2026-10-30T21:37:28.2739757Z SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-menu-opened","tick":24,"menu":false,"paused":false,"moves":21682,"elapsed_ms":294519}
+2026-10-30T21:37:42.5937799Z SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-menu-opened","tick":24,"menu":false,"paused":false,"moves":21682,"elapsed_ms":308837}
+2026-10-30T21:37:55.1716641Z SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-menu-opened","tick":26,"menu":true,"paused":false,"moves":23490,"elapsed_ms":321416}
+2026-10-30T21:38:07.7473124Z SF_M0_ORDINARY_OBSERVATION {"phase":"menu-still-pauses","tick":26,"menu":true,"paused":false,"moves":23490,"elapsed_ms":333992}
+2026-10-30T21:38:58.4923093Z SF_M0_ORDINARY_OBSERVATION {"phase":"second-continue-closed","tick":28,"menu":false,"paused":false,"moves":25244,"elapsed_ms":384737}
+2026-10-30T21:39:36.4162911Z SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-paused","tick":28,"menu":false,"paused":false,"moves":25244,"elapsed_ms":422661}
+2026-10-30T21:39:48.9342381Z SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-paused","tick":28,"menu":false,"paused":false,"moves":25244,"elapsed_ms":435179}
+2026-10-30T21:40:01.5438580Z SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-paused","tick":30,"menu":false,"paused":true,"moves":27022,"elapsed_ms":447789}
+2026-10-30T21:40:14.5355055Z SF_M0_ORDINARY_OBSERVATION {"phase":"paused-stable","tick":30,"menu":false,"paused":true,"moves":27022,"elapsed_ms":460779}
+2026-10-30T21:41:42.5961495Z SF_M0_ORDINARY_OBSERVATION {"phase":"paused-stable","tick":30,"menu":false,"paused":true,"moves":27022,"elapsed_ms":548841}
+2026-10-30T21:41:42.6041019Z SF_M0_ORDINARY_RESULT {"status":"passed","failures":[],"build_source":"6352756931c58e702eb5c15c05d44515091274b2","final_tick":30,"pixels":{"width":640,"height":400,"region":{"x0":79,"x1":561,"y0":97,"y1":367},"sample_stride_x":3,"samples":43470,"bright":15342,"colourful":10541,"bright_fraction":0.35293305728088337,"colourful_fraction":0.24248907292385552,"unique_4bit_rgb":525}}
+2026-10-30T21:41:42.6503892Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-30T21:41:42.6504305Z with:
+2026-10-30T21:41:42.6504529Z   name: sandfall-sf-m0-ordinary-640x400-dpr2
+2026-10-30T21:41:42.6504819Z   path: sf-m0-ordinary/
+2026-10-30T21:41:42.6505040Z   retention-days: 30
+2026-10-30T21:41:42.6505258Z   if-no-files-found: error
+2026-10-30T21:41:42.6505479Z   compression-level: 6
+2026-10-30T21:41:42.6505685Z   overwrite: false
+2026-10-30T21:41:42.6505894Z   include-hidden-files: false
+2026-10-30T21:41:42.6506135Z ##[endgroup]
+2026-10-30T21:41:42.9730457Z (node:3395) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:41:42.9743599Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:41:43.1660711Z With the provided path, there will be 71 files uploaded
+2026-10-30T21:41:43.1661240Z Artifact name is valid!
+2026-10-30T21:41:43.1661539Z Root directory input is valid!
+2026-10-30T21:41:43.4108513Z Beginning upload of artifact content to blob storage
+2026-10-30T21:41:43.7411580Z (node:3395) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T21:41:44.0330665Z Uploaded bytes 386728
+2026-10-30T21:41:44.0810314Z Finished uploading artifact content to blob storage!
+2026-10-30T21:41:44.0810999Z SHA256 digest of uploaded artifact zip is f500e6df4eb2c17dc40c3871615518f753881073e5597260041c669ae1377ab4
+2026-10-30T21:41:44.0839887Z Finalizing artifact upload
+2026-10-30T21:41:44.5229985Z Artifact sandfall-sf-m0-ordinary-640x400-dpr2.zip successfully finalized. Artifact ID 13013254801
+2026-10-30T21:41:44.5231032Z Artifact sandfall-sf-m0-ordinary-640x400-dpr2 has been successfully uploaded! Final size is 386728 bytes. Artifact ID is 13013254801
+2026-10-30T21:41:44.5231787Z Artifact download URL: https://github.com/techrote/sandfall/actions/runs/41131776735/artifacts/13013254801
+2026-10-30T21:41:44.5785600Z Post job cleanup.
+2026-10-30T21:41:44.8010195Z [command]/usr/bin/git version
+2026-10-30T21:41:44.8160523Z git version 2.56.0
+2026-10-30T21:41:44.8302721Z Temporarily overriding HOME='/home/runner/work/_temp/b93e1531-75dd-432a-be0a-688bdaa5c4db' before making global git config changes
+2026-10-30T21:41:44.8319960Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T21:41:44.8349935Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sandfall/sandfall
+2026-10-30T21:41:44.8480737Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T21:41:44.8660662Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T21:41:44.9700397Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T21:41:44.9739890Z http.https://github.com/.extraheader
+2026-10-30T21:41:44.9840028Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-30T21:41:44.9950412Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T21:41:45.1128836Z Cleaning up orphan processes
+2026-10-30T21:41:45.1819028Z Terminate orphan process: pid (2486) (chrome)
+2026-10-30T21:41:45.1918208Z Terminate orphan process: pid (2493) (cat)
+2026-10-30T21:41:45.1937913Z Terminate orphan process: pid (2494) (cat)
+2026-10-30T21:41:45.2086333Z Terminate orphan process: pid (2522) (chrome_crashpad_handler)
+2026-10-30T21:41:45.2167970Z Terminate orphan process: pid (2524) (chrome_crashpad_handler)
+2026-10-30T21:41:45.2452338Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683, actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

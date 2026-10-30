@@ -32,13 +32,16 @@ full v1 or exhibition acceptance.
 | Existing compatibility-Web build | `6352756931c58e702eb5c15c05d44515091274b2`; retain its own source identity when reusing verified bytes |
 | MZPaint and zero-player reference | specdocz `039008723172a951c7694079cd06c7a2ea137d40`; roles and adopted requirements remain as defined in the Sandfall specification |
 
-At preparation time, the corrected local ordinary-browser check has exercised
-the unchanged verified compatibility export successfully through genuine input
-and visible world rendering. Publication and terminal checks at the final
-SF-M0 branch head are still a prerequisite to implementation. The
+The SF-M0 ordinary-browser matrix is terminal PASS at
+`86f4c942bdd0e917d2edd74f5a872f8ae0806aa6`:
+[run 41131776735](https://github.com/techrote/sandfall/actions/runs/41131776735).
+Both 800 × 450 / DPR 1 and 640 × 400 / DPR 2 exercised the unchanged verified
+compatibility export through genuine input, at least 18 / 24 normal ticks and
+visible world rendering. Focused native and narrow documentation/provenance
+checks also passed at that commit. The
 [dated SF-M0 audit](audits/2026-10-30-sf-m0-ordinary-web.md) owns the detailed
-PASS/FAIL ledger, artifact hashes and later disposition; this plan does not
-promote a local result into an exact-head CI result.
+PASS/FAIL ledger, durable evidence, artifact hashes and later disposition.
+This is an executable SF-M0 prerequisite, not implementation of the new host.
 
 Before starting implementation, freshly reconcile live main and development
 heads, open PRs, competing owners, reviews, repository instructions, complete

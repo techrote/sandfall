@@ -1,0 +1,14 @@
+Serving /home/runner/work/sandfall/sandfall/build/web
+http://127.0.0.1:8040/
+Press Ctrl+C to stop.
+127.0.0.1 - - [30/Oct/2026 20:12:25] "GET /?test=1 HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 20:12:25] "GET /index.js HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 20:12:25] "GET /index.png HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 20:12:26] "GET /index.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 20:12:26] "GET /index.pck HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 20:12:26] "GET /index.side.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 20:12:26] "GET /index.icon.png HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 20:12:26] "GET /libcybersand_native.web.nothreads.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 20:12:26] "GET /godot_rapier.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 20:13:11] "GET /index.audio.position.worklet.js HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 20:13:11] "GET /index.audio.worklet.js HTTP/1.1" 200 -

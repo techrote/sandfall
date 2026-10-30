@@ -1,12 +1,15 @@
 # SF-M0 ordinary Web input and rendering — 30 October 2026
 
-**Disposition:** the original coordinate/input blocker is reproduced from its
-retained evidence and corrected in the browser harness. The unchanged, verified
-compatibility export passes the original 800 × 450 case in exact committed CI.
-The additional DPR-2 case exposed a separate screenshot/input race. After that
-correction, genuine DPR-2 input and 22 ticks passed, but terminal surface capture
-timed out. Both failures are retained below. Visible-view capture now requires a
-fresh terminal matrix before the complete ordinary-Web gate can pass.
+**Disposition: SF-M0 executable compatibility-Web gates PASS.** The ordinary
+input/rendering blocker is resolved at
+`86f4c942bdd0e917d2edd74f5a872f8ae0806aa6`: both the original 800 × 450 / DPR 1
+and additional 640 × 400 / DPR 2 cases passed genuine input, normal simulation
+advancement and actual-world screenshots. Focused native and narrow provenance
+checks passed at that exact commit. Original full-native and coupled-fixture
+evidence remains bound to unchanged build `63527569...`, not relabelled as a
+new build. All original and intermediate failures remain retained below.
+Threaded Web, stale desktop execution, human exhibition review and the new
+Sandfall host retain their separate unqualified dispositions.
 **PR #2 remains draft and unmerged.**
 
 ## Live reconciliation and authority
@@ -248,8 +251,8 @@ Each browser matrix job also passed 20 Python regressions (seven reconciliation,
 policy. The native JSON receipt hash is
 `f0de5471d8a474a1016833ecac3a23e055ae980c1cc30b5105e22b1fa73e9816`.
 Artifacts have 30-day retention. Skipped inherited draft workflows are not
-acceptance passes. The capture-sequencing correction requires a new terminal
-matrix before SF-M1 implementation begins.
+acceptance passes. This failed checkpoint required the later terminal matrix
+recorded below before SF-M1 implementation could begin.
 
 ### Capture sequencing: `350d7b9084eb71eb464913b1b4a5ac6d3a516ede`
 
@@ -288,9 +291,112 @@ artifacts, with an explicit original-execution receipt.
 
 The native receipt SHA-256 is
 `36e23ed7821e22e6b7474db27ef38a4ee30af69f0ea55fb43de7638851f4e8a0`.
-The overall ordinary workflow is **failed** at this commit. The view-capture
-correction is pending fresh committed qualification; the diagnostic blank-page
-results are not substituted for an actual Sandfall screenshot.
+The overall ordinary workflow is **failed** at this commit. Its view-capture
+successor is qualified separately below; the diagnostic blank-page results are
+not substituted for an actual Sandfall screenshot.
+
+### Visible-view capture: `86f4c942bdd0e917d2edd74f5a872f8ae0806aa6`
+
+[Run 41131776735](https://github.com/techrote/sandfall/actions/runs/41131776735)
+is terminal **SUCCESS**, with all three required jobs passing. No application,
+native, Godot, vendor or build input changed. Every tested export byte remains
+bound to original source `6352756931c58e702eb5c15c05d44515091274b2`.
+
+| Gate | Terminal result and retained receipt |
+|---|---|
+| Ordinary 800 × 450 / DPR 1 | **PASS** — [job 124324212099](https://github.com/techrote/sandfall/actions/runs/41131776735/job/124324212099), [artifact 13014080666](https://github.com/techrote/sandfall/actions/runs/41131776735/artifacts/13014080666) |
+| Ordinary 640 × 400 / DPR 2 | **PASS** — [job 124324211950](https://github.com/techrote/sandfall/actions/runs/41131776735/job/124324211950), [artifact 13013254801](https://github.com/techrote/sandfall/actions/runs/41131776735/artifacts/13013254801) |
+| Focused native render/coupling/lifecycle | **PASS** — [job 124324211665](https://github.com/techrote/sandfall/actions/runs/41131776735/job/124324211665), [artifact 13013905575](https://github.com/techrote/sandfall/actions/runs/41131776735/artifacts/13013905575); 12 registered tests, C-header/lifecycle/settled checks, 117 stable inputs |
+| Documentation/provenance reconciliation | **PASS, narrow scope** — [run 41131784531](https://github.com/techrote/sandfall/actions/runs/41131784531), [artifact 13013900438](https://github.com/techrote/sandfall/actions/runs/41131784531/artifacts/13013900438); all six/eight inherited errors retained |
+
+Both browser jobs ran ordinary `?test=1`, with the special Rapier fixture absent,
+native/Rapier readiness true and one compatibility worker. They independently
+verified all 18 export files plus the HTTP-served manifest, all three executing
+JavaScript hashes, correct trusted canvas pointer/keyboard events, zero
+unintended painting and zero render rejections. Input finished before capture;
+pause remained stable through the final post-capture observation. The same 20
+Python, nine coordinate and five PNG regressions passed in both jobs, including
+the bright-UI/black-world negative and source-drift refusal cases.
+
+| Actual observation | 800 × 450 / DPR 1 | 640 × 400 / DPR 2 |
+|---|---|---|
+| CSS canvas | 800 × 450 | 640 × 400 |
+| Canvas backing | 800 × 450 | 1280 × 800 |
+| Actual visible-view PNG | 800 × 450 | 640 × 400 |
+| Continue delivered to CSS centre | `(266.40625,337.5)` | `(201.25,300)` |
+| First Continue / normal advancement | tick 6 / **18** | tick 4 / **24** |
+| Escape menu pause | tick 20, stable | tick 26, stable |
+| Second Continue / P pause | tick 22 / **24**, stable through capture | tick 28 / **30**, stable through capture |
+| Native material movement | 21,682 | 27,022 |
+| Actual-world screenshot interior | x `[128,672)`, y `[109,413)` | x `[79,561)`, y `[97,367)` |
+| Sampled world pixels | 55,328 | 43,470 |
+| Bright world pixels | 18,486 — **33.4117%** | 15,342 — **35.2933%** |
+| Quantized world colours | **470** | **525** |
+| Harness duration | 188.001 s | 548.848 s |
+
+CDP and CLI identify the CI browser as **Chrome 156.0.8078.47**, revision
+`1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775`, with SwiftShader/ANGLE.
+This is distinct from local diagnostic Chrome 156.0.8078.79. Both screenshots
+use `Page.captureScreenshot` with `fromSurface:false`. In particular, the DPR-2
+640 × 400 PNG is scored at its actual dimensions, without confusing its scale
+with the 1280 × 800 backing buffer.
+
+Independent review decoded each PNG with Pillow, recalculated the world crop
+and pixel counts, inspected the actual image, checked trusted input/transition
+observations, and compared source and executing-harness hashes. Both passed.
+The current artifacts also retain 4 original-failure files, 14 first-DPR2-failure
+files, 34 second-DPR2-failure files and 4 original coupled-fixture files; every
+retained member was compared byte-for-byte with its earlier independent download.
+
+| Artifact ZIP | SHA-256 |
+|---|---|
+| DPR 1 / 13014080666 | `ef66000cff7d4d887156c63e6e3e6803759c4a512f2dbe298c3f5d56a3b658f3` |
+| DPR 2 / 13013254801 | `f500e6df4eb2c17dc40c3871615518f753881073e5597260041c669ae1377ab4` |
+| Focused native / 13013905575 | `99efee0765c495d606c5486c9a9ac5165783743d8507e955ad04db202bf0cc67` |
+| Documentation / 13013900438 | `024c552c113dcb0fac12f0633f99687a8b30ca37d7c6f8ef9de2f8b2e5bccf0a` |
+
+| Retained raw file | SHA-256 |
+|---|---|
+| DPR-1 browser JSON | `df83e16f86c33d234a91999ecbfba556ef79c217b44c39ae53fc7e2c174955fd` |
+| DPR-1 screenshot | `e4dd0611a69c8380e0445cf9daa7901d2254b0f14b5eaed4cdff86e184bb950e` |
+| DPR-2 browser JSON | `fbfbdfa6941f608c9037b9b02e335444d1d808efc672f0f853cf875afbc9c4b9` |
+| DPR-2 screenshot | `d57ceb2eeca97e8bd51aff10a14191090c0dc28393960dbaed46a80f70b4428f` |
+| Focused native receipt | `5ef54718f7d29a3429452e46502595f7be18fb7b2313f49fa253fd38a7cdf78f` |
+| Documentation receipt | `b3adc0329da528930e833344dbae36eb8a182c4b815b7d275e6362e7cb53a2f4` |
+
+### Durable evidence and substantive review
+
+The [committed evidence manifest](sf-m0-2026-10-30/qualification-86f4c942/manifest.json)
+indexes selected raw receipts, Chrome/HTTP and workflow logs, original full-native
+log, positive screenshots and all three browser failures. The files are copied
+byte-for-byte; their original execution/source identities and SHA-256 values
+remain explicit. This selected evidence remains in Git independently of Actions
+retention: current ordinary/focused-native/documentation artifacts use 30 days;
+the original Web/full-native artifacts use 14 days. Raw evidence disables Git
+line-ending conversion so its byte hashes survive cross-platform checkout.
+Inspect the actual
+[DPR-1 screenshot](sf-m0-2026-10-30/qualification-86f4c942/ordinary-dpr1/browser.png)
+and [DPR-2 screenshot](sf-m0-2026-10-30/qualification-86f4c942/ordinary-dpr2/browser.png).
+
+The complete runnable export is not embedded in this selected evidence bundle.
+The artifact-reuse workflow depends on the original Web artifact: after its
+14-day retention expires, rerunning requires a new source-matched compatibility
+export and reviewed updates to the pinned artifact/source/hash references.
+Receipts or screenshots alone cannot replace that runnable export. SF-M1's new
+host already requires a fresh application export regardless of this expiry.
+
+One supplementary local view-capture diagnostic lost its owning process
+sessions before producing a terminal receipt or image. Its retained interruption
+receipt reports that incomplete result and the unproven termination cause; it
+is not counted as acceptance. The committed CI matrix above supplies the actual
+terminal qualification.
+
+Substantive review found no blocking defect in the geometry, actual-world pixel
+oracle, source/HTTP verifier, capture ordering, fail-closed cleanup, native
+evidence or SF-M1 plan. The review independently checked all 117 native source
+hashes and command logs, the unchanged 600-tick fixture files, exact six/eight
+provenance limitations, and both new ordinary-browser results. Review does not
+lift the owner hold or substitute for a human exhibition review.
 
 ## Remaining qualification boundaries and next milestone
 
@@ -320,7 +426,7 @@ legibility and pacing before exhibition qualification. Record source/export,
 scene, browser/device, reviewer/date and disposition. Automated screenshot
 inspection and the inherited bootstrap do not establish final Gallery acceptance.
 
-After the executable ordinary-Web CI gates pass, proceed with the bounded
+The executable ordinary-Web CI gates have passed at `86f4c942...`; proceed with the bounded
 [SF-M1 host/input-cut plan](../SF-M1-HOST-INPUT-CUT.md). Full MZPaint authoring and
 history remain SF-M2, generalized sixteen-body authoring SF-M3, and the portable
 `.sandfall` ZIP project archive SF-M4. No broad SF-M1 implementation is part of

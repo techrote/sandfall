@@ -1,0 +1,191 @@
+{
+  "schema": "sandfall-sf-m0-web-artifact-verification-v1",
+  "status": "passed",
+  "scope": "export identity and source equivalence; browser execution separately required",
+  "build_source_commit": "6352756931c58e702eb5c15c05d44515091274b2",
+  "harness_source_commit": "350d7b9084eb71eb464913b1b4a5ac6d3a516ede",
+  "profile": "compat",
+  "rapier": "0.35.2",
+  "manifest_sha256": "8532e2c4278a2fcce3c21d4468c9c9a149fbca95721c2d9958f2e4dbe7b61076",
+  "artifacts": [
+    {
+      "path": "LICENSE_STATUS.md",
+      "sha256": "3bfb7c5ddd1418ab38621d1e5b841c9e9c4845e9166a196143c8a71f3cd46b70",
+      "size": 780
+    },
+    {
+      "path": "RAPIER_LICENSE.txt",
+      "sha256": "b876a61b43cc648b56428d56a484784a88d4231809e4d7f4fd8dbdb6772400e8",
+      "size": 1102
+    },
+    {
+      "path": "RAPIER_THIRDPARTY.txt",
+      "sha256": "63405a03af6a0a85dace7cc08001b34f28e8792dd2b7fb4de09137a6b58392df",
+      "size": 15824
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "df8aa85bb2be5b09eb92b1660f03db12484cf685ffc44ee8802c7334180e0c6c",
+      "size": 4729
+    },
+    {
+      "path": "build-info.json",
+      "sha256": "c9db5dc697b4831f70763d4056fd73a82faf4c35803cbbcf9cc766decdc4004b",
+      "size": 1131
+    },
+    {
+      "path": "godot_rapier.wasm",
+      "sha256": "5ff6933670c1377c24dcbac30d67758a307165eacdcbd33b25bf01669577c4c2",
+      "size": 2751606
+    },
+    {
+      "path": "index.apple-touch-icon.png",
+      "sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5",
+      "size": 11944
+    },
+    {
+      "path": "index.audio.position.worklet.js",
+      "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
+      "size": 2973
+    },
+    {
+      "path": "index.audio.worklet.js",
+      "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
+      "size": 7298
+    },
+    {
+      "path": "index.html",
+      "sha256": "bdf53d68d4b456fd3b387d8bc3ade8feb95ae718e499523031a790ea8bff1950",
+      "size": 5518
+    },
+    {
+      "path": "index.icon.png",
+      "sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5",
+      "size": 5700
+    },
+    {
+      "path": "index.js",
+      "sha256": "631bbecee5e5136b5f29ed7dedb31a5d022d65da4b639b6e52a48d0c5e3d3154",
+      "size": 2859484
+    },
+    {
+      "path": "index.pck",
+      "sha256": "df8bbea5aeccb0584610abc0ebda852e11e24ad871b17986a26dd93d4ac16dfa",
+      "size": 4418804
+    },
+    {
+      "path": "index.png",
+      "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e",
+      "size": 21443
+    },
+    {
+      "path": "index.side.wasm",
+      "sha256": "85473bead1cf62c408d034189fae423594c45fef403fc0707a72bb8e2b87a6d2",
+      "size": 44072184
+    },
+    {
+      "path": "index.wasm",
+      "sha256": "d37e06f7126849a81fa099f1cf89f0d8ccbb87502b8c857492490dff66fad95a",
+      "size": 1508095
+    },
+    {
+      "path": "libcybersand_native.web.nothreads.wasm",
+      "sha256": "59cb17e512f89f0961871069dbcdc6064034ca671d3e205b1b1a11b46feb62cc",
+      "size": 4245483
+    },
+    {
+      "path": "serve_web.py",
+      "sha256": "22c2e55cc248070b2f68ffceb0cf3d7401c6d4ef7d4202de20884d9adee97d4a",
+      "size": 1979
+    }
+  ],
+  "logical_viewport": {
+    "width": 1280,
+    "height": 800,
+    "stretch_mode": "canvas_items",
+    "stretch_aspect": "keep",
+    "aspect_source": "godot-4.7-default",
+    "aspect_default_source": "https://github.com/godotengine/godot/blob/5b4e0cb0f/core/config/project_settings.cpp",
+    "canvas_resize_policy": 2,
+    "focus_canvas_on_start": true,
+    "staging_replacements": [
+      {
+        "before": "viewport_width=1920",
+        "after": "viewport_width=1280"
+      },
+      {
+        "before": "viewport_height=1080",
+        "after": "viewport_height=800"
+      },
+      {
+        "before": "window_width_override=1920",
+        "after": "window_width_override=1280"
+      },
+      {
+        "before": "window_height_override=1080",
+        "after": "window_height_override=800"
+      }
+    ],
+    "source_blobs": {
+      "godot/project.godot": "3055b7976da5d9378d226805492554b75717a1a1",
+      "tools/build_web.py": "cbe83e586cc314ee177b242a7d2609ef2615c3e7",
+      "godot/export_presets.cfg": "77bacf2f42068625be5d3a534b6f1f6d79345764"
+    }
+  },
+  "source_equivalence": {
+    "committed_changed_paths": [
+      ".github/workflows/sf-m0-immutable-retest.yml",
+      ".github/workflows/sf-m0-ordinary-view.yml",
+      "AGENTS.md",
+      "README.md",
+      "docs/README.md",
+      "docs/SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md",
+      "docs/SF-M1-HOST-INPUT-CUT.md",
+      "docs/audits/2026-10-30-sf-m0-browser-timeout.md",
+      "docs/audits/2026-10-30-sf-m0-ordinary-web.md",
+      "docs/audits/2026-10-30-sf-m0-source-import.md",
+      "docs/audits/sf-m0-2026-10-30/diagnostic-manifest.json",
+      "docs/audits/sf-m0-2026-10-30/surface-capture-diagnostic.mjs",
+      "docs/audits/sf-m0-2026-10-30/surface-capture-observations.json",
+      "docs/audits/sf-m0-2026-10-30/view-capture-diagnostic.mjs",
+      "docs/audits/sf-m0-2026-10-30/view-capture-observations.json",
+      "tools/sandfall/sf_m0_geometry.mjs",
+      "tools/sandfall/sf_m0_native_smoke.py",
+      "tools/sandfall/sf_m0_ordinary_browser.mjs",
+      "tools/sandfall/sf_m0_png_stats.mjs",
+      "tools/sandfall/sf_m0_verify_web_artifact.py",
+      "tools/sandfall/test_sf_m0_geometry.mjs",
+      "tools/sandfall/test_sf_m0_png_stats.mjs",
+      "tools/sandfall/test_sf_m0_verify_web_artifact.py"
+    ],
+    "tracked_dirty_paths": [
+      ".github/workflows/sf-m0-ordinary-view.yml",
+      "AGENTS.md",
+      "tools/sandfall/sf_m0_ordinary_browser.mjs"
+    ],
+    "staged_changed_paths": [],
+    "unstaged_changed_paths": [
+      ".github/workflows/sf-m0-ordinary-view.yml",
+      "AGENTS.md",
+      "tools/sandfall/sf_m0_ordinary_browser.mjs"
+    ],
+    "untracked_paths": [],
+    "build_sensitive_changed_paths": [],
+    "checked_prefixes": [
+      "godot/",
+      "native/",
+      "third_party/",
+      "tools/web/"
+    ],
+    "checked_files": [
+      ".gitattributes",
+      ".gitmodules",
+      "LICENSE_STATUS.md",
+      "Makefile",
+      "THIRD_PARTY_NOTICES.md",
+      "tools/build_web.py",
+      "tools/requirements-build.txt",
+      "tools/serve_web.py"
+    ]
+  }
+}
