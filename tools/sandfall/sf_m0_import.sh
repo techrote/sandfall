@@ -60,7 +60,8 @@ cat > docs/audits/2026-10-30-sf-m0-source-import.md <<RECEIPT
 - Retained failure 41106067342: no runner Git committer identity; no merge was made.
 - Retained failure 41106167212: local exact merge succeeded and 18 LFS objects were uploaded, but reference-based LFS push refused a missing historical object (69714ced...) before pushing the Git merge.
 - Retained failure 41106418749: ref-based LFS push again requested missing historical object despite current objects available; switched to exact-OID push.
-- Retained failure 41106692801: **all 18 current LFS objects verified by size and SHA-256** (269259259 bytes), but the automatic Git pre-push LFS hook scanned the same missing historical ref; skip only the redundant hook after explicit current transfer.
+- Retained failure 41106692801: all 18 current LFS bytes verified (269259259 bytes), but automatic pre-push hook requested an older object.
+- Retained failure 41106838912: server GH008 refused the actual full Git history because **at least 96 historical LFS OIDs** were absent in Sandfall. Current-only upload is insufficient; must fetch and transfer all LFS reachable from frozen source.
 
 Source-qualified CyberSand instructions, CI, historical failures and runtime provenance are retained;
 Sandfall-specific requirements live in docs/SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md.
@@ -87,7 +88,14 @@ done < "$RUNNER_TEMP/sf-m0-delta-names.txt"
 
 # GitHub LFS storage is repository-scoped: transfer runtime payloads required
 # by the exact selected revision, never leave unresolvable LFS pointers behind.
-git lfs fetch cybersand "$SOURCE_SHA"
+# GitHub's GH008 pre-receive check requires every LFS object referenced by
+# historical commits in the imported ancestry, not just the 18 at HEAD.
+# The earlier current-only upload was insufficient (run 41106838912).
+git lfs fetch --all cybersand "$SOURCE_SHA"
+object_bytes="$(du -sb .git/lfs/objects | awk '{print $1}')"
+object_count="$(git lfs ls-files --all --long | wc -l | tr -d ' ')"
+echo "SF_M0_HISTORY_LFS_OIDS=$object_count LOCAL_LFS_BYTES=$object_bytes"
+test "$object_bytes" -le 8589934592 || fail "LFS transfer exceeds 8 GiB budget; stop for owner decision"
 # `git lfs push origin HEAD` traverses LFS in historical commits
 # and can request an old object not retained by the frozen-current fetch.
 # Push ONLY the exact OIDs present at the imported commit, not a ref walk.
@@ -103,6 +111,7 @@ for path in paths:
 PYOIDS
 mapfile -t oids < "$RUNNER_TEMP/sf-m0-current-lfs-oids.txt"
 test "18" -eq "${#oids[@]}" || fail "Expected 18 runtime OIDs"
+git lfs push --all origin HEAD
 git lfs push --object-id origin "${oids[@]}"
 git lfs checkout
 python3 - <<'PYLFS'
