@@ -58,7 +58,8 @@ cat > docs/audits/2026-10-30-sf-m0-source-import.md <<RECEIPT
 - Workflow: .github/workflows/sf-m0-import.yml
 - Web runtime proof: **NOT established by import**. Actual native, Rapier and Web export acceptance is separate.
 - Retained failure 41106067342: no runner Git committer identity; no merge was made.
-- Retained failure 41106167212: two-parent merge succeeded locally and 18/18 LFS objects uploaded, but broad git-lfs fsck requested historical object 69714ced... and refused push; current pinned runtime payloads are checked independently.
+- Retained failure 41106167212: local exact merge succeeded and 18 LFS objects were uploaded, but reference-based LFS push refused a missing historical object (69714ced...) before pushing the Git merge.
+- Retained failure 41106418749: the ref-based LFS push again requested the same missing historical object despite transferring all 18 current OIDs; corrected to explicit OID-scoped transfer.
 
 Source-qualified CyberSand instructions, CI, historical failures and runtime provenance are retained;
 Sandfall-specific requirements live in docs/SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md.
@@ -86,7 +87,22 @@ done < "$RUNNER_TEMP/sf-m0-delta-names.txt"
 # GitHub LFS storage is repository-scoped: transfer runtime payloads required
 # by the exact selected revision, never leave unresolvable LFS pointers behind.
 git lfs fetch cybersand "$SOURCE_SHA"
-git lfs push origin HEAD
+# `git lfs push origin HEAD` traverses LFS in historical commits
+# and can request an old object not retained by the frozen-current fetch.
+# Push ONLY the exact OIDs present at the imported commit, not a ref walk.
+python3 - <<'PYOIDS' > "$RUNNER_TEMP/sf-m0-current-lfs-oids.txt"
+import re, subprocess
+paths=subprocess.check_output(['git','lfs','ls-files','--name-only'],text=True).splitlines()
+assert len(paths)==18, f'Expected 18 pinned-current LFS artifacts, got {len(paths)}'
+for path in paths:
+    pointer=subprocess.check_output(['git','show','HEAD:'+path])
+    match=re.fullmatch(rb'version https://git-lfs.github.com/spec/v1\noid sha256:([0-9a-f]{64})\nsize ([0-9]+)\n',pointer)
+    assert match, f'Not an LFS pointer: {path}'
+    print(match[1].decode())
+PYOIDS
+mapfile -t oids < "$RUNNER_TEMP/sf-m0-current-lfs-oids.txt"
+test "18" -eq "${#oids[@]}" || fail "Expected 18 runtime OIDs"
+git lfs push --object-id origin "${oids[@]}"
 git lfs checkout
 python3 - <<'PYLFS'
 import hashlib, pathlib, re, subprocess
