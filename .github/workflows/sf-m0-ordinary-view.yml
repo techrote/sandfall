@@ -68,6 +68,13 @@ jobs:
           run-id: 41126992330
           github-token: ${{ github.token }}
           path: sf-m0-ordinary/dpr2-failure-41126992330
+      - name: Preserve the failed DPR2 terminal screenshot capture unchanged
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m0-ordinary-640x400-dpr2
+          run-id: 41128785495
+          github-token: ${{ github.token }}
+          path: sf-m0-ordinary/dpr2-capture-timeout-41128785495
       - name: Test coordinates, world-only pixels and source-drift refusals
         shell: bash
         run: |
@@ -107,6 +114,20 @@ jobs:
               for p in sorted(dpr2_failure.rglob("*")) if p.is_file()}}
           assert dpr2_origin["retained_status"]=="failed"
           (root/"dpr2-failure-origin.json").write_text(json.dumps(dpr2_origin,indent=2)+"\n")
+          capture_failure=root/"dpr2-capture-timeout-41128785495"
+          capture_browser=json.loads((capture_failure/"browser.json").read_text())
+          capture_origin={"schema":"sandfall-retained-browser-failure-v1",
+            "evidence_kind":"preserved failed execution; NOT the current run",
+            "source_run":41128785495,"artifact_id":13011774471,
+            "original_zip_sha256":"531b8132176a48837c96432235108759f7cf7f8316bb53b6a6237e7d64c852d2",
+            "retained_status":capture_browser["status"],
+            "retained_tick":capture_browser["final_state"]["tick"],
+            "retained_failures":capture_browser["failures"],
+            "files":{p.relative_to(capture_failure).as_posix():
+              {"sha256":hashlib.sha256(p.read_bytes()).hexdigest(),"size":p.stat().st_size}
+              for p in sorted(capture_failure.rglob("*")) if p.is_file()}}
+          assert capture_origin["retained_status"]=="failed"
+          (root/"dpr2-capture-timeout-origin.json").write_text(json.dumps(capture_origin,indent=2)+"\n")
           # Preserve the original 600-tick execution alongside the new ordinary
           # UI evidence. Copying it is not a new fixture execution at this HEAD.
           original=pathlib.Path("sf-m0-evidence")
@@ -152,6 +173,7 @@ jobs:
           python3 tools/serve_web.py --directory build/web --port 8040 > sf-m0-ordinary/http.log 2>&1 &
           SERVER_PID=$!
           CHROME="$(command -v google-chrome-stable || command -v google-chrome)"
+          "$CHROME" --version > sf-m0-ordinary/chrome-version.txt
           "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
             --remote-debugging-port=9231 \

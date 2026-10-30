@@ -46,6 +46,10 @@ milestones are **not Sandfall assignments**.
   Never use raw `Control.get_global_rect()` values directly as CDP coordinates
   or count menu/UI pixels as simulation rendering. A reused artifact keeps its
   original build SHA; changed Godot/native/build inputs require a fresh export.
+  Complete genuine input before terminal CDP capture: a timed-out screenshot
+  promise does not cancel an underlying capture or temporary DPR emulation.
+  Never send later input or start overlapping captures after capture begins;
+  verify trusted DOM pointer coordinates against the intended CSS targets.
 - [SF-M1 preparation](docs/SF-M1-HOST-INPUT-CUT.md) is a bounded host/input-cut
   plan. Start implementation only after fresh terminal SF-M0 executable gates;
   keep full editing, sixteen-body authoring and archive work in later milestones.

@@ -37,7 +37,7 @@ const started = Date.now();
 const observations = [], consoleEvents = [], inputEvents = [], captures = [], transitions = [];
 const failures = [];
 const servedIdentity = [];
-let ws, nextId = 0, state = null, metrics = null, domInputEvents = [], phase = "startup";
+let ws, nextId = 0, state = null, metrics = null, browserVersion = null, domInputEvents = [], phase = "startup";
 let pollErrors = 0, initialTick = null, firstAdvanceTick = null, menuPauseTick = null;
 let captureStarted = false;
 const pending = new Map();
@@ -152,12 +152,13 @@ async function key(key, code, keyCode) {
 
 async function capture(name, scoreWorld = false) {
   captureStarted = true;
-  const snap = {name,phase,elapsed_ms:Date.now()-started,state,metrics};
+  const snap = {name,phase,elapsed_ms:Date.now()-started,state,metrics,
+    method:"Page.captureScreenshot",from_surface:false};
   captures.push(snap);
   try {
-    // A 1280x800 SwiftShader readback can exceed 60 seconds. Keep it bounded
-    // without racing subsequent input against an unfinished Chromium capture.
-    const r = await cmd("Page.captureScreenshot", {format:"png",fromSurface:true}, 150000);
+    // Capture the visible browser view without Chromium's temporary surface
+    // emulation/resize. Actual PNG dimensions still define the world ROI scale.
+    const r = await cmd("Page.captureScreenshot", {format:"png",fromSurface:false}, 150000);
     const bytes = Buffer.from(r.data,"base64");
     const path = name === "world" ? screenshotPath : screenshotPath.replace(/\.png$/, "-"+name+".png");
     mkdirSync(dirname(path),{recursive:true});
@@ -226,6 +227,7 @@ try {
       if (cb) {pending.delete(m.id);m.error?cb.reject(Error(JSON.stringify(m.error))):cb.resolve(m.result);}
     }
   });
+  browserVersion = await cmd("Browser.getVersion");
   await cmd("Page.enable");
   await cmd("Runtime.enable");
   await cmd("Page.bringToFront");
@@ -300,7 +302,8 @@ try {
   const evidence={schema:"sandfall-sf-m0-ordinary-visual-v2",url,
     observed_at:new Date().toISOString(),duration_ms:Date.now()-started,
     status:failures.length?"failed":"passed",failures,
-    requested_viewport:{width,height,dpr},logical_viewport:layout,served_identity:servedIdentity,
+    requested_viewport:{width,height,dpr},browser_version:browserVersion,
+    logical_viewport:layout,served_identity:servedIdentity,
     harness_inputs:harnessInputs,
     verification:{path:verificationPath,sha256:sha256(verificationBytes),
       build_source_commit:verification.build_source_commit,harness_source_commit:verification.harness_source_commit,
@@ -315,8 +318,23 @@ try {
   console.log("SF_M0_ORDINARY_RESULT",JSON.stringify({status:evidence.status,failures,
     build_source:verification.build_source_commit,final_tick:state?.tick,
     pixels:captures.find(c=>c.name==="world")?.pixels}));
+  process.exitCode=failures.length?1:0;
+  // A successful Browser.close reply need not finish the WebSocket handshake.
+  // Keep cleanup bounded too; failure is retained and can never become green.
+  const cleanupDeadline=setTimeout(()=>{
+    failures.push("CDP transport cleanup exceeded five seconds");
+    evidence.status="failed";
+    evidence.cleanup_timeout=true;
+    writeFileSync(output,JSON.stringify(evidence,null,2)+"\n");
+    console.error("SF_M0_ORDINARY_CLEANUP_FAILURE",failures.at(-1));
+    process.exit(1);
+  },5000);
+  cleanupDeadline.unref();
   if (ws?.readyState===WebSocket.OPEN) {
-    try {await cmd("Browser.close",{},3000);} catch {ws.close();}
+    try {await cmd("Browser.close",{},3000);} catch { /* Close transport below. */ }
   }
-  if (failures.length) process.exitCode=1;
+  if (ws && ws.readyState!==WebSocket.CLOSED) {
+    ws.addEventListener("close",()=>clearTimeout(cleanupDeadline),{once:true});
+    try {ws.close();} catch { /* Deadline records an unresolved transport. */ }
+  } else clearTimeout(cleanupDeadline);
 }

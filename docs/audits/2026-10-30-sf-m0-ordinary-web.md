@@ -3,8 +3,10 @@
 **Disposition:** the original coordinate/input blocker is reproduced from its
 retained evidence and corrected in the browser harness. The unchanged, verified
 compatibility export passes the original 800 × 450 case in exact committed CI.
-The additional DPR-2 case exposed a separate screenshot/input race; its evidence
-and correction are recorded below, pending the corrected terminal matrix.
+The additional DPR-2 case exposed a separate screenshot/input race. After that
+correction, genuine DPR-2 input and 22 ticks passed, but terminal surface capture
+timed out. Both failures are retained below. Visible-view capture now requires a
+fresh terminal matrix before the complete ordinary-Web gate can pass.
 **PR #2 remains draft and unmerged.**
 
 ## Live reconciliation and authority
@@ -102,9 +104,23 @@ The second correction leaves coordinate mathematics unchanged. All genuine
 input and pause checks finish before the terminal world screenshot. A guard
 forbids subsequent input, and a failed capture cannot launch another overlapping
 capture. Acceptance also requires trusted DOM pointer coordinates to match both
-intended CSS targets. The larger software-rendered DPR-2 surface has a bounded
-150-second capture budget and 900-second overall harness budget; no assertion
+intended CSS targets. There is a 900-second phase-wait deadline, a separate
+150-second capture deadline and a 1,140-second outer process limit; no assertion
 or required tick count is weakened. Failed screenshots remain failures.
+
+At `350d7b9084eb71eb464913b1b4a5ac6d3a516ede`, that sequencing correction
+passed genuine DPR-2 Continue/Escape/Continue/P, normal advancement to tick 16
+and stable pause at tick 22. Its final surface screenshot then exceeded the
+150-second deadline. This is a **capture-only failure**, not a passing visual
+result. It does not demonstrate an application input or simulation failure.
+
+The subsequent minimal correction uses `Page.captureScreenshot` with
+`fromSurface:false` to capture the actual visible browser view, avoiding the
+surface emulation/resize path. It retains the same CSS viewport, DPR, genuine
+input sequence, tick contract and world-only pixel thresholds. The actual PNG
+dimensions determine the crop scale; a 640 × 400 view capture is not mislabelled
+as its 1280 × 800 backing buffer. Full browser version and capture mode are
+recorded. Transport cleanup is bounded and fails closed if its deadline expires.
 
 ## Correction and executable acceptance
 
@@ -139,7 +155,7 @@ Failures retain screenshots/JSON/logs and cannot be converted to success by a
 diagnostic intervention. The overall process and individual CDP operations are
 bounded; input is sent once so late acknowledgements cannot double-toggle menus.
 Screenshots follow all input; a JavaScript/CDP timeout is not cancellation of
-an in-flight Chromium capture. The original coupled-fixture and both failed
+an in-flight Chromium capture. The original coupled-fixture and all three failed
 browser artifacts are copied unchanged into subsequent CI evidence, with
 origin/hash receipts that distinguish preserved executions from the current run.
 
@@ -234,6 +250,47 @@ policy. The native JSON receipt hash is
 Artifacts have 30-day retention. Skipped inherited draft workflows are not
 acceptance passes. The capture-sequencing correction requires a new terminal
 matrix before SF-M1 implementation begins.
+
+### Capture sequencing: `350d7b9084eb71eb464913b1b4a5ac6d3a516ede`
+
+| Gate | Terminal result and retained receipt |
+|---|---|
+| Ordinary 800 × 450 / DPR 1 | **PASS** — [job 124314064047](https://github.com/techrote/sandfall/actions/runs/41128785495/job/124314064047), [artifact 13012980278](https://github.com/techrote/sandfall/actions/runs/41128785495/artifacts/13012980278) |
+| Ordinary 640 × 400 / DPR 2 | **FAIL** — [job 124314064093](https://github.com/techrote/sandfall/actions/runs/41128785495/job/124314064093), [artifact 13011774471](https://github.com/techrote/sandfall/actions/runs/41128785495/artifacts/13011774471); terminal surface capture timed out after genuine input/tick/pause checks |
+| Focused native render/coupling/lifecycle | **PASS** — [job 124314063578](https://github.com/techrote/sandfall/actions/runs/41128785495/job/124314063578), [artifact 13012236542](https://github.com/techrote/sandfall/actions/runs/41128785495/artifacts/13012236542); 12 tests, C-header and lifecycle executables, 117 stable input hashes |
+| Documentation/provenance reconciliation | **PASS, narrow scope** — [run 41128795373](https://github.com/techrote/sandfall/actions/runs/41128795373), [artifact 13011992354](https://github.com/techrote/sandfall/actions/runs/41128795373/artifacts/13011992354); original six/eight failures retained |
+
+The DPR-1 run took 204.779 seconds: native tick 24 before keyboard checks,
+Escape/Menu stable at 26, Continue to 28, and P paused at 30 through capture.
+Material movement was 27,022, with zero paint commands or render rejections.
+The actual world interior remained x `[128,672)`, y `[109,413)`: 55,328 sampled
+pixels, **33.3990% bright**, **473 quantized colours**. Screenshot SHA-256:
+`8c7e364235321457d18736d0ff7c614d904fd3efa1313aaedfbb464c2050a269`;
+browser JSON SHA-256:
+`3db4f6a60e91367526cb6a3983143316aa98a4940077fdca161605be78d29b56`.
+
+The DPR-2 run took 832.898 seconds and remains **failed**, without a new PNG.
+All four trusted pointer events matched `(201.25, 300)`; Escape and P were
+trusted and targeted the focused canvas. Continue closed the menu at tick 6;
+normal advancement reached 16; Escape held at 16; Continue resumed to 20;
+P paused at 22. Material movement was 19,898, with zero paint commands or render
+rejections. Capture began only after stable pause, then exceeded 150 seconds.
+No post-capture stability or pixel acceptance is claimed. The original JSON,
+Chrome/HTTP logs and nested prior evidence are preserved unchanged in subsequent
+artifacts, with an explicit original-execution receipt.
+
+| Artifact ZIP | SHA-256 |
+|---|---|
+| DPR 1 / 13012980278 | `e2850dd27ce91e6c3a682ceef69468607fc9dabceac2033786320624263424f3` |
+| DPR 2 capture failure / 13011774471 | `531b8132176a48837c96432235108759f7cf7f8316bb53b6a6237e7d64c852d2` |
+| Focused native / 13012236542 | `c0e9c2e1b08b393ac7b3e2ce8ec603e530d9bc1a96d197ca61a91eab6eb63bd0` |
+| Documentation / 13011992354 | `d59588eb2429f03cee50b7e91c4fa19bd89adaf6d44cf2bf1014fc83f8769ed1` |
+
+The native receipt SHA-256 is
+`36e23ed7821e22e6b7474db27ef38a4ee30af69f0ea55fb43de7638851f4e8a0`.
+The overall ordinary workflow is **failed** at this commit. The view-capture
+correction is pending fresh committed qualification; the diagnostic blank-page
+results are not substituted for an actual Sandfall screenshot.
 
 ## Remaining qualification boundaries and next milestone
 
