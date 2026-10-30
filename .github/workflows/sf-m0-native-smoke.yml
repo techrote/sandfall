@@ -1,0 +1,46 @@
+name: SF-M0 scoped native smoke (full-suite timeout kept separately)
+
+on:
+  push:
+    branches:
+      - sf-m0/browser-triage-20261030
+    paths:
+      - .github/workflows/sf-m0-native-smoke.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Checkout source and full imported commit ancestry
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - name: Verify source parents and compile bounded native tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sf-m0-native-smoke
+          (
+            test "$(git rev-parse b48214da1935519002a6c4bfc6d7f465eb4a3eab^2)" = "1d376fb38ff5df83691e468baa0639270a5f40e6"
+            test "$(git rev-parse '1d376fb38ff5df83691e468baa0639270a5f40e6^{tree}')" = "97eb0f4eeedde9bbe8b83047ca45c82d8a377d66"
+            python3 tools/ci/check_ci_provider_policy.py
+            timeout 600 make -j2 c-header-check build/test_soliding_lifecycle build/test_settled_regions build/test_generation_fields
+            timeout 90 ./build/test_soliding_lifecycle
+            timeout 90 ./build/test_settled_regions
+            timeout 90 ./build/test_generation_fields
+            echo "SF_M0_SCOPED_NATIVE_SMOKE_PASSED source=$(git rev-parse HEAD)"
+          ) 2>&1 | tee sf-m0-native-smoke/run.log
+      - name: Retain exact scoped native checks
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m0-scoped-native-smoke
+          path: sf-m0-native-smoke/
+          retention-days: 14
+          if-no-files-found: warn
