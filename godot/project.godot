@@ -1,0 +1,41 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Cyber Sand Reference Sandbox"
+run/main_scene="res://feature_launcher.tscn"
+config/features=PackedStringArray("4.7")
+
+[autoload]
+
+FeatureNavigation="*res://scripts/feature_navigation.gd"
+
+[cybersand]
+
+native_worker_threads=0
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1920
+window/size/window_height_override=1080
+window/stretch/mode="canvas_items"
+
+[physics]
+
+2d/physics_engine="Rapier2D"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

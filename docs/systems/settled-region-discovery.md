@@ -1,0 +1,329 @@
+---
+title: Incremental settled-block discovery
+status: Current
+document-kind: design
+scope: Stage 3 read-only World producer, journal and bounded connectivity foundations; acceleration remains separate
+canonical-for: [settled-region-discovery]
+last-reviewed: 2026-09-20
+related-documents: [../architecture/soliding-lifecycle.md, ../operations/soliding-programme.md, activity-dirty-regions-and-waking.md, ../operations/soliding-measurement.md]
+---
+
+# Incremental settled-block discovery
+
+## First increment and limits
+
+**Current opt-in native producer and journal:** [World](../../native/include/cybersand/world.hpp)
+owns a disabled-by-default [bounded coordinator](../../native/include/cybersand/settled_world_discovery.hpp),
+which feeds [SettledDiscovery](../../native/include/cybersand/settled_discovery.hpp)
+from serialized owner hooks and classifies complete registered tiles. Cells remain the only material owner;
+no scheduler skip, proxy, compaction, material rule or Rapier change is admitted.
+A uniform tile is not a face-connected region and not a cohesion certificate.
+Mixed states, holes and material boundaries must be explicit refusals of the
+uniform-summary classification, never silently filled or averaged.
+
+**Current opt-in connectivity:** when `settled_region_connectivity_enabled` is
+explicitly enabled, each completed journal publication is copied into the bounded
+[`SettledRegions`](../../native/include/cybersand/settled_regions.hpp) engine under
+the serialized World owner. Region publication remains read-only: it neither skips
+simulation work nor transfers cell/material ownership. Issue #64 replaces the earlier coarse facing-tile retirement with exact graph
+incidence. Each accepted tile revision owns bounded local components and
+revision-bound face runs; components own their incident cross-tile edges, while
+typed tile-revision and absence-face dependencies point back to the exact active
+build/publication subscribers that use them. A changed tile therefore retires
+its own dependency subscribers and only the absence certificates or neighboring
+publications that actually depend on newly resident/facing coverage. Blocked,
+refused and capacity-unavailable tiles remain unknown and therefore cannot be
+crossed by a complete publication.
+
+The Stage 2 lifecycle received an independent review and focused transition tests
+before this substrate was written. **Current:** #59 sizes journal and connectivity
+backing from the effective runtime tile capacity rather than the compiled maximum:
+journal/owner/key storage are `T`, region edge storage is `64T`, and
+frontier/seen/member storage is `32T`; `C=1024`, `K=32`, `B=128` and
+publication `P=4096` remain frozen. #64 adds runtime-sized typed dependency
+storage `D=max(16T, frontier_capacity)` (therefore `32T` in the integrated
+configuration), plus `2P+2` bounded generation-bearing subscriber headers.
+These are observer resources only: saturation refuses connectivity publication
+without changing authoritative World state. #60 adds construction-time bounded ordered
+key/spatial indexes without hot resizing or per-operation allocation. Registration
+rejects zero/oversized/overflowing bounds, duplicate/overlapping geometry where
+required, and full capacity. Handles contain an externally unique nonzero
+incarnation plus never-reused slot; there is no live reset. New registry
+construction requires a fresh incarnation. This is a block observation ID, not
+production region identity. Copy/move cloning is forbidden.
+
+**Current producer integration:** chunk creation registers canonical nonoverlapping
+subtiles through an array-backed height-bounded ordered index over canonical tile
+keys. Resolved owners carry incarnation-qualified direct handles, so follow-on
+operations do not repeat key lookup. The generic connectivity adapter separately
+uses a bounded `32T` row-interval ordered index for arbitrary rectangle
+overlap/containment and checked face mapping; canonical registration and face
+discovery no longer scan unrelated resident tiles.
+
+Issue #61 makes payload mutation delivery change-driven. Direct material/state/
+temperature mutations resolve only their canonical owner and immediately advance its
+independent journal revision. Native worker jobs write only fixed local report records;
+the serialized owner reduces those reports in deterministic barrier order, preserves
+the exact number of writes represented by a coalesced report, invalidates source and
+destination endpoints for movement and Water transfer, and queues at most one deferred
+payload service entry per affected tile. That deferred queue is fixed at `T`, allocated
+with the coordinator, and performs local signal refresh before a tile may resume
+journal scanning. Ordinary direct/worker payload invalidation therefore has no
+discovery-wide resident scan and no hot allocation. If a worker cannot represent every
+payload report, observation is fail-closed by a producer fence while authoritative
+World state remains valid.
+
+Issue #62 replaces the ordinary resident-wide activity/deadline refresh with bounded
+parent-local witnesses plus one canonical due-tick/parent deadline index. Quiet
+observer maintenance therefore does not enumerate every represented discovery tile
+to rediscover unchanged activity/deadline state. Authoritative simulation still walks
+its own activity metadata for scheduler/sleep semantics; #62 does not replace that
+scheduler or reinterpret deadlines.
+
+Issue #63 completes the frozen non-payload producer lane. Transient occupancy is
+tracked as an exact per-tile count with a nonwrapping mask generation, so set/clear and
+change-and-restore cannot collapse to one boolean observation. Pending explosions use
+the #57 footprint `P = (R + 2) + maximum_rule_radius`; bounded canonical-key routing
+increments/decrements exact per-tile pending counts, overlapping events retain
+independent obligations, and newly registered coverage derives the count from the
+bounded authoritative pending-event queue. Checked signed geometry failure or a
+rectangle whose absent-address traversal would exceed the configured bound quarantines
+observation without rejecting or rolling back authoritative simulation.
+
+Requested and applied inclusion have separate nonwrapping epochs. Explicit region
+requests reconcile bounded owner records only when a request changes; tick entry
+advances the applied epoch even when request ABA restores the same geometric coverage.
+The #62 parent-local activity/deadline path never recomputes these #63 signals.
+Coverage is exposed explicitly as `NotResident`, `ResidentUntracked`,
+`RegisteredUnknown`, `Ready`, `Excluded`, `Blocked`, `CapacityRefused` or
+`Failed`. With connectivity enabled, new residency is registered graph-side as
+unknown before journal payload registration, so a prior absence certificate is
+revoked before newly resident payload can become consumer-visible. All added witness
+fields live in the construction-reserved `T` owner records; no hot overflow container
+was added. #64 remains separate in the graph-side incidence/reverse-retirement lane.
+
+Local mask occupancy, accepted pending events, requested/applied inclusion, live
+adhesion-policy fences, clear/move identity and failed-tick quarantine retain their
+existing simulation semantics. A missing mutation witness still makes the producer
+unsafe: the journal cannot detect an omitted hook. There is no
+rest-age or observation-gap detector in this journal: a producer must clear
+`witness_complete` on gaps; unchanged flags across elapsed time prove nothing.
+Public registration still rejects exact duplicate bounds but permits overlaps.
+The World-only unique-registration path is admitted because its canonical key index
+and deterministic chunk/activity/subtile enumeration prove uniqueness first.
+
+## Mutation and activity contract
+
+Use an independent nonwrapping block revision, not render dirty rectangles that
+publication can clear. Direct material/state/temperature edits and deterministic
+post-barrier worker reports invalidate summaries. Change-and-restore still advances
+the witness even when deferred tile service coalesces repeated writes; movement and
+Water report both endpoints. Worker report loss is never treated as "no change": it
+fences observation. #62 carries no-write keep-active and ordinary sleep/wake as
+parent-local activity witnesses. Future interaction obligations are stored in a
+bounded heap ordered by due tick then canonical parent identity, with at most one
+current entry per parent, in-place earlier replacement/cancellation/consumption and
+no stale tombstone accumulation. Overdue excluded obligations park explicitly and
+re-enter already due; nonwrapping generation exhaustion fail-closes observation.
+Active, pending-deadline, occupied, excluded and failed-world states cannot gain
+discovery rest. Re-entry must revalidate through ordinary activity. No sleeping flag
+alone authorizes representation replacement.
+
+A resumable scan retains its starting revision and scratch only. Relevant edits
+invalidate any old summary immediately; no partial result is publicly eligible.
+Complete results publish only after the same revision and activity/exclusion
+conditions survive final validation. Each scan/start/dequeue/finalization in `advance` consumes its declared budget.
+Immediate payload invalidation performs bounded owner lookup plus constant journal
+work outside the service budget. Repeated mutations to the same tile may coalesce only
+their deferred service entry; their nonwrapping revision increments are retained.
+Deferred payload signal refresh consumes explicit service units before journal scan
+work. Canonical key registration/lookup is height-bounded ordered work; generic
+rectangle registration performs at most 32 row-interval queries plus bounded face
+mapping. Producer event volume, registration and metadata feed cost must be measured
+separately. Work saturation may lag safely; dropped invalidations may never leave an
+apparently valid summary.
+
+## Capacity, identity and failure
+
+Current block identity is caller-supplied unique incarnation plus a never-reused
+slot. The substrate refuses revision exhaustion; it does not allocate/check a
+global incarnation or slot generation. Production region generation allocation
+is now implemented by the opt-in connectivity engine and refuses generation or
+publication-serial exhaustion. Registration/queue capacity
+outcomes preserve cell authority. No hot resize or hidden unbounded overflow
+list. If observation integrity is lost, disable consumption of summaries and
+report the reason until explicit observer/world reconstruction. **Current substrate:** explicit producer failure, source-read exception, backwards
+valid clock or revision exhaustion disables every snapshot; the first failure
+reason is retained. Stale handles and refused setup cannot advance the clock.
+No in-place retry/reset exists. **Current World integration:** the tick catch calls
+the observer failure boundary after worker drain; `clear()` constructs a fresh
+nonwrapping incarnation; a World move transfers the observer and leaves no duplicate
+identity. A block-local unhealthy signal is not used as a substitute for failed-World
+quarantine.
+
+## Passed Stage 3A reference and open Stage 3B gate
+
+The [bounded connectivity layer](../../native/include/cybersand/settled_regions.hpp)
+now receives exact complete tile revisions from the World journal and proves
+four-neighbor exact-key local components, revision-bound face adjacency, resumable
+complete-only publication, generation handles, holes, split/merge invalidation and
+explicit capacity refusal in focused and integrated fixtures. Connectivity remains
+separately opt-in and is compiled for at most 4096 tracked tiles with at most 32
+local components per tile. Its fixed per-tile/component/frontier layout is deliberately
+fail-closed but large. Focused/integrated correctness evidence plus exact-head
+publication checkpoint `82e65f3` make this the passed Stage-3A bounded reference.
+It has not passed
+the Stage-3B large-world locality/memory/cost gate.
+
+The connectivity engine retains append-only resident tile slots and fixed
+boundary-cell neighbor maps. #59 removed the compile-maximum small-world backing:
+effective-capacity storage now scales with `T` while the frozen per-tile and
+publication limits above remain explicit. #60 replaces normal-path resident
+registration/key/face scans with height-bounded canonical key lookup, a bounded
+row-interval geometry index, direct owner handles and checked boundary mapping.
+#64 replaces the Stage-3A global edge/dependency invalidation paths with bounded
+generation-qualified local incidence: component→incident-edge lists,
+revision-bound face runs, build/publication→typed dependency lists, and
+tile/absence-target→subscriber reverse lists. Normal edge removal and traversal
+now follow actual component incidence; revision/new-facing invalidation follows
+actual subscribers rather than all resident publications or configured edge
+capacity. Public generation retirement is immediate. Reverse-list reclamation is
+registered separately and performed incrementally with generation checks so a
+reused publication, subscriber, dependency or edge slot cannot be reached through
+a stale ABA reference. #62 separately removes ordinary observer activity/deadline
+resident polling through bounded indexed producer state; #63 still owns the remaining
+mask/event/inclusion/coverage producer sparsification. The final
+split/reconstruction/fair-reclamation scheduler remains #65. The earlier ~67.7 MB
+compile-max measurement is retained only as historical Stage-3A negative scaling
+evidence, not as a description of the current implementation.
+
+It must quantify cell/block/chunk inspections, queue/scratch high water/refusal,
+latency distribution, churn/false invalidation, region count/area, CPU and memory
+per tracked area, and local edit wake/rebuild amplification on large worlds.
+An explicit mixed-block refusal is safe but is not world-scale region discovery.
+
+The first baseline/control and later A/B procedure belong to the
+[measurement contract](../operations/soliding-measurement.md). Missing metrics
+remain gaps; an observer's overhead is not evidence of an acceleration benefit.
+
+**Measured integrated outcome:** the [276-process Stage-3 cost record](../audits/issue-12-2026-09-19/stage3-cost-results.md)
+retains clean workers1/4 Current/producer/journal/connectivity comparisons. It finds
+material fixed memory, producer metadata overhead and expensive large-region rebuilds
+under sparse edits. These are cost-model results, not an acceleration or Stage-4
+admission claim.
+
+The parent-owned [Stage-3 review](../audits/issue-12-2026-09-19/stage3-exit-review.md)
+maps every frozen checklist item to the integrated source, focused regressions and
+capacity/refusal behavior. It classifies the reference as the passed Stage-3A bounded
+checkpoint and keeps Stage 3B open. The next bounded step is the read-only
+[Stage-3B Astra architecture review](../operations/soliding-stage3b-astra-review.md),
+not a locality implementation or Stage-4 bake-off. Stage 4 is not admitted.
+
+## Bounded work, fairness and metrics
+
+**Current:** one budget unit covers starting/dequeuing a block, reading one cell,
+or final revision/condition validation and publication. A 32-square uniform block
+requires 1026 units. Empty/mixed blocks are fully inspected; holes, state differences
+and temperature differences produce explicit classifications. Occupancy produces
+Blocked. Noninspectable signals produce Blocked in one unit without a cell scan.
+Only completed classifications are published as value copies; dirty work immediately
+returns to Invalid, including ABA writes that restore the original tuple. The source
+callback must be bounded, read-only, owner-serialized and non-reentrant.
+
+Repeated invalidation of a partially scanned head rotates it to the tail in constant
+work, so local churn cannot indefinitely starve untouched queued blocks. The first
+outstanding dirty tick survives restarts. Queue high-water counts distinct registered
+blocks and cannot exceed slot capacity. Full registration refuses only the new block;
+there is no existing-summary eviction or lost invalidation.
+
+Journal metrics distinguish signal observations, inspected cells, started blocks, budget work,
+invalidations, restarts, all completed classifications (including Blocked), mixed/blocked
+counts, registration refusals, queue high-water and first-dirty-to-classified maximum/
+total tick latency. Counters saturate; identity/revision counters refuse exhaustion.
+`storage_bytes()` includes the fixed records/queue, not a World or native heap estimate.
+Connectivity separately records extraction, components, boundary comparisons,
+adjacency, incident-edge visits/retirement, typed dependency allocation/high-water/
+refusal, subscriber invalidation/reuse, absence subscriptions, deferred cleanup,
+seed probes, traversal/validation/publication work, region area/count and latency.
+`settled_region_storage_bytes()` reports bounded structural connectivity storage
+for the configured runtime capacities; it is not a resident-set measurement.
+No large-world distribution or real-hook CPU cost is inferred from these counters;
+the registered campaign supplies those costs and its negative results define the
+open Stage-3B work.
+
+The [journal tests](../../native/tests/test_settled_discovery.cpp) exercise budgets,
+partial publication, ABA, exact state/temperature boundaries, exclusion, pending events,
+occupancy, capacity, failure, coordinates, fairness and copied-snapshot lifetime.
+The [World producer tests](../../native/tests/test_settled_world_discovery.cpp)
+exercise direct tuple/heat ABA, render independence, source/destination movement,
+mask/event/inclusion/policy/reset/failure witnesses, canonical/custom/signed geometry,
+no-write activity/deadlines, epoch wrap, capacity isolation, disabled controls and
+workers1/4 parity. Integrated fixtures additionally cover exact two-tile publication,
+split/merge generations, blocked-mask unknown boundaries, noncanonical Empty refusal,
+producer-capacity/failure quarantine and new-facing-tile invalidation. They establish
+this checkpoint's named paths. They support the passed Stage-3A bounded reference but do not supply
+Stage-3B locality/scalability or current desktop/Web runtime acceptance.
+
+## Synthetic journal cost preregistration (2026-09-19)
+
+**Planned measurement, frozen before execution:** the standalone
+[`settled_discovery.cpp`](../../native/bench/settled_discovery.cpp) cost decomposition
+uses contiguous synthetic `DiscoveryCell` arrays, with explicitly supplied constant
+inspectable signals. These are artificial input contracts, not observations of a
+World, material stability or scheduler sleep. The reader only indexes immutable
+source tuples during each service call; notified ABA edits occur between calls.
+
+The matrix is sides **128, 512, 2048** cells, complete nonoverlapping **32x32** tiles,
+fixed **4096** journal slots in every case, budgets **64, 1024, 8192** work units per
+service epoch, and **7 sequential repeats**. A service epoch is one invocation of
+`advance()`, not a simulation tick, frame, or duration of earned rest. Report actual
+`sizeof(DiscoveryCell)`, fixed journal bytes and bytes per registered source cell.
+The partially occupied registry intentionally exposes fixed-capacity memory cost.
+
+Each run separately times source initialization, journal allocation/initialization
+and all registration (including the current linear duplicate-bounds lookup, hence
+quadratic total registration). It then records these fixed phases:
+
+1. Initial full classification: drain the initial queue under the chosen budget.
+2. Idle: **100000** service calls with no dirty notifications.
+3. Local ABA: **128** repetitions of mutating and restoring one source tuple in the
+   centre tile, notifying both changes, then draining that tile completely.
+4. Churn/fairness: enqueue every tile, repeatedly notify centre-tile ABA before
+   service, for `ceil(tile_count * 1026 / budget) + 4096` service epochs. Confirm
+   every unaffected tile eventually publishes; preserve incomplete churning work.
+5. Recovery: stop edits and drain the remaining queue under the same budget.
+
+Report phase elapsed time and producer-call time separately, service epochs,
+inspected cells, started blocks, work units, publications, invalidations, restarts,
+first-dirty-to-classified total latency, lifetime maximum latency/queue high-water,
+and pending queue counts. Producer timing includes clock sampling overhead and
+source mutation/restore. Idle timing includes the harness service call. An explicit
+extra registration at full4096 capacity must refuse; smaller cases do not pretend
+to measure a full-registry refusal. Source tuples must finish exact, and initial
+classification/idle/local work totals have deterministic analytical checks.
+
+The driver [`run_settled_discovery.py`](../../tools/experiments/run_settled_discovery.py)
+freezes copied source/header/driver inputs, tool and binary hashes, Git HEAD/local
+status, hardware and this protocol before compilation/runs. It writes the complete
+run plan before the first timed case, runs only sequential children, retains every
+stdout/stderr/timeout/failure with hashes, and summarizes raw successful values
+without dropping negative or ambiguous arms. Smoke overrides are labeled separately.
+
+**Interpretation limits:** this measures the journal and synthetic array reader,
+not real World hash lookups, native mutation hooks, activity/metadata passes,
+component/connectivity work, collision rebuilds, Rapier or rendering. `advance()`
+work excludes producer calls and registration. Low idle cost or bounded synthetic
+latency cannot establish net savings versus Current sleep, a promotion threshold,
+or Stage 3 completion. Churn overhead and fixed-capacity memory inefficiency are
+results to retain, not reasons to enlarge fixtures until they disappear.
+
+`Empty` means uniform material ID zero; it retains the exact state/temperature
+tuple and does not authorize dropping hidden state or thermal storage. Direct
+tuple tests cover this because Current content hashes alone omit some Empty state.
+
+**Measured standalone outcome:** the [63-process journal cost record](../audits/issue-12-2026-09-19/journal-cost-results.md)
+verifies initial/idle/local work and fair progress under repeated ABA notifications.
+At 2048-square area it records roughly 29 ms initial synthetic scanning and a 491672-byte
+fixed journal. Registration scaling, repeated churn work and incomplete churning
+classification remain explicit negative results. The measured array reader excludes
+real World producer/lookup/connectivity costs and does not satisfy the Stage 3 exit.
