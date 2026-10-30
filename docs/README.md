@@ -8,7 +8,22 @@ last-reviewed: 2026-10-25
 related-documents: [reference/retrieval-index.md, reference/status-and-roadmap.md, operations/documentation-maintenance.md, operations/microscenarios-programme.md, operations/development-claims-remediation-programme.md, operations/water-hybrid-pressure-extension-programme.md, architecture/pressure-optimization.md]
 ---
 
-# CyberSand documentation
+# Sandfall documentation
+
+Active Sandfall authority starts with the
+[v1 architecture and implementation specification](SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md)
+and [root instructions](../AGENTS.md). The
+[SF-M0 source audit](audits/2026-10-30-sf-m0-source-import.md),
+[retained browser-timeout history](audits/2026-10-30-sf-m0-browser-timeout.md) and
+[ordinary-Web qualification](audits/2026-10-30-sf-m0-ordinary-web.md) separate
+source identity, native tests, coupled browser physics and actual UI/rendering.
+[SF-M1 preparation](SF-M1-HOST-INPUT-CUT.md) defines the bounded next host/input
+cut. PR #2 remains draft and unmerged by owner instruction.
+
+## Retained CyberSand technical reference
+
+The inherited dated programme and runtime claims below preserve their original
+source and scope. They are not current Sandfall assignments or release claims.
 
 The [packed worker storage and startup local preparation](audits/2026-10-25-lcb003-final-integration.md#packed-worker-storage-and-startup-local-preparation--2026-10-25)
 records18d compiled/tested3d, native139/DLL46a8b4d9, native164 and focusedSAN39.

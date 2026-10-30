@@ -490,4 +490,16 @@ New logical modules: **SandfallAuthoringDocument**, **SandfallSessionController*
 
 ## Current implementation status
 
-This document records **approved design intent**. At the time of authoring, Sandfall has only its bootstrap README and this documentation branch; the CyberSand engine source **has not yet been imported**, and no Sandfall Web, new UI, full archive or sixteen-body qualification is claimed.
+This document records **approved design intent**. At the original authoring
+checkpoint, Sandfall had only its bootstrap README and documentation branch.
+
+**Updated 30 October 2026:** draft PR #2 preserves the frozen CyberSand ancestry
+and has a source-matched compatibility Web export, a passing 600-tick
+native/Rapier fixture and the full 164-test native baseline. The ordinary-Web
+coordinate defect and its real-input/rendering requalification are recorded in
+the [dated audit](audits/2026-10-30-sf-m0-ordinary-web.md), including exact CI
+disposition and inherited provenance limitations. The
+[SF-M1 preparation](SF-M1-HOST-INPUT-CUT.md) defines the next bounded host/input
+cut. The inherited actor-capable bootstrap is not the Sandfall zero-player host;
+the new UI/editor, archive and sixteen-body v1 requirements remain unimplemented.
+PR #2 remains draft and unmerged by owner instruction.

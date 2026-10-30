@@ -39,6 +39,16 @@ milestones are **not Sandfall assignments**.
   Keep **native**, **actual-browser coupled physics**, **ordinary visual/browser**,
   **threaded** and **human visual** evidence separate. A skipped draft workflow
   or successful build-only export is not a browser pass.
+- The [ordinary-Web audit](docs/audits/2026-10-30-sf-m0-ordinary-web.md)
+  records the logical-Control/CSS coordinate correction. Real browser tests
+  must use source-bound viewport geometry, measured canvas/backing dimensions,
+  genuine application input, and pixels inside the actual world viewport.
+  Never use raw `Control.get_global_rect()` values directly as CDP coordinates
+  or count menu/UI pixels as simulation rendering. A reused artifact keeps its
+  original build SHA; changed Godot/native/build inputs require a fresh export.
+- [SF-M1 preparation](docs/SF-M1-HOST-INPUT-CUT.md) is a bounded host/input-cut
+  plan. Start implementation only after fresh terminal SF-M0 executable gates;
+  keep full editing, sixteen-body authoring and archive work in later milestones.
 - The imported checker has six missing *companion-workspace* references
   and eight stale **desktop** source/runtime digests. The narrow
   Sandfall SF-M0 reconciliation allowlist permits a fresh Web build only

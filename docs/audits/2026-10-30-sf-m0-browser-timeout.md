@@ -1,6 +1,13 @@
 # SF-M0 — Browser timeout and imported-CI provenance, 2026-10-30
 
-**Status: Original 240-second run failed; a separately source-matched frozen-artifact 600-tick browser requalification subsequently PASSED. Exact-latest-HEAD Web rebuild, full release/provenance clearance and PR merge remain separate gates.**
+**Current disposition:** the original 240-second failure remains retained below.
+Fresh build/native [run 41115189216](https://github.com/techrote/sandfall/actions/runs/41115189216)
+subsequently passed at source `6352756931c58e702eb5c15c05d44515091274b2`, including
+all 164 native tests and the complete 600-tick coupled fixture. The separate
+ordinary-Web input/rendering defect and its correction are recorded in the
+[later dated audit](2026-10-30-sf-m0-ordinary-web.md). A reused export always keeps
+its original source identity. Threaded/manual/release qualification and owner
+permission to change PR #2's draft/unmerged state remain separate.
 
 ## Actual retained browser evidence
 

@@ -1,6 +1,11 @@
 # SF-M0 source import — live provenance record (2026-10-30)
 
-Status: **source-history import candidate, subject to post-commit/branch verification**. This record is not Web/browser qualification.
+Current disposition, 30 October 2026: **history import verified** as actual
+two-parent commit `b48214da1935519002a6c4bfc6d7f465eb4a3eab`, with the exact frozen
+second parent and five path differences recorded below. The original candidate
+and failed-transfer chronology remains historical evidence. Subsequent
+native/Web/input/rendering qualification has a separate
+[dated audit](2026-10-30-sf-m0-ordinary-web.md). PR #2 remains draft and unmerged.
 
 ## Frozen authority and exact ancestry
 

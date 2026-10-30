@@ -6,25 +6,39 @@ on:
     paths:
       - .github/workflows/sf-m0-ordinary-view.yml
       - tools/sandfall/sf_m0_ordinary_browser.mjs
+      - tools/sandfall/sf_m0_geometry.mjs
       - tools/sandfall/sf_m0_png_stats.mjs
+      - tools/sandfall/sf_m0_verify_web_artifact.py
+      - tools/sandfall/sf_m0_native_smoke.py
+      - tools/sandfall/test_sf_m0_*.mjs
+      - tools/sandfall/test_sf_m0_verify_web_artifact.py
   workflow_dispatch:
 
 permissions:
   contents: read
   actions: read
 
-# The original CI run's only job finished, but GitHub retained the workflow
-# as in_progress and queued later fixes. New exact-head diagnostic has a fresh,
-# isolated concurrency lane; do not cancel another owner or hide old failures.
 concurrency:
   group: sandfall-sf-m0-ordinary-view-v2
   cancel-in-progress: false
 
 jobs:
   normal-web:
-    name: Normal Web scene, real UI resume, nonblank render
+    name: Ordinary Web ${{ matrix.width }}x${{ matrix.height }} DPR${{ matrix.dpr }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 13
+    timeout-minutes: 16
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Original failing shape, including horizontal letterboxing.
+          - width: 800
+            height: 450
+            dpr: 1
+          # Matching logical aspect with a distinct backing/screenshot scale.
+          - width: 640
+            height: 400
+            dpr: 2
     steps:
       - name: Checkout source and browser assertions with full revision identity
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -38,53 +52,93 @@ jobs:
           run-id: 41115189216
           github-token: ${{ github.token }}
           path: .
-      - name: Verify real export identity, SHA256SUMS and unmodified engine inputs
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import hashlib, json, subprocess
-          root=Path("build/web")
-          info=json.loads((root/"build-info.json").read_text())
-          expected="6352756931c58e702eb5c15c05d44515091274b2"
-          assert info["source_commit"]==expected,info
-          assert info["rapier"]=="0.35.2" and info["profile"]=="compat",info
-          count=0
-          for row in (root/"SHA256SUMS").read_text().splitlines():
-              digest,p=row.split("  ",1)
-              assert hashlib.sha256((root/p).read_bytes()).hexdigest()==digest,p
-              count+=1
-          assert count>=18,count
-          diff=subprocess.check_output(["git","diff","--name-only",expected,"HEAD"],text=True).splitlines()
-          forbidden=tuple(("godot/","native/","third_party/"))
-          unexpected=[p for p in diff if p.startswith(forbidden) or p in {"tools/build_web.py","Makefile"}]
-          assert not unexpected, unexpected
-          print("SF_M0_ORDINARY_FROZEN_EXPORT_VALID",expected,"SHA256SUMS entries",count)
-          PY
-      - name: Launch actual Chrome normal Web scene, resume and inspect output
+      - name: Preserve the original red browser evidence unchanged
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m0-ordinary-visual
+          run-id: 41121317805
+          github-token: ${{ github.token }}
+          path: sf-m0-ordinary/original-failure-41121317805
+      - name: Test coordinates, world-only pixels and source-drift refusals
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p sf-m0-ordinary
+          python3 -m unittest discover -s tools/sandfall -p 'test_sf_m0_*.py' 2>&1 | tee sf-m0-ordinary/python-tests.log
+          node tools/sandfall/test_sf_m0_geometry.mjs > sf-m0-ordinary/geometry-tests.log 2>&1
+          node tools/sandfall/test_sf_m0_png_stats.mjs > sf-m0-ordinary/png-tests.log 2>&1
+          node --check tools/sandfall/sf_m0_ordinary_browser.mjs
+          python3 tools/ci/check_ci_provider_policy.py
+      - name: Verify immutable export bytes, source equivalence and logical viewport
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/sandfall/sf_m0_verify_web_artifact.py \
+            --web-root build/web --expected-build-sha 6352756931c58e702eb5c15c05d44515091274b2 \
+            --output sf-m0-ordinary/artifact-verification.json
+          python3 - <<'PY'
+          import hashlib, json, pathlib, subprocess
+          root=pathlib.Path("sf-m0-ordinary")
+          negative=root/"original-failure-41121317805"
+          record={"source_run":41121317805,"artifact_id":13009056837,
+            "original_zip_sha256":"f0fca61f8cc5bac06ea5212b56f7f0063f65a5e1b39c11fd27a1f8db3cedb663",
+            "files":{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(negative.iterdir()) if p.is_file()},
+            "retained_status":json.loads((negative/"browser.json").read_text())["status"]}
+          assert record["retained_status"]=="failed"
+          (root/"original-failure-origin.json").write_text(json.dumps(record,indent=2)+"\n")
+          (root/"source-sha.txt").write_text(subprocess.check_output(["git","rev-parse","HEAD"],text=True))
+          PY
+      - name: Launch actual Chrome, resume through UI, verify keyboard and world pixels
+        shell: bash
+        env:
+          VIEW_WIDTH: ${{ matrix.width }}
+          VIEW_HEIGHT: ${{ matrix.height }}
+          VIEW_DPR: ${{ matrix.dpr }}
+        run: |
+          set -euo pipefail
           python3 tools/serve_web.py --directory build/web --port 8040 > sf-m0-ordinary/http.log 2>&1 &
+          SERVER_PID=$!
           CHROME="$(command -v google-chrome-stable || command -v google-chrome)"
           "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
             --remote-debugging-port=9231 \
             --user-data-dir="$RUNNER_TEMP/sf-m0-ordinary-chrome" about:blank \
-            >sf-m0-ordinary/chrome.log 2>&1 &
-          node --check tools/sandfall/sf_m0_png_stats.mjs
-          node --check tools/sandfall/sf_m0_ordinary_browser.mjs
-          timeout 520 node tools/sandfall/sf_m0_ordinary_browser.mjs \
+            > sf-m0-ordinary/chrome.log 2>&1 &
+          CHROME_PID=$!
+          trap 'kill "$SERVER_PID" "$CHROME_PID" 2>/dev/null || true' EXIT
+          timeout 660 node tools/sandfall/sf_m0_ordinary_browser.mjs \
             --port 9231 --url 'http://127.0.0.1:8040/?test=1' \
+            --verification sf-m0-ordinary/artifact-verification.json \
+            --width "$VIEW_WIDTH" --height "$VIEW_HEIGHT" --dpr "$VIEW_DPR" \
             --output sf-m0-ordinary/browser.json \
-            --screenshot sf-m0-ordinary/browser.png --timeout-ms 330000
+            --screenshot sf-m0-ordinary/browser.png --timeout-ms 480000 \
+            2>&1 | tee sf-m0-ordinary/browser-harness.log
       - name: Preserve raw normal-run evidence or failure
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: sandfall-sf-m0-ordinary-visual
+          name: sandfall-sf-m0-ordinary-${{ matrix.width }}x${{ matrix.height }}-dpr${{ matrix.dpr }}
           path: sf-m0-ordinary/
-          retention-days: 21
-          if-no-files-found: warn
+          retention-days: 30
+          if-no-files-found: error
+
+  native-focused:
+    name: Native render, coupling and lifecycle regressions (focused)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Checkout exact harness and unchanged native inputs
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - name: Compile and run the twelve native cases and lifecycle checks
+        run: python3 tools/sandfall/sf_m0_native_smoke.py --output-dir sf-m0-native-smoke
+      - name: Preserve command logs, source hashes and terminal receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m0-native-focused
+          path: sf-m0-native-smoke/
+          retention-days: 30
+          if-no-files-found: error
