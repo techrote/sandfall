@@ -322,3 +322,172 @@ Qualify separately:
 - **Bitwise whole-stack replay:** only claim when full native cell, Rapier, Godot host state and command order have actually been proven bit-identical.
 
 CyberSand's **CYSD1** finite-level format omits native continuation/epochs, queued events and Rapier caches. Native and Rapier subsystem determinism does not automatically establish a complete cross-browser guarantee. Retain raw checks, failure evidence, negative runs and precise limitation statements.
+
+# 9. Portable .sandfall projects
+
+## 9.1 Ordinary ZIP containing an editable folder
+
+**.sandfall is a standard ZIP archive**, not a custom binary wrapper. Renaming it to **.zip** MUST allow extraction with ordinary ZIP software. Its contents are the same structured **project folder** a developer could inspect/edit locally; no proprietary archive reader is needed to examine the files. A browser ZIP load/save API is required for normal use. Directly opening an unpacked folder MAY be added as a developer convenience.
+
+Proposed stable v1 layout:
+
+~~~text
+example.sandfall        (ordinary ZIP; may also have .zip extension)
+  project/
+    manifest.json       version, project identity, paths, SHA-256 file digests
+    scene/
+      scene.json        kind, initial settings, seed, camera, interest, events
+      objects.json      up to 16 initial Rapier box definitions
+    world/
+      cells.bin         exact initial material tuples, row-major
+    presentation/
+      style.json        themes/LUT/material-style choices (not material IDs)
+      annotations.json  optional non-physical decoration
+    assets/             optional local images and other safe assets
+    README.md           optional human-authored project notes
+~~~
+
+**ZIP DEFLATE** provides file-entry compression, including for the binary cell asset. Do not add redundant nested compression without a documented schema revision. The extracted folder's JSON is human-readable; **cells.bin** is documented binary simulation data, not pretending to be editable text. File paths are relative within **project/**, never absolute.
+
+## 9.2 V1 archive data contract
+
+- **manifest.json** requires discriminator **sandfall-project**, schema version **1**, project title/identifier, referenced scene path, content versions, exact Sandfall/app and engine-source identities, and SHA-256 digest for each other required file. No manifest-self-hash cycle.
+- **scene.json** records scene kind (zero_input/kinetic_sandbox/triggered_automatic), authoritative **1024×1024** size, fixed 60 Hz, scene seed, supported solver options, authored interest policy, initial camera/start behavior, environmental triggers, optional passive-subject ID, loop/milestone expectations and source identity.
+- **cells.bin** represents the **initial** logical material world, not an arbitrary running-world continuation. V1 candidate format is **five bytes per cell**: material ID u8, state_a u8, state_b u8, signed temperature i16 little-endian, row-major, exactly **5,242,880 bytes** for 1024² cells. This logical payload mirrors the relevant CyberSand finite-level encoding, not the eight-byte in-memory native Cell ABI. Additional required initial solver fields/sidecars MUST be versioned or rejected before promoting this candidate to the implemented schema.
+- **objects.json** has a versioned object array of zero to sixteen, with stable unique IDs, type=box, dimensions, transform, initial velocity, physical parameters and passive-subject designation. Use explicit units and finite-number validation.
+- **presentation/** may store decorations and colour styles but never silently overwrite authoritative material/body state.
+- **assets/** must be self-contained within the project. Missing external URLs cannot become hidden startup dependencies.
+
+**The intended meaning of Save .sandfall is Save Authored Initial Scene.** In Edit it saves the current draft. During Run it may save the last frozen authored draft with a clear label, but it MUST NOT quietly package live chemical/thermal evolution, pending events or Rapier contact caches as if they were authored initial state. Optional **Export Run Evidence** creates a distinct evidence artifact, not a .sandfall project with fabricated replay guarantees.
+
+## 9.3 Import, export and failure rules
+
+The archive importer MUST:
+
+1. Stage and inspect ZIP entries without changing the current scene.
+2. Enforce one normalized project root, reasonable entry-count and expanded-size limits, and prevent **zip-slip**, absolute/parent-traversal paths, symlinks, duplicate case-folded paths and suspicious compression ratios.
+3. Accept only documented data/asset types; no executable project scripts may run from the archive.
+4. Check schema/version compatibility, required paths, length and SHA-256 digests; reject invalid/missing material IDs, bad cell payloads, nonfinite physics values, duplicate object IDs, more than sixteen bodies and unsupported solver settings.
+5. Validate the fully reconstructed candidate World/Rapier graph before committing the replacement.
+6. On any parse, native, asset, Rapier or readiness failure, preserve the previous authored document and running scene; report the precise refusal.
+7. On success, install an immutable authored scene at tick 0 with the correct startup policy.
+
+Conservative initial limits: at most **256 archive entries** and **128 MiB expanded total**; per-asset and compression-ratio limits must be fixed in the loader implementation and negative tests. The fixed initial world file always has its exact-size requirement. Import cannot pretend that a SHA-256 hash makes attacker-provided scripts safe.
+
+Logical-file serialization SHOULD be canonical enough for comparable scene hashes: deterministic JSON property/key order, stable IDs, fixed binary endianness, no machine-specific paths. ZIP timestamp/compression byte equality is not required unless explicitly tested. An extracted folder and its ZIP representation must round-trip to the same logical project.
+
+# 10. Web packaging and performance
+
+## 10.1 Frozen bootstrap toolchain
+
+Baseline source files already pin:
+
+| Component | Initial exact version/identity |
+|---|---|
+| Godot | **4.7.stable.official.5b4e0cb0f** |
+| Rapier2D | **0.35.2**, single-precision, vendored lock and Web WASM |
+| godot-cpp | **101ae38034304346a46ea9ea84ae156d3e860496** |
+| Emscripten | **4.0.20** |
+| SCons | **4.10.1** |
+| Fixed simulation | **60 Hz**, initial **1024×1024** World |
+
+These are **build-input pins**, not proof that any Sandfall build has been produced. Native binaries/LFS pointers must be restored and hash-verified; retained upstream build manifests and license notices must remain accurate. Changing source or registered build inputs requires new matching artifacts.
+
+## 10.2 Web profiles
+
+- **Compatibility Web (mandatory):** native cellular engine with one worker, Rapier included, Godot synchronous owner. Distribute as ordinary static Web content with correct MIME/complete WASM/PCK assets. This is the default public build.
+- **Threaded Web (additional):** separate source-matched export with native worker pool. Requires cross-origin isolation (COOP/COEP) on a secure host. Qualify it separately; do not promise that every static host can run this profile.
+
+The upstream **tools/build_web.py** stages a separate **web_main.tscn**, compiles with pinned Emscripten/godot-cpp, checks Rapier WASM hashes and packages runtime provenance. Retain and adapt it rather than silently substituting a cellular-only Web export.
+
+The Web host must truthfully display Rapier availability, worker profile and startup/refusal errors. Never claim a compliant build if the downloaded Rapier Web module is missing or mismatched.
+
+## 10.3 Performance policy
+
+**60 Hz is the design physics rate, not an unconditional 60 FPS claim.** Report actual tick rate, requested/achieved speed, native tick p50/p95/max, Rapier step and collider build time, active body count, render patch bytes and frame/backlog samples. Under pressure, preserve fixed-step physics and disclose slowdowns; do not silently weaken materials/coupling or lower the sixteen-body cap.
+
+The sixteen-body target requires actual representative benchmarks and normal Web interactions on compatibility and threaded profiles, with browser/device details. Benchmark thresholds can be chosen after establishing source-matched measurements; benchmark results must not be invented in the spec.
+
+# 11. Acceptance and evidence
+
+## 11.1 Executable test matrix
+
+| ID | Contract to test | Passing behavior |
+|---|---|---|
+| SF-T01 | Source import / Web boot | Preserved upstream history, pinned dependencies/runtime manifests, actual compatibility Web launch |
+| SF-T02 | Zero actor input | No steering/jump/action ingestion; passive body moves only through environment; focus/modal input gates are effective |
+| SF-T03 | Edit at tick 0 | Material/thermal state, deterministic footprints, fill/selection and object edits; exact undo/redo with zero physics ticks |
+| SF-T04 | First-tick history fence | One complete tick clears and disables history; pausing/changing speed does not restore; Reset & Edit starts empty history |
+| SF-T05 | Paused/Step/speed | Paused = zero coupled steps, Step = exactly one fixed dt, speed presets change pacing but not state-update dt |
+| SF-T06 | Pristine → Modified → Reset | Accepted material/body/solver edit marks Modified; camera/style-only does not; reset restores initial hashes/body poses |
+| SF-T07 | Rapier body capacity | 0/1/3/8/**16** boxes render, sample, collide, save/load, reset and retire; 17 refuses atomically |
+| SF-T08 | Actual fluid/body coupling | Fluid Messenger moves a real Rapier box through native physical feedback, not scripted position |
+| SF-T09 | ZIP-of-folder round-trip | .sandfall readable as ZIP, folder editable, JSON/binary logical identities/hash verified after import/export |
+| SF-T10 | Hostile input refusal | Path traversal, invalid ZIP/bomb, wrong digest, bad material, unsupported schema/policy, 17 bodies, invalid mass do not replace old session |
+| SF-T11 | Browser/profile coverage | Actual browser Rapier WASM/native tick, source-bound compat; threaded Web separately tests isolation and worker counts |
+| SF-T12 | Scientific/evidence integrity | Exact source/engine/runtime, seed, command trace, failed checks and limits retained; no unsupported determinism claims |
+
+SF-T03–T06 MUST include representative **chemical/thermal** changes, not just inert Sand. A passing pause/undo test on an empty world would not justify the provenance constraints chosen by the owner.
+
+## 11.2 Evidence and publication wording
+
+Every claimed qualified demonstration has source commit, native/Web/WASM hashes, browser/platform, simulator settings, authored scene hash, initial body list, tick/time mode, actual neutral/absent actor-control trace, ordered user/environment event log, physical outcomes and negative evidence. Captured video is presentation evidence, **not** a substitute for internal simulator receipts.
+
+Use distinct labels such as **locally replayable**, **cross-platform outcome-qualified**, and **bitwise deterministic**, each only where actual runs establish the relevant claim. Keep historical negative evidence and known engine approximation limits. A successful Godot headless test does not alone establish browser execution. Require at least one human review of a Gallery scene's legibility and pacing before calling it exhibition-qualified.
+
+# 12. Implementation sequence and source map
+
+## 12.1 History-preserving import
+
+Sandfall currently starts as two README-only commits. Import the **exact** CyberSand ancestor through an **unrelated-history merge preserving both histories** (or equivalently history-preserving mechanism), not by copying a moving latest-main snapshot. Keep source provenance, .gitattributes/LFS, licenses, native receipts and tests.
+
+**Windows file-name trap:** Sandfall originally used **readme.md** while upstream uses **README.md**. Resolve the case-only collision before the merge; this spec's accompanying Sandfall README normalization is intentional. Any normal exact-path README content conflict during the later source merge must be resolved deliberately.
+
+Do not mass-rename internal **Cyber*** symbols at bootstrap, and do not auto-merge later CyberSand PLAY/player branches. Backport only independently reviewed fixes that Sandfall needs.
+
+## 12.2 Ordered implementation milestones
+
+**SF-M0 — Source/build/provenance.** Exact ancestor history import, dependency and LFS audit, compatibility Web export and actual native/Rapier startup proof. Existing upstream tests unchanged.
+
+**SF-M1 — New host/application shell.** Separate Sandfall scene and Godot Control UI, no actor input/motor, Gallery/Sandbox entry, camera, Run/Pause/Step/Reset, source-matched native+Rapier coupled tick. Use reference Web controller only until replacement is proven.
+
+**SF-M2 — Authoring and state boundaries.** Immutable initial document; Edit/Run, pristine/modified/fault; material catalogue; brush/erase/fill/lines/rectangles/picker/selection; exact Edit history and mandatory first-tick undo cutoff; safe mutation queue.
+
+**SF-M3 — Dynamic Rapier workshop.** Box editor/inspector, stable IDs, generalized 0–16 coupled objects including shader/render/save and actual Web qualification, overflow refusal.
+
+**SF-M4 — Project files and exhibitions.** .sandfall ZIP project-folder codec, staged load/save, presentation overlay, curated Gallery, optional passive subject, Golden Run evidence and **explicit, safe initial-state promotion** of reconstructible interventions.
+
+**SF-M5 — Release qualification.** Full browser compatibility + threaded matrix, chemistry/thermal history/refusal, 16-body stress, Fluid Messenger, archive attack cases, exact-head artifacts and human presentation checks.
+
+M0/M1 are intentionally narrower than complete v1. The owner decisions in §1 are full v1 requirements; shipping a narrow early demo must not be called full v1 qualification.
+
+## 12.3 Upstream-to-Sandfall code map
+
+| Pinned CyberSand source path | Reuse/modify responsibility |
+|---|---|
+| **tools/build_web.py**, **godot/web_main.tscn** | Adapt checked Web export to new Sandfall entry scene |
+| **godot/scripts/web_demo_controller.gd** | Reference synchronous tick, native painting, Rapier ownership and reset; remove inherited actor behavior in new host |
+| **godot/scripts/main.gd** | Retain material brush/render/coordinate logic as safe modules; do not inherit player-input authority into public controls |
+| **godot/scripts/web_demo_menu.gd** | Replace with canvas-first Sandfall Control surface |
+| **godot/scripts/rapier_physics_bridge.gd** | Keep manual-step/lifetime/coupling contract; support dynamic 0–16 object registry |
+| **godot/scripts/demo_worlds.gd** | Reuse relevant authored demo recipes, recast as versioned scene definitions |
+| **godot/scripts/demo_save_codec.gd** | Legacy level format example only; not a general .sandfall authoring/continuation codec |
+| **godot/native_extension/cyber_native_cell_world.cpp** and **native/src/world.cpp** | Preserve authoritative state/masks and tests; change only under separately justified native evidence |
+| **godot/third_party/rapier2d.lock.json** | Pin Rapier binary and Web source identity |
+| **godot/tests/test_web_rapier.gd**, **godot/scripts/web_rapier_probe.gd** | Preserve current three-body evidence; add Sandfall sixteen-body/undo/ZIP tests |
+
+New logical modules: **SandfallAuthoringDocument**, **SandfallSessionController**, **SandfallToolRouter**, **SandfallRapierObjectRegistry**, **SandfallArchiveCodec**, **SandfallGallery**, **SandfallRunEvidence**. Actual filenames may vary if interfaces and tests implement the same boundaries.
+
+# 13. Deferred work and revision control
+
+**Deliberately deferred:** controllable or AI-driven actors, gamepad player inputs, circle/polygon/capsule native contour coupling, physical joints/large assemblies, arbitrary rewind/timeline scrubbing, exact mid-run state continuation, cross-platform bitwise guarantees, touch/mobile-first UI, automated level optimization, mass dependency upgrades, raster imports interpreted as materials, hosted user accounts and collaboration.
+
+**Nonblocking tuning:** exact visual style, panel proportions, expanded brush ranges, cosmetic overlays, additional gallery content, material colour themes, reference performance hardware and asset codecs. These can evolve without invalidating this contract so long as semantic/physics boundaries remain intact.
+
+**Requires explicit owner-approved revision:** changing no-player-input scope, separate Edit/Run, first-tick undo cutoff, sixteen-body v1 target, ordinary ZIP-of-project-folder storage, 60 Hz fixed-step contract, solver/Rapier ownership order, or Pristine/Modified semantics. Add an ADR and matching negative tests when such a change is approved.
+
+---
+
+## Current implementation status
+
+This document records **approved design intent**. At the time of authoring, Sandfall has only its bootstrap README and this documentation branch; the CyberSand engine source **has not yet been imported**, and no Sandfall Web, new UI, full archive or sixteen-body qualification is claimed.
