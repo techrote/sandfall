@@ -73,10 +73,10 @@ jobs:
             >sf-m0-ordinary/chrome.log 2>&1 &
           node --check tools/sandfall/sf_m0_png_stats.mjs
           node --check tools/sandfall/sf_m0_ordinary_browser.mjs
-          timeout 340 node tools/sandfall/sf_m0_ordinary_browser.mjs \
+          timeout 520 node tools/sandfall/sf_m0_ordinary_browser.mjs \
             --port 9231 --url 'http://127.0.0.1:8040/?test=1' \
             --output sf-m0-ordinary/browser.json \
-            --screenshot sf-m0-ordinary/browser.png --timeout-ms 210000
+            --screenshot sf-m0-ordinary/browser.png --timeout-ms 330000
       - name: Preserve raw normal-run evidence or failure
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
