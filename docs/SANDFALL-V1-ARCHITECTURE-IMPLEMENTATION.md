@@ -327,7 +327,7 @@ CyberSand's **CYSD1** finite-level format omits native continuation/epochs, queu
 
 ## 9.1 Ordinary ZIP containing an editable folder
 
-**.sandfall is a standard ZIP archive**, not a custom binary wrapper. Renaming it to **.zip** MUST allow extraction with ordinary ZIP software. Its contents are the same structured **project folder** a developer could inspect/edit locally; no proprietary archive reader is needed to examine the files. A browser ZIP load/save API is required for normal use. Directly opening an unpacked folder MAY be added as a developer convenience.
+**.sandfall is a standard ZIP archive**, not a custom binary wrapper. Renaming it to **.zip** MUST allow extraction with ordinary ZIP software. Each archive MUST contain **exactly one top-level project folder named project/**, with no sibling payload entries. Its contents are the same structured **project folder** a developer could inspect/edit locally; no proprietary archive reader is needed to examine the files. A browser ZIP load/save API is required for normal use. Directly opening an unpacked folder MAY be added as a developer convenience.
 
 Proposed stable v1 layout:
 
