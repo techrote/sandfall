@@ -91,3 +91,13 @@ is still required.
   outcomes as actual evidence, not inference.
 - PR #2 stays **DRAFT / UNMERGED** until exact-head CI and actual browser/manual
   qualification justify promotion.
+
+## 2026-10-30 — Actual 600-step progress vs original wall-clock budget
+
+On [SF-M0 run #41111665444](https://github.com/techrote/sandfall/actions/runs/41111665444), source **98722560be89ccc3ab84eb3d526c5dde99c5cab0**, the compatibility Web export and native/Rapier startup checks succeeded. Actual browser CDP phase markers recorded simultaneous advancement of native and Rapier state from tick 41 through **tick 541 / Rapier steps 541**. The final record at elapsed **235,834 ms** was phase **tick-after** at loop index 540, with **pending_colliders=0**, **rapier_initialized=true**, **paused=false** and **menu_open=false**. No stop in physics progress was demonstrated; the **240,000 ms browser harness deadline** truncated the test before the required 600 ticks, and screenshot capture also timed out while the renderer was busy. Artifact: **13003989008**, ZIP SHA-256 **d6596493e321329bd49ae3e13cd72b4cc93fb20711d639dde16a3f2611dfbd51**.
+
+**Corrective action:** increase the browser harness wall-clock deadline to **720,000 ms** (12 min), retain its 90-second no-progress watchdog, and leave the **600 actual native+Rapier ticks, body/terrain contact, positive displacement, pause, save/import and reset proof requirements unchanged**. A changed timeout **does not count as passing evidence**. Await exact-head terminal browser results.
+
+The inherited complete native `make test` suite separately timed out on prior 900-second runs while producing passing subgroup results. Extending its independent fixed bound to 2400 seconds is not a test bypass; a complete exit-0 is still required to claim full-suite acceptance. Scoped native smoke [run #41111311098](https://github.com/techrote/sandfall/actions/runs/41111311098) passed on the separately scoped triage branch and is **not** a substitute for the full run at this branch head.
+
+The strict Sandfall documentation/reconciliation check had already passed at **4d3e7f4b8e592a363d3bbccfc22ede3404ab2026** ([run #41111990171](https://github.com/techrote/sandfall/actions/runs/41111990171)), retaining all six missing-workspace references and eight historical desktop runtime/source digest mismatches. The user has prohibited merging PR #2 while browser qualification remains red.

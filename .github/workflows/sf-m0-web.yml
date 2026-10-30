@@ -22,7 +22,7 @@ jobs:
   source-native:
     name: Source, LFS, docs and native C++
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 55
     steps:
       - name: Checkout complete imported history
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -51,7 +51,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          timeout 1500 make test
+          # The inherited full native suite exceeded 900s, and its 1500s run is
+          # evaluated separately; preserve all tests with a bounded 2400s cap.
+          timeout 2400 make test
       - name: Retain source/native qualification receipts
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -174,7 +176,7 @@ jobs:
           node tools/sandfall/sf_m0_browser_probe.mjs \
             --port 9222 --url 'http://127.0.0.1:8030/?test=1&rapier=1' \
             --output sf-m0-evidence/browser.json --screenshot sf-m0-evidence/browser.png \
-            --timeout-ms 240000
+            --timeout-ms 720000
       - name: Retain exact Web export, build receipt and browser proof or failure
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

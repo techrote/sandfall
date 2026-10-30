@@ -10,7 +10,10 @@ const port = Number(args.get("--port") || 9222);
 const url = args.get("--url") || "http://127.0.0.1:8030/?test=1&rapier=1";
 const output = resolve(args.get("--output") || "sf-m0-browser-probe.json");
 const screenshot = resolve(args.get("--screenshot") || "sf-m0-browser-probe.png");
-const timeoutMs = Number(args.get("--timeout-ms") || 240000);
+// Headless software-rendered 600-step Rapier runs measured ~541 steps in
+// 240s on CI. Keep 600 physical ticks and use a 12-minute wall-clock cap;
+// the separate 90s no-progress guard still stops genuine stalls.
+const timeoutMs = Number(args.get("--timeout-ms") || 720000);
 if (typeof WebSocket !== "function") throw new Error("Node 22+ with built-in WebSocket is required");
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
