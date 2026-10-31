@@ -48,11 +48,16 @@ jobs:
           set -euo pipefail
           git lfs fetch origin "$(git rev-parse HEAD)"
           git lfs checkout
-      - name: Retain inherited errors and exact reviewed registration drift
+      - name: Retain original checker refusals and admit only an exact reviewed milestone delta
         shell: bash
         run: |
           set -euo pipefail
-          if test -f tools/sandfall/sf_m2_reconcile.py; then
+          # Later milestones deliberately change native inputs. Keep M0/M2
+          # admission guards intact; the M3 gate independently pins the exact
+          # six-file native patch and retains both earlier refusal records.
+          if test -f tools/sandfall/sf_m3_reconcile.py; then
+            python3 tools/sandfall/sf_m3_reconcile.py --output sf-m0-evidence/documentation-reconciliation.json
+          elif test -f tools/sandfall/sf_m2_reconcile.py; then
             python3 tools/sandfall/sf_m2_reconcile.py --output sf-m0-evidence/documentation-reconciliation.json
           else
             python3 tools/sandfall/sf_m0_reconcile.py --output sf-m0-evidence/documentation-reconciliation.json
@@ -61,17 +66,40 @@ jobs:
           import json
           from pathlib import Path
           record=json.loads(Path('sf-m0-evidence/documentation-reconciliation.json').read_text())
+          sf_m3=Path('tools/sandfall/sf_m3_reconcile.py').is_file()
           sf_m2=Path('tools/sandfall/sf_m2_reconcile.py').is_file()
-          assert record['original_checker']['status']=='failed'
-          assert record['safe_for_fresh_web_build']
-          assert len(record['original_checker']['documentation']['errors'])==6
-          assert len(record['original_checker']['errors'])==(16 if sf_m2 else 14)
+          assert record['safe_for_fresh_web_build'] is True
           assert record['current_lfs_count']==18
-          if sf_m2:
-              assert record['source_checks']['exact_registration_delta']
-              assert record['source_checks']['unchanged_runtime_payloads_and_manifests']
-              assert record['source_checks']['unchanged_native_core']
-          print('RETAINED, NOT CLEARED: six companion references, eight inherited desktop input digests' + (' and two exact SF-M2 registration drifts' if sf_m2 else ''))
+          assert not record['unexpected_errors'] and not record['missing_expected_errors']
+          if sf_m3:
+              assert record['schema']=='sandfall-sf-m3-fresh-build-reconciliation-v1'
+              assert record['expected_checker_error_count']==20
+              assert record['original_m0_disposition']=='refused'
+              assert record['original_m2_disposition']=='refused'
+              old=record['original_m2_reconciliation']
+              original=old['original_checker']
+              assert old['safe_for_fresh_web_build'] is False
+              assert original['status']=='failed'
+              assert len(original['documentation']['errors'])==6
+              assert len(original['errors'])==20
+              checks=record['source_checks']
+              for key in ('exact_baseline_tree', 'baseline_is_ancestor',
+                          'no_untracked_native_sources', 'exact_reviewed_native_delta',
+                          'unchanged_runtime_payloads_manifests_and_pins',
+                          'unchanged_inherited_gates'):
+                  assert checks[key] is True, key
+              assert record['native_patch_record']['sha256']==checks['native_patch_sha256']
+              print('RETAINED, NOT CLEARED: M0/M2 original refusals; six missing companion references, 14 inherited and SF-M2 stale desktop digests, plus four exact SF-M3 native desktop drifts. Fresh build admission only.')
+          else:
+              original=record['original_checker']
+              assert original['status']=='failed'
+              assert len(original['documentation']['errors'])==6
+              assert len(original['errors'])==(16 if sf_m2 else 14)
+              if sf_m2:
+                  assert record['source_checks']['exact_registration_delta'] is True
+                  assert record['source_checks']['unchanged_runtime_payloads_and_manifests'] is True
+                  assert record['source_checks']['unchanged_native_core'] is True
+              print('RETAINED, NOT CLEARED: six missing companion references, eight inherited desktop input digests' + (' and two exact SF-M2 registration drifts' if sf_m2 else ''))
           PY
       - name: Preserve original checker failures and separate scope decisions
         if: always()
