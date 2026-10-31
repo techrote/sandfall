@@ -39,7 +39,7 @@ static func get_definition(id: String) -> Dictionary:
 		# This authored window is independent of every camera operation. It
 		# matches the fixed initial 480x270 curated installation and margins.
 		"simulation_origin": Vector2i.ZERO,
-		"simulation_size": INITIAL_VIEW,
+		"simulation_size": WORLD_SIZE,
 		"simulation_margin": Vector2i(32, 36),
 		"cadence_lod": false,
 	}

@@ -5,6 +5,15 @@ extends Control
 # intent; the composed host has no keyboard, actor or launcher authority.
 var _host: SandfallSimulationHost
 var _session: SandfallSessionController
+var _editor: SandfallEditorController
+var _overlay: SandfallEditorOverlay
+var _sidebar: ScrollContainer
+var _primary_palette: OptionButton
+var _secondary_palette: OptionButton
+var _temperature: SpinBox
+var _brush_width: SpinBox
+var _brush_height: SpinBox
+var _editor_info: Label
 var _canvas: SandfallWorldCanvas
 var _buttons: Dictionary = {}
 var _status: Label
@@ -16,7 +25,6 @@ var _button_gestures: Dictionary = {}
 var _pan_active: bool = false
 var _clear_serial: int = 0
 var _frame: int = 0
-var _paint_commands: int = 0
 var _observer_enabled: bool = false
 var _last_observation_ms: int = -1000
 var _provenance: Dictionary = {}
@@ -34,7 +42,9 @@ func _ready() -> void:
 	_session.input_retired.connect(_clear_input)
 	_build_ui()
 	_session.reconstructed.connect(_on_reconstructed)
+	_session.document_changed.connect(func() -> void: _canvas.publish())
 	_load_provenance()
+	_session.set_source_identity(_provenance)
 	_connect_browser_focus()
 	_update_ui()
 	_publish_observation(true)
@@ -44,9 +54,9 @@ func _physics_process(_delta: float) -> void:
 	if _session == null:
 		return
 	_session.process_commands()
-	# Exactly one fixed 1/60 native/Rapier request per physics callback. Godot's
-	# bounded catch-up controls wall-clock pacing; counters always report work.
-	if _session.advance():
+	# Pacing selects zero to four unchanged 1/60 solver requests per callback.
+	# A paused Step remains exactly one; counters always report actual work.
+	if _session.advance_frame() > 0:
 		_canvas.publish()
 
 
@@ -54,6 +64,7 @@ func _process(_delta: float) -> void:
 	_frame += 1
 	if _session == null:
 		return
+	_editor.pump()
 	_update_ui()
 	_publish_observation()
 
@@ -72,6 +83,8 @@ func _input(event: InputEvent) -> void:
 			_pointer_buttons[button] = true
 		else:
 			_pointer_buttons.erase(button)
+		if not event.pressed and _editor != null and not _canvas.global_content_rect().has_point(event.global_position):
+			_editor.cancel("release_outside_canvas")
 		if event.button_index == MOUSE_BUTTON_MIDDLE and not event.pressed:
 			_pan_active = false
 
@@ -80,7 +93,13 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo or _session == null:
 		return
 	var state: Dictionary = _session.state()
-	if event.keycode == KEY_ESCAPE:
+	if event.ctrl_pressed and event.keycode in [KEY_Z, KEY_Y]:
+		_request("redo" if event.keycode == KEY_Y or event.shift_pressed else "undo")
+		get_viewport().set_input_as_handled()
+	elif event.keycode == KEY_ESCAPE and (_editor.state().gesture_active or _editor.state().fill_active):
+		_session.clear_pending_input("explicit_cancel")
+		get_viewport().set_input_as_handled()
+	elif event.keycode == KEY_ESCAPE:
 		_request("continue" if state.menu else "menu")
 		get_viewport().set_input_as_handled()
 	elif event.keycode == KEY_P and state.mode == "run" and not state.menu:
@@ -96,9 +115,11 @@ func _canvas_input(event: InputEvent) -> void:
 		if not _canvas.global_content_rect().has_point(event.global_position):
 			return
 		if event.button_index == MOUSE_BUTTON_MIDDLE:
+			_editor.cancel("camera_pan")
 			_pan_active = event.pressed
 			_canvas.accept_event()
 		elif event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+			_editor.cancel("camera_zoom")
 			_canvas.zoom_at(1.2 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0 / 1.2, event.global_position)
 			_canvas.accept_event()
 	elif event is InputEventMouseMotion and _pan_active:
@@ -106,6 +127,10 @@ func _canvas_input(event: InputEvent) -> void:
 			_session.clear_pending_input("world_view_exit")
 			return
 		_canvas.pan(event.relative)
+		_canvas.accept_event()
+
+	if not _pan_active and (event is InputEventMouseMotion or (event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT])):
+		_editor.pointer(event)
 		_canvas.accept_event()
 
 
@@ -126,6 +151,8 @@ func _request(action: String, value: String = "") -> void:
 
 
 func _clear_input(_reason: String = "") -> void:
+	if _editor != null:
+		_editor.cancel(_reason)
 	_held_keys.clear()
 	_pointer_buttons.clear()
 	_button_gestures.clear()
@@ -135,6 +162,7 @@ func _clear_input(_reason: String = "") -> void:
 
 func _on_reconstructed() -> void:
 	_canvas.bind_host(_host)
+	_sidebar.visible = _session.state().entry == "sandbox"
 	_update_ui()
 
 
@@ -176,6 +204,7 @@ func _build_ui() -> void:
 	header.add_child(title)
 	_add_button(header, "gallery", "Gallery", func() -> void: _request("gallery"))
 	_add_button(header, "sandbox", "Sandbox", func() -> void: _request("sandbox"))
+	_add_button(header, "tools", "Tools", func() -> void: _toggle_tools())
 	_add_button(header, "menu", "Menu", func() -> void: _request("menu"))
 	var templates: HBoxContainer = HBoxContainer.new()
 	column.add_child(templates)
@@ -185,20 +214,37 @@ func _build_ui() -> void:
 	_add_button(templates, "template_blank", "Blank", func() -> void: _request("template", "blank"))
 	_add_button(templates, "template_native", "Material Lab", func() -> void: _request("template", "material_lab"))
 	_add_button(templates, "template_coupled", "Physics Pit", func() -> void: _request("template", "physics_pit"))
+	var workspace: HBoxContainer = HBoxContainer.new()
+	workspace.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	workspace.add_theme_constant_override("separation", 10)
+	column.add_child(workspace)
+	_sidebar = ScrollContainer.new()
+	_sidebar.custom_minimum_size = Vector2(250, 0)
+	_sidebar.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_sidebar.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	workspace.add_child(_sidebar)
 	var frame: PanelContainer = PanelContainer.new()
+	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var panel: StyleBoxFlat = StyleBoxFlat.new()
 	panel.bg_color = Color("080c12")
 	frame.add_theme_stylebox_override("panel", panel)
-	column.add_child(frame)
+	workspace.add_child(frame)
 	_canvas = SandfallWorldCanvas.new()
 	_canvas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_canvas.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	frame.add_child(_canvas)
 	_canvas.gui_input.connect(_canvas_input)
 	_canvas.mouse_exited.connect(func() -> void: _session.clear_pending_input("canvas_exit"))
+	_editor = SandfallEditorController.new(_session, _canvas)
+	_overlay = SandfallEditorOverlay.new()
+	_overlay.canvas = _canvas
+	_overlay.editor = _editor
+	_canvas.add_child(_overlay)
+	_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_build_editor()
 	_home = Label.new()
-	_home.text = "A world in motion. No player required.\n\nOpen Gallery to watch the materials and bodies interact.\nOpen Sandbox to start paused, choose a template, then Run."
+	_home.text = "A world in motion. No player required.\n\nOpen Gallery to watch the materials and bodies interact.\nOpen Sandbox to author an initial scene, then Run."
 	_home.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_home.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_home.add_theme_font_size_override("font_size", 23)
@@ -213,8 +259,13 @@ func _build_ui() -> void:
 		var camera_action: String = str(pair[0])
 		_add_button(camera, camera_action, str(pair[1]), func() -> void: _camera_action(camera_action))
 	var hint: Label = Label.new()
-	hint.text = "   Middle drag · wheel zoom"
+	hint.text = "  Speed "
 	camera.add_child(hint)
+	for rate: String in ["0.25", "0.5", "1", "2", "4"]:
+		var pacing: String = rate
+		var rate_button: Button = _add_button(camera, "speed_" + rate, rate + "×", func() -> void: _request("speed", pacing))
+		rate_button.custom_minimum_size.x = 48
+		rate_button.add_theme_font_size_override("font_size", 16)
 	var lifecycle: HBoxContainer = HBoxContainer.new()
 	column.add_child(lifecycle)
 	_add_button(lifecycle, "run", "Run", func() -> void: _request("run"))
@@ -224,6 +275,8 @@ func _build_ui() -> void:
 	_add_button(lifecycle, "reset_edit", "Reset & Edit", func() -> void: _request("reset_edit"))
 	_status = Label.new()
 	_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_status.clip_text = true
+	_status.add_theme_font_size_override("font_size", 16)
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	lifecycle.add_child(_status)
 	_build_menu()
@@ -290,9 +343,13 @@ func _update_ui() -> void:
 	_home.visible = state.entry == "home"
 	_canvas.visible = state.entry != "home"
 	_modal.visible = state.menu
+	if state.entry == "home":
+		_sidebar.hide()
 	for key: String in _buttons:
 		var button: Button = _buttons[key]
 		button.disabled = bool(state.menu) and key != "continue"
+		if key.begins_with("tool_") or key.begins_with("material_") or key in ["copy", "cut", "delete", "grid", "cancel_tool", "filled"]:
+			button.disabled = button.disabled or not state.ready or state.mode == "fault"
 		if key.begins_with("template_") or key in ["pan_left", "pan_right", "pan_up", "pan_down", "zoom_in", "zoom_out", "fit", "reset", "reset_edit"]:
 			button.disabled = button.disabled or state.entry == "home"
 	_buttons.run.visible = state.mode == "edit" and state.entry != "home"
@@ -301,7 +358,18 @@ func _update_ui() -> void:
 	_buttons.step.disabled = state.menu or state.mode != "run" or not state.paused or not state.ready
 	_buttons.run.disabled = state.menu or not state.ready
 	var mode_label: String = "Choose Gallery or Sandbox" if state.entry == "home" else "%s · %s · tick %d" % [str(state.mode).capitalize(), "Paused" if state.paused else "Running", int(state.tick)]
-	_status.text = mode_label + (" · Pristine" if state.entry != "home" else "")
+	_status.text = mode_label + ((" · Pristine" if state.pristine else " · Modified") if state.mode == "run" else "")
+	if state.tool_busy:
+		_status.text += " · Tool held"
+	_buttons.undo.disabled = state.menu or state.mode != "edit" or not bool(state.document.get("can_undo", false))
+	_buttons.redo.disabled = state.menu or state.mode != "edit" or not bool(state.document.get("can_redo", false))
+	_editor_info.text = _editor.notice
+	if not str(state.last_refusal).is_empty():
+		_editor_info.text = "Refused: " + str(state.last_refusal)
+	if SandfallMaterialTools.in_bounds(_editor.hover):
+		_editor_info.text += "\nCell %d,%d · zoom %.2f×" % [_editor.hover.x, _editor.hover.y, float(_canvas.state().zoom)]
+	for tool_id: String in SandfallEditorController.TOOL_IDS:
+		_buttons["tool_" + tool_id].set_pressed_no_signal(_editor.tool == tool_id)
 	if not str(state.error).is_empty():
 		_status.text = "Stopped: " + str(state.error)
 		_status.add_theme_color_override("font_color", Color("ff9c81"))
@@ -320,8 +388,9 @@ func observation() -> Dictionary:
 			buttons[key] = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
 	result.merge({"schema": "sandfall-host-v1", "app_ready": true, "frame": _frame,
 		"input": {"held_keys": _held_keys.keys(), "pointer_buttons": _pointer_buttons.size(),
-			"gesture_active": _pan_active, "pending_ui_gestures": _button_gestures.size(), "clear_serial": _clear_serial},
-		"actor_count": _count_actor_nodes(get_tree().root), "paint_commands": _paint_commands,
+			"gesture_active": _pan_active or _editor.state().gesture_active, "pending_ui_gestures": _button_gestures.size(), "clear_serial": _clear_serial},
+		"actor_count": _count_actor_nodes(get_tree().root), "paint_commands": result.mutation_count,
+		"editor": _editor.state(), "editor_controls": _editor_control_rects(),
 		"camera": {"camera_origin": rendering.camera_origin, "view_size": rendering.view_size, "zoom": rendering.zoom},
 		"rendering": rendering, "view": rendering.content_rect,
 		"pending_colliders": result.native.pending_colliders,
@@ -397,3 +466,194 @@ func _exit_tree() -> void:
 			_web_canvas.removeEventListener("mouseleave", _web_focus_callback)
 	if is_instance_valid(_host):
 		_host.shutdown()
+
+
+func _toggle_tools() -> void:
+	_clear_input("tools_panel")
+	if _session.state().entry != "home":
+		_sidebar.visible = not _sidebar.visible
+
+
+func _editor_button(parent: Node, key: String, label: String, callback: Callable) -> Button:
+	var button: Button = _add_button(parent, key, label, callback)
+	button.custom_minimum_size = Vector2(72, 30)
+	button.add_theme_font_size_override("font_size", 15)
+	return button
+
+
+func _build_editor() -> void:
+	var panel: VBoxContainer = VBoxContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_constant_override("separation", 4)
+	_sidebar.add_child(panel)
+	var search: LineEdit = LineEdit.new()
+	search.name = "MaterialSearch"
+	search.placeholder_text = "Search material / family / ID"
+	search.add_theme_font_size_override("font_size", 15)
+	panel.add_child(search)
+	_primary_palette = OptionButton.new()
+	_secondary_palette = OptionButton.new()
+	for palette: OptionButton in [_primary_palette, _secondary_palette]:
+		palette.fit_to_longest_item = false
+		palette.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		palette.custom_minimum_size = Vector2(230, 28)
+		palette.add_theme_font_size_override("font_size", 15)
+		panel.add_child(palette)
+	_primary_palette.item_selected.connect(func(index: int) -> void:
+		_clear_input("palette_change")
+		_editor.select_material(_primary_palette.get_item_id(index))
+	)
+	_secondary_palette.item_selected.connect(func(index: int) -> void:
+		_clear_input("palette_change")
+		_editor.select_material(_secondary_palette.get_item_id(index), true)
+	)
+	search.text_changed.connect(func(value: String) -> void: _populate_palettes(value))
+	var quick: HBoxContainer = HBoxContainer.new()
+	panel.add_child(quick)
+	for pair: Array in [[2, "sand", "Sand"], [3, "water", "Water"], [1, "wall", "Wall"]]:
+		var id: int = int(pair[0])
+		_editor_button(quick, "material_" + str(pair[1]), str(pair[2]), func() -> void:
+			_clear_input("palette_change")
+			_editor.select_material(id)
+		)
+	var tool_grid: GridContainer = GridContainer.new()
+	tool_grid.columns = 3
+	panel.add_child(tool_grid)
+	for tool_id: String in SandfallEditorController.TOOL_IDS:
+		var choice: String = tool_id
+		var label: String = "Rect" if choice == "rectangle" else choice.capitalize()
+		var button: Button = _editor_button(tool_grid, "tool_" + choice, label, func() -> void:
+			_clear_input("tool_change")
+			_editor.set_tool(choice)
+		)
+		button.toggle_mode = true
+	var brush_row: HBoxContainer = HBoxContainer.new()
+	panel.add_child(brush_row)
+	var shape: OptionButton = OptionButton.new()
+	shape.add_item("Circle")
+	shape.add_item("Square")
+	shape.add_item("Ratio rect")
+	shape.add_theme_font_size_override("font_size", 14)
+	brush_row.add_child(shape)
+	_brush_width = SpinBox.new()
+	_brush_height = SpinBox.new()
+	for dimension: SpinBox in [_brush_width, _brush_height]:
+		dimension.min_value = 1
+		dimension.max_value = 32
+		dimension.value = 5
+		dimension.custom_minimum_size.x = 65
+		dimension.add_theme_font_size_override("font_size", 14)
+		brush_row.add_child(dimension)
+	_brush_height.editable = false
+	shape.item_selected.connect(func(index: int) -> void:
+		_clear_input("footprint_change")
+		_editor.footprint = ["circle", "square", "rectangle"][index]
+		_brush_height.editable = index == 2
+		if index != 2: _brush_height.value = _brush_width.value
+	)
+	_brush_width.value_changed.connect(func(value: float) -> void:
+		_clear_input("brush_size")
+		_editor.brush_size.x = int(value)
+		if _editor.footprint != "rectangle": _brush_height.value = value
+	)
+	_brush_height.value_changed.connect(func(value: float) -> void:
+		_clear_input("brush_size")
+		_editor.brush_size.y = int(value)
+	)
+	var temperature_row: HBoxContainer = HBoxContainer.new()
+	panel.add_child(temperature_row)
+	var temperature_label: Label = Label.new()
+	temperature_label.text = "T (native units)"
+	temperature_label.add_theme_font_size_override("font_size", 14)
+	temperature_row.add_child(temperature_label)
+	_temperature = SpinBox.new()
+	_temperature.min_value = -32768
+	_temperature.max_value = 32767
+	_temperature.value = 200
+	_temperature.custom_minimum_size.x = 105
+	_temperature.add_theme_font_size_override("font_size", 14)
+	temperature_row.add_child(_temperature)
+	_temperature.value_changed.connect(func(value: float) -> void:
+		_clear_input("temperature")
+		_editor.set_temperature(int(value))
+	)
+	var options: HBoxContainer = HBoxContainer.new()
+	panel.add_child(options)
+	var fill_button: Button = _editor_button(options, "filled", "Filled", func() -> void:
+		_clear_input("shape_style")
+		_editor.filled = not _editor.filled
+		_buttons.filled.text = "Filled" if _editor.filled else "Outline"
+	)
+	fill_button.tooltip_text = "Rectangle: filled area or exact outline"
+	_editor_button(options, "grid", "Grid/rulers", func() -> void:
+		_clear_input("grid")
+		_editor.grid = not _editor.grid
+	)
+	var clipboard_row: HBoxContainer = HBoxContainer.new()
+	panel.add_child(clipboard_row)
+	for action: String in ["copy", "cut", "delete"]:
+		var command: String = action
+		_editor_button(clipboard_row, action, action.capitalize(), func() -> void:
+			_clear_input("clipboard")
+			_editor.clipboard_action(command)
+		)
+	var history_row: HBoxContainer = HBoxContainer.new()
+	panel.add_child(history_row)
+	_editor_button(history_row, "undo", "Undo", func() -> void: _request("undo"))
+	_editor_button(history_row, "redo", "Redo", func() -> void: _request("redo"))
+	_editor_button(history_row, "cancel_tool", "Cancel", func() -> void: _session.clear_pending_input("explicit_cancel"))
+	_editor_info = Label.new()
+	_editor_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_editor_info.custom_minimum_size.x = 230
+	_editor_info.add_theme_font_size_override("font_size", 14)
+	panel.add_child(_editor_info)
+	_populate_palettes("")
+	_editor.settings_changed.connect(_sync_editor_settings)
+
+
+func _populate_palettes(filter_text: String) -> void:
+	_primary_palette.clear()
+	_secondary_palette.clear()
+	for row: Dictionary in _editor.catalogue():
+		var searchable: String = "%d %s %s" % [int(row.id), str(row.name), str(row.family)]
+		if not filter_text.is_empty() and not filter_text.to_lower() in searchable.to_lower():
+			continue
+		var swatch: Image = Image.create(14, 14, false, Image.FORMAT_RGBA8)
+		swatch.fill(row.rgba)
+		var icon: ImageTexture = ImageTexture.create_from_image(swatch)
+		_primary_palette.add_icon_item(icon, "L: " + searchable, int(row.id))
+		_secondary_palette.add_icon_item(icon, "R: " + searchable, int(row.id))
+		for palette: OptionButton in [_primary_palette, _secondary_palette]:
+			palette.set_item_tooltip(palette.item_count - 1, searchable + (" · native rule available" if row.rule_available else " · native rule not implemented"))
+	_sync_editor_settings()
+
+
+func _sync_editor_settings() -> void:
+	var primary_id: int = int(_editor.primary[0])
+	var secondary_id: int = int(_editor.secondary[0])
+	# A filtered list must never display a different material as the active slot.
+	for pair: Array in [[_primary_palette, primary_id], [_secondary_palette, secondary_id]]:
+		var palette: OptionButton = pair[0]
+		var id: int = pair[1]
+		var selected: int = -1
+		for index: int in range(palette.item_count):
+			if palette.get_item_id(index) == id: selected = index
+		if selected < 0:
+			for row: Dictionary in _editor.catalogue():
+				if int(row.id) == id:
+					palette.add_item("Current: %d %s" % [id, row.name], id)
+					selected = palette.item_count - 1
+					break
+		palette.select(selected)
+	if _temperature != null:
+		_temperature.set_value_no_signal(float(SandfallMaterialTools.tuple_values(_editor.primary).temperature))
+
+
+func _editor_control_rects() -> Dictionary:
+	var out: Dictionary = {}
+	for pair: Array in [["temperature", _temperature.get_line_edit()], ["brush_width", _brush_width.get_line_edit()], ["brush_height", _brush_height.get_line_edit()]]:
+		var control: Control = pair[1]
+		if control.is_visible_in_tree():
+			var rect: Rect2 = control.get_global_rect()
+			out[str(pair[0])] = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
+	return out

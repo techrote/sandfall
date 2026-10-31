@@ -11,6 +11,7 @@ const MAX_INITIAL_TERRAIN_PASSES: int = 256
 const MAX_INITIAL_BODIES: int = 3
 
 var _native_world: Variant
+var _edit_bridge: Variant
 var _demo_bridge: Variant
 var _rapier_bridge: CyberRapierPhysicsBridge
 var _bodies: Array[RigidBody2D] = []
@@ -36,6 +37,9 @@ func configure(definition: Dictionary) -> Dictionary:
 		return state()
 	shutdown()
 	_definition = definition.duplicate(true)
+	_definition.rectangles = PackedInt32Array(definition.rectangles).duplicate()
+	if definition.has("initial_cells"):
+		_definition.initial_cells = PackedByteArray(definition.initial_cells).duplicate()
 	_fault = false
 	_error = ""
 	_contacts_total = 0
@@ -53,10 +57,12 @@ func configure(definition: Dictionary) -> Dictionary:
 		return state()
 	_native_world = ClassDB.instantiate(&"CyberNativeCellWorld")
 	_demo_bridge = ClassDB.instantiate(&"CyberDemoBridge")
+	_edit_bridge = ClassDB.instantiate(&"SandfallEditBridge")
 	if _native_world == null or _demo_bridge == null or _native_world.has_failed():
 		_enter_fault("Native Sandfall world construction failed")
 		return state()
-	if not _demo_bridge.build_world(_native_world, _definition.rectangles):
+	var built: bool = bool(_demo_bridge.import_level(_native_world, _definition.initial_cells)) if _definition.has("initial_cells") else bool(_demo_bridge.build_world(_native_world, _definition.rectangles))
+	if not built:
 		_enter_fault("Initial material construction refused: " + str(_demo_bridge.get_last_error()))
 		return state()
 	# Apply to the installed world, never to a camera-derived region. The
@@ -112,6 +118,10 @@ func configure(definition: Dictionary) -> Dictionary:
 			_enter_fault("Initial terrain collider readiness did not complete")
 			return state()
 	_initial_body_states = _read_body_states()
+	if _bridge_active():
+		# Establish actual body occupancy at setup without advancing either solver.
+		# Later edit snapshots never clear or rebuild these live masks/feedback.
+		_native_world.prepare_rigid_body_coupling(_rapier_bridge.pack_body_states(), false)
 	_ready = true
 	return state()
 
@@ -188,13 +198,49 @@ func state(include_material_identity: bool = false) -> Dictionary:
 func material_identity() -> String:
 	if _native_world == null or _demo_bridge == null or _native_world.has_failed():
 		return ""
-	var payload: PackedByteArray = _demo_bridge.export_level(_native_world)
+	var capture: Dictionary = capture_cells()
+	var payload: PackedByteArray = capture.get("cells", PackedByteArray())
 	if payload.is_empty():
 		return ""
 	var hashing: HashingContext = HashingContext.new()
 	hashing.start(HashingContext.HASH_SHA256)
 	hashing.update(payload)
 	return hashing.finish().hex_encode()
+
+
+func capture_cells() -> Dictionary:
+	if _edit_bridge == null or _native_world == null:
+		return {"ok": false, "error": "native_editor_unavailable"}
+	return _edit_bridge.capture_cells(_native_world)
+
+
+func material_catalogue() -> Array:
+	var bridge: Variant = ClassDB.instantiate(&"SandfallEditBridge")
+	return bridge.catalogue() if bridge != null else []
+
+
+func plan_editor_patch(cells: PackedByteArray, indices: PackedInt32Array, desired: PackedByteArray) -> Dictionary:
+	return _edit_bridge.plan_patch(cells, indices, desired)
+
+
+func apply_editor_patch(patch: Dictionary, expected_revision: int, expected_tick: int) -> Dictionary:
+	if not _ready or _fault:
+		return {"ok": false, "error": "host_not_editable", "partial": false}
+	var receipt: Dictionary = _edit_bridge.apply_patch(_native_world, patch.indices, patch.before,
+		patch.after, expected_revision, expected_tick)
+	if bool(receipt.get("partial", false)):
+		_enter_fault("Partial edit failure: " + str(receipt.error))
+	elif bool(receipt.ok) and _bridge_active():
+		# No body may step against known-stale edited terrain. A failed collider
+		# publication is a Fault, not a claimed atomic cross-backend rollback.
+		for _pass: int in range(MAX_INITIAL_TERRAIN_PASSES):
+			_sync_terrain()
+			if _fault or _rapier_bridge.pending_hard_surface_chunks() == 0:
+				break
+		if _fault or _rapier_bridge.pending_hard_surface_chunks() != 0:
+			_enter_fault("Edited terrain readiness refused")
+			return {"ok": false, "error": _error, "partial": true}
+	return receipt
 
 
 func take_render_snapshot(force_full: bool = false) -> Dictionary:
@@ -400,6 +446,12 @@ func _enter_fault(reason: String) -> void:
 
 
 func _validate_definition(definition: Dictionary) -> String:
+	if definition.has("initial_cells"):
+		if not definition.initial_cells is PackedByteArray:
+			return "Initial authored cells are malformed"
+		var editor: Variant = ClassDB.instantiate(&"SandfallEditBridge")
+		if editor == null or not bool(editor.validate_cells(definition.initial_cells).ok):
+			return "Initial authored cell tuples are invalid"
 	if definition.is_empty() or not definition.get("rectangles") is PackedInt32Array \
 			or not definition.get("bodies") is Array:
 		return "Initial scene definition is malformed"

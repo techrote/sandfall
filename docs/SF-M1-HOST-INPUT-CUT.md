@@ -196,3 +196,6 @@ and exact Edit transaction/history boundary**, within its already agreed scope.
 The milestone handoff must distinguish implemented behavior,
 executed tests and remaining gates; a new entry scene alone is not SF-M1
 completion, and SF-M1 completion is not full v1 qualification.
+
+
+**31 October 2026 continuation:** [SF-M2 authoring and history](SF-M2-AUTHORING-HISTORY.md) is implemented on stacked draft PR #4; see its dated audit for development versus exact-source execution status. The original SF-M1 and held SF-M0 branch heads are unchanged.

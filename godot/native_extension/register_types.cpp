@@ -1,5 +1,6 @@
 #include "cyber_native_cell_world.hpp"
 #include "cyber_demo_bridge.hpp"
+#include "sandfall_edit_bridge.hpp"
 #include "cyber_world_generator.hpp"
 
 #include <gdextension_interface.h>
@@ -13,6 +14,7 @@ void initialize_cybersand_native(ModuleInitializationLevel level) {
     if (level != MODULE_INITIALIZATION_LEVEL_SCENE) return;
     GDREGISTER_CLASS(CyberNativeCellWorld);
     GDREGISTER_CLASS(CyberDemoBridge);
+    GDREGISTER_CLASS(SandfallEditBridge);
     GDREGISTER_CLASS(CyberWorldGenerator);
 }
 

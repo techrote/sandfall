@@ -106,8 +106,8 @@ func _native_lifecycle() -> void:
 	var edited: Dictionary = session.state()
 	_expect(edited.mode == "edit" and edited.paused and edited.tick == 0 and edited.rapier_steps == 0,
 		"Reset & Edit did not create a clean editable baseline")
-	_expect(edited.edit_epoch > initial.edit_epoch and not edited.history_supported,
-		"Reset & Edit reused the old epoch or claimed unimplemented history")
+	_expect(edited.edit_epoch > initial.edit_epoch and edited.history_supported and edited.document.undo_depth == 0 and edited.document.redo_depth == 0,
+		"Reset & Edit reused the old epoch or retained old history")
 	_receipts.native = {"blank": blank, "initial": initial, "paused": paused,
 		"step": stepped, "reset": reset, "reset_edit": edited,
 		"stale_generation_refused": true, "duplicate_step_refused": true}

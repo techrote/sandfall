@@ -2,8 +2,7 @@
 
 **Status: SF-M0 remains on held [draft PR #2](https://github.com/techrote/sandfall/pull/2).
 The dedicated zero-player host is implemented and compatibility-Web qualified on
-stacked [draft PR #3](https://github.com/techrote/sandfall/pull/3). The full editor
-remains a later milestone. Neither PR is merged or ready for review.**
+stacked [draft PR #3](https://github.com/techrote/sandfall/pull/3). SF-M2 authoring/history and the material workshop are implemented on stacked [draft PR #4](https://github.com/techrote/sandfall/pull/4), with exact-source Web qualification tracked in its dated audit. All three PRs remain draft and unmerged.**
 
 Sandfall is a Web-native, interactive, **zero-player cellular + Rapier physics exhibition and editor** derived from CyberSand. “Zero-player” removes player/actor movement and action controls, **not** painting, object creation, time control or camera interaction.
 
@@ -56,8 +55,10 @@ controls are clickable; P toggles pause, Escape opens the menu, and middle drag/
 wheel control the camera. No painting/history or arbitrary object-authoring UI
 is claimed in this initial host cut.
 
-**Next engineering task:** SF-M2's authored initial document and exact Edit
-transactions/history, before expanding the material tools. Owner human visual
-acceptance and threaded/unisolated-hosting qualification remain separate gates.
+## SF-M2 material authoring
+
+The [SF-M2 implementation](docs/SF-M2-AUTHORING-HISTORY.md) adds copied initial documents, exact signed material/state/temperature transactions, one-gesture history, complete first-tick history retirement and bounded journalled Run interventions. The Control sidebar provides catalogue/search, pencil/erase, circle/square/ratio footprints, lines/rectangles, picker, cancellable category fill and exact selection copy/cut/paste/move/delete. Grid/rulers and camera remain presentation-only. Reset restores the frozen design; Reset & Edit starts a new empty undo history. Pacing preserves fixed dt.
+
+[The dated audit](docs/audits/2026-10-31-sf-m2-authoring-history.md) separates development results from exact-SHA native/Web/browser qualification and retained failures. The SF-M1 export linked above predates these tools and cannot demonstrate SF-M2. No new runnable export is claimed until the SF-M2 qualification run finishes. The next milestone after executable acceptance is SF-M3's generalized Rapier workshop; human visual and additional browser-profile gates remain separate.
 
 This root filename is deliberately **README.md**, matching normal Git conventions and avoiding the prior **readme.md / README.md** case conflict on Windows during upstream import.
