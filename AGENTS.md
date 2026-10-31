@@ -11,21 +11,6 @@ milestones are **not Sandfall assignments**.
 
 ## Sandfall-specific requirements
 
-- **Current integration reconciliation, 31 October 2026:** SF-M0/M1/M2 PRs
-  #2/#3/#4 are merged by their separately authorized owner. Historical holds
-  below are retained chronology. **SF-M3 PR #5 and SF-M4 remain draft/unmerged.**
-  SF-M4 starts from verified SF-M3 `0dd5d0606c92b37d3abbf6e252eae9977c1807bd`;
-  do not move dependency refs or merge either milestone.
-- [SF-M4 projects/exhibitions](docs/SF-M4-PROJECTS-EXHIBITIONS.md) and the
-  [portable format](docs/SANDFALL-PROJECT-FORMAT.md) own initial project storage,
-  staged native/Rapier replacement, same-document presentation history,
-  Gallery/evidence and confirmed declarative intervention promotion. Keep ZIP
-  parsing data-only and bounded; failed candidates must preserve the active
-  owner. Save during Run uses the frozen authored document. Preserve precise
-  negative diagnostics and source-bound file/browser qualification. The
-  [dated audit](docs/audits/2026-10-31-sf-m4-projects-exhibitions.md) distinguishes
-  local development, terminal exact-head gates and remaining SF-M5 acceptance.
-
 - Audit actual live Sandfall main/branch/PR SHAs, exact-head GitHub Actions,
   reviews, repo instructions, LFS materialization, source/runtime provenance
   and competing owners before every implementation or merge.
@@ -69,24 +54,27 @@ milestones are **not Sandfall assignments**.
   verify trusted DOM pointer coordinates against the intended CSS targets.
 - [SF-M1 preparation](docs/SF-M1-HOST-INPUT-CUT.md) is a bounded host/input-cut
   contract; its [dated audit](docs/audits/2026-10-30-sf-m1-host-input.md) owns
-  current implementation and qualification. The SF-M1 branch starts only after
-  fresh terminal SF-M0 gates and must not advance held PR #2. Keep full editing,
+  current implementation and qualification. SF-M1 was developed on the qualified SF-M0 head without advancing held PR #2. Keep full editing,
   sixteen-body authoring and archive work in later milestones. New host exports
   use `tools/build_web.py --entry sandfall --native-tests`; default legacy
   exports are not evidence for the new entry. Session/input epochs retire queued
   commands and pressed UI gestures on blur/modal/reset/fault. Camera operations
   must not move native simulation interest.
-- [SF-M2 authoring/history](docs/SF-M2-AUTHORING-HISTORY.md) owns the current editor implementation map. Keep copied authored documents distinct from live native/Rapier state; capture must not clear transient body masks/feedback. Edit is zero-tick only. Run locks history immediately, and either solver's first advancement retires both stacks even on partial failure. All tools use exact validated generation/input/revision-matched batches; Run edits are bounded journalled interventions, never Edit undo. Capacity refusal precedes mutation; partial physical effects enter Fault with truthful counters. The [SF-M2 audit](docs/audits/2026-10-31-sf-m2-authoring-history.md) owns execution evidence, not a green build badge. PR #3 and #4 remain draft and unmerged alongside the existing PR #2 hold.
+- [SF-M2 authoring/history](docs/SF-M2-AUTHORING-HISTORY.md) owns the current editor implementation map. Keep copied authored documents distinct from live native/Rapier state; capture must not clear transient body masks/feedback. Edit is zero-tick only. Run locks history immediately, and either solver's first advancement retires both stacks even on partial failure. All tools use exact validated generation/input/revision-matched batches; Run edits are bounded journalled interventions, never Edit undo. Capacity refusal precedes mutation; partial physical effects enter Fault with truthful counters. The [SF-M2 audit](docs/audits/2026-10-31-sf-m2-authoring-history.md) owns execution evidence, not a green build badge. PRs #2, #3 and #4 were merged on 2026-10-31; their historical pre-merge receipts remain unchanged.
 - SF-M2 registration adds two separately documented stale desktop input errors for `register_types.cpp`. Use `tools/sandfall/sf_m2_reconcile.py` only for the exact reviewed source delta and a fresh rebuild; preserve the original SF-M0 refusal and do not widen its historical allowlist or qualify desktop binaries.
-- [SF-M3 workshop](docs/SF-M3-RAPIER-WORKSHOP.md) extends the existing document/session/editor owners with stable logical object IDs and 0–16 Rapier boxes. Preserve versioned copied definitions, explicit dense-slot mapping/retirement, zero-body no-Rapier stepping, prevalidated graph/history/journal capacity, truthful partial Fault and shared exact Edit history. The [dated audit](docs/audits/2026-10-31-sf-m3-rapier-workshop.md) separates development, exact-source native/Godot, actual-browser physical/input/pixel and remaining platform evidence. **SF-M3 must remain draft and unmerged.** The owner separately authorized the SF-M0→M1→M2 merge-down; historical holds below do not authorize this task to modify those dependency PRs.
+- [SF-M3 workshop](docs/SF-M3-RAPIER-WORKSHOP.md) extends the existing document/session/editor owners with stable logical object IDs and 0–16 Rapier boxes. Preserve versioned copied definitions, explicit dense-slot mapping/retirement, zero-body no-Rapier stepping, prevalidated graph/history/journal capacity, truthful partial Fault and shared exact Edit history. The [dated audit](docs/audits/2026-10-31-sf-m3-rapier-workshop.md) separates development, exact-source native/Godot, actual-browser physical/input/pixel and remaining platform evidence. PR #5 is owner-authorized for guarded integration after exact-head science, native, Godot and source-provenance gates; SF-M4 PR #6 depends on this integration. Earlier draft-only holds are historical, not active merge prohibitions.
 - The imported checker has six missing *companion-workspace* references
   and eight stale **desktop** source/runtime digests. The narrow
   Sandfall SF-M0 reconciliation allowlist permits a fresh Web build only
   when these are the exact sole errors; it does not declare inherited
   desktop binaries qualified. Retain original errors and negative tests.
-- **Owner hold:** [SF-M0 PR #2](https://github.com/techrote/sandfall/pull/2)
-  remains **DRAFT and UNMERGED** until explicitly authorized. Do not
-  auto-merge, mark ready, or imply full v1 completion.
+- **Historical owner hold superseded:** [explicit owner authorization](https://github.com/techrote/sandfall/pull/2#issuecomment-6539895364)
+  on 2026-10-31 released only PRs #2, #3 and #4 for individually gated
+  normal merges. Their merge commits are `b9c2a295`, `757a87fb`, and
+  `1acc1874`, respectively. This does not authorize other PR merges or
+  imply full v1 completion. Preserve original held-state and negative receipts.
+
+- **SF-M3/SF-M4 owner authorization (2026-10-31):** PRs #5 and #6 may be marked ready and merged in that order after independent source review, applicable exact-head native/Godot/actual-browser qualification and provenance gates. Historic `sf_m0_reconcile.py` and `sf_m2_reconcile.py` refusals and stale desktop payload warnings remain retained. The strict `sf_m3_reconcile.py` gate admits only its reviewed source delta for fresh builds; it does not certify old binary payloads. No engine/physical gate may be waived for integration.
 
 ## Historical upstream instructions retained below
 
