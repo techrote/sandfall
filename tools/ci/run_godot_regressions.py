@@ -48,6 +48,10 @@ CASE_WEIGHTS_SECONDS = {
     "test_cell_world": 10.0,
     "test_worker_benchmark": 4.0,
     "test_microscenario_controllers": 3.0,
+    # 16 real Gallery runs x 600 coupled ticks; scheduling weight is not
+    # a time limit and prevents a long physical workload sharing a heavy shard.
+    "test_sandfall_gallery": 450.0,
+    "test_sandfall_archive_interop": 90.0,
     "test_water_feel_controller": 3.0,
     "test_water_feel_integration": 3.0,
     "test_physics_async": 2.5,
@@ -94,7 +98,11 @@ def discover_cases(root: Path = ROOT) -> list[Case]:
             # Scored native/Rapier development cases can consume tens of
             # thousands of real 60 Hz ticks. Keep their CI budget finite
             # without falsely classifying slower Windows hosts as faults.
-            420 if p.stem in {
+            # Gallery's validated 9,000+ physical ticks were observed timing
+            # out at the inherited 180 s bound; the dedicated M4 lane already
+            # budgets 900 s. Allow slower shared runners to complete and report
+            # any real regression instead of cancelling it mid-work.
+            1200 if p.stem == "test_sandfall_gallery" else 420 if p.stem in {
                 "test_physical_flight_teacher_dev_free",
                 "test_physical_flight_teacher_dev_obstacle",
             } else 180,
@@ -378,6 +386,45 @@ def prepare_sf_m4_interop(godot: str, output_dir: Path) -> tuple[dict[str, str],
     }
 
 
+
+SF_M4_QUALIFIED_TERMINALS = {
+    "test_sandfall_project_input": ("SANDFALL_PROJECT_INPUT_RESULT ", list),
+    "test_sandfall_promotion": ("SANDFALL_PROMOTION_TEST ", dict),
+}
+
+
+def sf_m4_qualified_terminal_receipt(case_name: str, output: str) -> tuple[str | None, dict | None]:
+    """Ignore domain-level 'skipped' only inside an exact passing terminal JSON.
+
+    Unsupported runtime interventions in SF-M4 are recorded as 'skipped' in
+    successful *scientific data*, not a skipped test. The generic skip scanner
+    must still fail actual SKIP/SKIPPED messages and any malformed terminal.
+    """
+    if case_name not in SF_M4_QUALIFIED_TERMINALS:
+        return None, None
+    prefix, receipts_type = SF_M4_QUALIFIED_TERMINALS[case_name]
+    matches = [line for line in output.splitlines() if line.startswith(prefix)]
+    if len(matches) != 1:
+        raise ValueError("Expected exactly one actual SF-M4 terminal result: " + case_name)
+    line = matches[0]
+    receipt = json.loads(line[len(prefix):])
+    if (not isinstance(receipt, dict) or receipt.get("ok") is not True
+            or type(receipt.get("checks")) is not int or receipt["checks"] <= 0
+            or receipt.get("failures") != []
+            or not isinstance(receipt.get("receipts"), receipts_type)):
+        raise ValueError("SF-M4 terminal result does not establish a full passing case: " + case_name)
+    return line, receipt
+
+
+def collect_skip_messages(output: str, *, verified_terminal_line: str | None = None) -> list[str]:
+    """Preserve existing broad skip detection outside the one verified JSON."""
+    return [
+        line for line in output.splitlines()
+        if line != verified_terminal_line
+        and re.search(r"\bskipped\b|^\s*SKIP\b", line, flags=re.IGNORECASE)
+    ]
+
+
 def run_case(godot: str, case: Case, output_dir: Path, role: str, *,
              env: dict[str, str] | None = None) -> tuple[dict, bool]:
     log_path = output_dir / (case.name + ".log")
@@ -452,10 +499,16 @@ def run_case(godot: str, case: Case, output_dir: Path, role: str, *,
         except (ValueError, KeyError, TypeError, RuntimeError) as error:
             negative_validation_failure = str(error)
             diagnostic_error = True
-    skip_messages = [
-        line for line in output.splitlines()
-        if re.search(r"\bskipped\b|^\s*SKIP\b", line, flags=re.IGNORECASE)
-    ]
+    terminal_line = None
+    terminal_receipt = None
+    terminal_validation_failure = None
+    if case.name in SF_M4_QUALIFIED_TERMINALS:
+        try:
+            terminal_line, terminal_receipt = sf_m4_qualified_terminal_receipt(case.name, output)
+        except (ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+            terminal_validation_failure = str(error)
+            diagnostic_error = True
+    skip_messages = collect_skip_messages(output, verified_terminal_line=terminal_line)
     failed = timed_out or returncode != 0 or diagnostic_error or bool(skip_messages)
     if timed_out:
         status = "timeout"
@@ -477,6 +530,11 @@ def run_case(godot: str, case: Case, output_dir: Path, role: str, *,
         "diagnostic_error": diagnostic_error,
         "expected_negative_receipts": negative_receipts,
         "negative_validation_failure": negative_validation_failure,
+        "sf_m4_terminal_receipt": (
+            {"checks": terminal_receipt["checks"], "sha256": hashlib.sha256(terminal_line.encode("utf-8")).hexdigest()}
+            if terminal_receipt is not None else None
+        ),
+        "terminal_validation_failure": terminal_validation_failure,
         "launch_error": launch_error,
         "capture_error": capture_error,
         "skip_messages": skip_messages,

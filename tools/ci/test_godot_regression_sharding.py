@@ -364,5 +364,54 @@ class SandfallArchiveDiagnosticGateTests(unittest.TestCase):
             self.assertFalse((root / "sf-m4-codec/external-interop/interop.json").exists())
 
 
+
+class SandfallTerminalReceiptAndBudgetTests(unittest.TestCase):
+    def example(self, name):
+        prefix, typ = subject.SF_M4_QUALIFIED_TERMINALS[name]
+        values = {"checks": 43 if typ is list else 116, "failures": [], "ok": True,
+                  "receipts": [{"unsupported_interventions_skipped": 2, "skipped": 1}]
+                  if typ is list else {"promotion": {"skipped": 1}}}
+        return prefix + json.dumps(values, sort_keys=True)
+
+    def test_qualified_domain_skipped_is_not_a_skipped_test(self):
+        for name in subject.SF_M4_QUALIFIED_TERMINALS:
+            with self.subTest(name=name):
+                line = self.example(name)
+                observed, record = subject.sf_m4_qualified_terminal_receipt(name, line)
+                self.assertEqual(observed, line)
+                self.assertTrue(record["ok"])
+                self.assertEqual(subject.collect_skip_messages(line, verified_terminal_line=observed), [])
+                other = "Depth render test skipped: no actual display"
+                self.assertEqual(subject.collect_skip_messages(line + "\n" + other,
+                                 verified_terminal_line=observed), [other])
+
+    def test_missing_invalid_duplicate_or_nonpassing_receipts_still_fail(self):
+        for name in subject.SF_M4_QUALIFIED_TERMINALS:
+            line = self.example(name)
+            prefix = subject.SF_M4_QUALIFIED_TERMINALS[name][0]
+            original = json.loads(line[len(prefix):])
+            bad = [
+                "",
+                line + "\n" + line,
+                prefix + "{bad_json",
+                prefix + json.dumps({**original, "ok": False}),
+                prefix + json.dumps({**original, "checks": 0}),
+                prefix + json.dumps({**original, "failures": ["rejected"]}),
+                prefix + json.dumps({**original, "receipts": None}),
+            ]
+            for raw in bad:
+                with self.subTest(name=name, raw=raw[:40]), self.assertRaises(
+                        (ValueError, TypeError, json.JSONDecodeError)):
+                    subject.sf_m4_qualified_terminal_receipt(name, raw)
+
+    def test_known_gallery_gets_genuinely_generous_bounded_time_and_weight(self):
+        cases = {case.name: case for case in subject.discover_cases()}
+        self.assertIn("test_sandfall_gallery", cases)
+        self.assertEqual(cases["test_sandfall_gallery"].timeout, 1200)
+        self.assertGreaterEqual(cases["test_sandfall_gallery"].weight, 300)
+        self.assertEqual(cases["test_sandfall_project_input"].timeout, 180)
+        self.assertEqual(cases["test_sandfall_promotion"].timeout, 180)
+
+
 if __name__ == "__main__":
     unittest.main()

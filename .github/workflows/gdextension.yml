@@ -309,7 +309,9 @@ jobs:
         (github.event.action != 'ready_for_review' ||
          needs.ready_scope.outputs.required == 'true')))
     runs-on: windows-2022
-    timeout-minutes: 45
+    # Full headless suite can include 171+ genuine native/Godot cases plus
+    # SF-M4's long Gallery workload; retain every case and avoid job cutoff.
+    timeout-minutes: 90
     defaults:
       run:
         shell: bash
@@ -363,7 +365,7 @@ jobs:
           curl --fail --location --retry 3 --connect-timeout 20 --max-time 600 --output "$RUNNER_TEMP/godot-windows.zip" "$GODOT_WINDOWS_URL"
 
       - name: Verify retained runtime and execute every applicable Windows case
-        timeout-minutes: 40
+        timeout-minutes: 85
         run: |
           set -euo pipefail
           python tools/ci/run_windows_godot_regressions.py --godot-archive "$RUNNER_TEMP/godot-windows.zip" --expected-source-sha "$GITHUB_SHA" --fresh-windows-runtime build/windows-runtime --output build/godot-regressions/windows
@@ -393,7 +395,9 @@ jobs:
     # Every shard has >=2 logical CPUs so weighted planning may move the worker
     # parity case without disabling its parallel arm. All use GitHub-hosted CI.
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    # Each shard retains every case; the SF-M4 Gallery alone performs
+    # 16 real runs / 9,000+ coupled ticks and needs more than the old 180 s.
+    timeout-minutes: 75
     strategy:
       fail-fast: false
       matrix:
@@ -444,7 +448,7 @@ jobs:
           GALLIVM_PERF: "nopt"
           CYBERSAND_PRESENTATION_EVIDENCE: ${{ github.workspace }}/build/godot-regressions/shard-${{ matrix.shard }}/presentation
         run: |
-          timeout 30m xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -nolisten tcp" python3 tools/ci/run_godot_regressions.py --godot "$GODOT_BIN" --output "build/godot-regressions/shard-${{ matrix.shard }}" --shard-count 4 --shard-index "${{ matrix.shard }}" --keep-going
+          timeout 65m xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -nolisten tcp" python3 tools/ci/run_godot_regressions.py --godot "$GODOT_BIN" --output "build/godot-regressions/shard-${{ matrix.shard }}" --shard-count 4 --shard-index "${{ matrix.shard }}" --keep-going
           python3 tools/ci/readback_4ly003_development.py --regression-output "build/godot-regressions/shard-${{ matrix.shard }}" --expect-source-sha "$(git rev-parse HEAD)"
           git diff --exit-code -- .             ':!godot/addons/cybersand_native/bin/libcybersand_native.linux.x86_64.so'             ':!godot/addons/godot-rapier2d/bin/libgodot_rapier.linux.x86_64-unknown-linux-gnu.so'
 
@@ -472,7 +476,7 @@ jobs:
       github.event.pull_request.draft == false &&
       vars.GDEXT_SERIAL_EQUIVALENCE == '1'
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 100
     steps:
       - name: Check out exact source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -514,7 +518,7 @@ jobs:
           GALLIVM_PERF: "nopt"
           CYBERSAND_PRESENTATION_EVIDENCE: ${{ github.workspace }}/build/godot-regressions/serial/presentation
         run: |
-          timeout 30m xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -nolisten tcp" python3 tools/ci/run_godot_regressions.py --godot "$GODOT_BIN" --output build/godot-regressions/serial --keep-going
+          timeout 90m xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -nolisten tcp" python3 tools/ci/run_godot_regressions.py --godot "$GODOT_BIN" --output build/godot-regressions/serial --keep-going
           python3 tools/ci/readback_4ly003_development.py --regression-output build/godot-regressions/serial --expect-source-sha "$(git rev-parse HEAD)"
           git diff --exit-code -- .             ':!godot/addons/cybersand_native/bin/libcybersand_native.linux.x86_64.so'             ':!godot/addons/godot-rapier2d/bin/libgodot_rapier.linux.x86_64-unknown-linux-gnu.so'
 
