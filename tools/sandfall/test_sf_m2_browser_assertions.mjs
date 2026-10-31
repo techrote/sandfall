@@ -12,3 +12,14 @@ test('Run is locked before tick one; either actual solver counter retires all pr
 test('Run intervention must be physically accepted, journalled and leave frozen document intact',()=>{const before=run(),after={...run(),current_hash:b,mutation_count:1,paint_commands:1,pristine:false,intervention_count:1,last_edit:{accepted:true,mode:'run',kind:'pencil_stroke'}};assertRunIntervention(before,after,'pencil_stroke');for(const delta of [{tick:2},{pristine:true},{intervention_count:0},{initial_hash:b},{document:{...after.document,cells_sha256:b}}])assert.throws(()=>assertRunIntervention(before,{...after,...delta},'pencil_stroke'));});
 test('Gallery still requires 600 real coupled ticks and positive contact/displacement',()=>{const s={...run(),entry:'gallery',scene_id:'physics_pit',rapier_active:true,tick:600,rapier_steps:600,body_poses:[[],[],[]],moves:1,contacts_total:1,displaced_total:1};assertGallery600(s);for(const delta of [{tick:599},{rapier_steps:599},{moves:0},{contacts_total:0},{displaced_total:0},{actor_count:1}])assert.throws(()=>assertGallery600({...s,...delta}));});
 test('genuine pointer evidence rejects synthetic events and scaled/incorrect coordinates',()=>{const expected=[{action:'pencil',type:'pointerdown',button:0,x:200,y:150,start_index:0,end_index:1}],event={type:'pointerdown',button:0,x:200,y:150,target:'CANVAS',focused:true,isTrusted:true};assertTrustedDelivery([event],expected);for(const delta of [{x:100},{y:75},{isTrusted:false},{target:'BODY'},{focused:false}])assert.throws(()=>assertTrustedDelivery([{...event,...delta}],expected));});
+
+test('material targeting requires actual legacy mouse and pointer coordinates, not one-pixel tolerance',()=>{
+  for(const type of ['mousedown','mouseup','pointerdown','pointerup']) {
+    const expected=[{action:'exact cell',type,button:0,x:224,y:85,coordinate_tolerance:1e-4,start_index:0,end_index:1}];
+    const event={type,button:0,x:224,y:85,target:'CANVAS',focused:true,isTrusted:true};
+    assertTrustedDelivery([event],expected);
+    assert.throws(()=>assertTrustedDelivery([{...event,x:223.9}],expected),/coordinate/);
+    assert.throws(()=>assertTrustedDelivery([{...event,y:84}],expected),/coordinate/);
+    assert.throws(()=>assertTrustedDelivery([{...event,isTrusted:false}],expected),/Untrusted/);
+  }
+});

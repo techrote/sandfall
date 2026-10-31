@@ -168,9 +168,11 @@ export function assertTrustedDelivery(events, expected) {
     assert.equal(match.target, "CANVAS", `Input missed the Godot canvas for ${request.action}`);
     assert.equal(match.focused, true, `Input reached an unfocused canvas for ${request.action}`);
     if (request.x !== undefined) {
-      assert.ok(Number.isFinite(match.x) && Math.abs(match.x - request.x) <= 1,
+      const tolerance = request.coordinate_tolerance ?? 1;
+      assert.ok(Number.isFinite(tolerance) && tolerance >= 0 && tolerance <= 1, "Invalid input coordinate tolerance");
+      assert.ok(Number.isFinite(match.x) && Math.abs(match.x - request.x) <= tolerance,
         `Trusted pointer X differs from the intended CSS coordinate for ${request.action}`);
-      assert.ok(Number.isFinite(match.y) && Math.abs(match.y - request.y) <= 1,
+      assert.ok(Number.isFinite(match.y) && Math.abs(match.y - request.y) <= tolerance,
         `Trusted pointer Y differs from the intended CSS coordinate for ${request.action}`);
     }
     if (request.repeat !== undefined) assert.equal(match.repeat, request.repeat,

@@ -10,6 +10,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { analyzePng, pngDimensions } from "./sf_m0_png_stats.mjs";
 import { mapGodotRect, cssRectToScreenshotROI } from "./sf_m0_geometry.mjs";
+import {mapWorldCell} from "./sf_m2_geometry.mjs";
 import {
   assertOrdinaryState, assertEdit, assertInputClear, physicalCheckpoint,
   assertPausedStable, assertStep, assertReset, assertGallery600, assertTrustedDelivery,
@@ -43,7 +44,7 @@ if (![width, height, dpr, timeoutMs].every(x => Number.isFinite(x) && x > 0))
 const sha256 = bytes => createHash("sha256").update(bytes).digest("hex");
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const copy = value => structuredClone(value);
-const harnessInputs = ["sf_m2_browser.mjs", "sf_m2_browser_assertions.mjs", "sf_m0_geometry.mjs", "sf_m0_png_stats.mjs"]
+const harnessInputs = ["sf_m2_browser.mjs", "sf_m2_browser_assertions.mjs", "sf_m2_geometry.mjs", "sf_m0_geometry.mjs", "sf_m0_png_stats.mjs"]
   .map(path => ({path, sha256:sha256(readFileSync(new URL(path, import.meta.url)))}));
 const repoRoot = fileURLToPath(new URL("../../",import.meta.url));
 const harnessHead = execFileSync("git",["-C",repoRoot,"rev-parse","HEAD"],{encoding:"utf8"}).trim();
@@ -338,13 +339,7 @@ async function capture(name, scoreWorld = false) {
 }
 
 function cellPoint(cell) {
-  const [vx,vy,vw,vh] = state.view;
-  const [ox,oy] = state.camera.camera_origin;
-  const [ww,wh] = state.camera.view_size;
-  const rect = [vx+(cell[0]+0.5-ox)/ww*vw-0.01,vy+(cell[1]+0.5-oy)/wh*vh-0.01,0.02,0.02];
-  assert.ok(rect[0] >= vx && rect[1] >= vy && rect[0] < vx+vw && rect[1] < vy+vh,
-    "Requested authored cell is outside the actual camera viewport");
-  return mapGodotRect(rect,metrics,layout).center;
+  return mapWorldCell(cell,state.view,state.camera,metrics,layout).point;
 }
 
 async function tool(name) {
@@ -384,16 +379,26 @@ async function stroke(a,b,{button="left",preview=false,label="stroke"}={}) {
   await input("Input.dispatchMouseEvent",{type:"mouseMoved",...start,buttons:0});
   await input("Input.dispatchMouseEvent",{type:"mousePressed",button,buttons:mask,...start,clickCount:1});
   await sleep(120);
+  await observe();
+  const pressedFrame=state.frame;
   await input("Input.dispatchMouseEvent",{type:"mouseMoved",...end,buttons:mask});
   if (preview) {
-    await waitFor(label+"-preview",s=>s.editor.gesture_active);
+    // Observe a processed motion, then assert the exact cells independently of
+    // the changed-cell count. A one-cell shift must not pass as an equal-size edit.
+    await waitFor(label+"-preview",s=>s.editor.gesture_active && s.frame >= pressedFrame+3);
+    check(label+"-exact-gesture-cells",()=>{
+      assert.deepEqual(state.editor.preview_first,a);
+      assert.deepEqual(state.editor.preview_last,b);
+    });
     check(label+"-preview-does-not-mutate-or-step",()=>assertPausedStable(before,state));
   }
   await input("Input.dispatchMouseEvent",{type:"mouseReleased",button,buttons:0,...end,clickCount:1});
   await sleep(140);
   await observe();
-  expectedDOM.push({action:label,type:"pointerdown",button:domButton,...start,start_index:startIndex,end_index:domInputEvents.length});
-  expectedDOM.push({action:label,type:"pointerup",button:domButton,...end,start_index:startIndex,end_index:domInputEvents.length});
+  for (const type of ["pointerdown","mousedown"])
+    expectedDOM.push({action:label,type,button:domButton,...start,coordinate_tolerance:1e-4,start_index:startIndex,end_index:domInputEvents.length});
+  for (const type of ["pointerup","mouseup"])
+    expectedDOM.push({action:label,type,button:domButton,...end,coordinate_tolerance:1e-4,start_index:startIndex,end_index:domInputEvents.length});
   return before;
 }
 async function editStroke(a,b,kind,cells,label=kind) {
@@ -474,7 +479,7 @@ try {
   await cmd("Emulation.setDeviceMetricsOverride",{width,height,deviceScaleFactor:dpr,mobile:false});
   await cmd("Page.addScriptToEvaluateOnNewDocument",{source:`
     window.__sandfallObservedInput=[];
-    for (const type of ['pointerdown','pointerup','pointercancel','keydown','keyup','wheel']) {
+    for (const type of ['pointerdown','pointerup','pointercancel','mousedown','mouseup','keydown','keyup','wheel']) {
       addEventListener(type,event=>{
         window.__sandfallObservedInput.push({type,isTrusted:event.isTrusted,
           key:event.key??null,code:event.code??null,repeat:event.repeat??false,
