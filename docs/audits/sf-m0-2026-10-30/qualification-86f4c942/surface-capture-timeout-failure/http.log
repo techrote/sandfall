@@ -1,0 +1,33 @@
+Serving /home/runner/work/sandfall/sandfall/build/web
+http://127.0.0.1:8040/
+Press Ctrl+C to stop.
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /LICENSE_STATUS.md HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /RAPIER_LICENSE.txt HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /RAPIER_THIRDPARTY.txt HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /THIRD_PARTY_NOTICES.md HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /build-info.json HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /godot_rapier.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /index.apple-touch-icon.png HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /index.audio.position.worklet.js HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /index.audio.worklet.js HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /index.icon.png HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /index.js HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /index.pck HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /index.png HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /index.side.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /index.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /libcybersand_native.web.nothreads.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /serve_web.py HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:06] "GET /SHA256SUMS HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:13] "GET /?test=1 HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:13] "GET /index.png HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:13] "GET /index.js HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:14] "GET /index.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:14] "GET /index.pck HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:14] "GET /index.side.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:14] "GET /index.icon.png HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:14] "GET /libcybersand_native.web.nothreads.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:09:14] "GET /godot_rapier.wasm HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:10:11] "GET /index.audio.worklet.js HTTP/1.1" 200 -
+127.0.0.1 - - [30/Oct/2026 21:10:11] "GET /index.audio.position.worklet.js HTTP/1.1" 200 -

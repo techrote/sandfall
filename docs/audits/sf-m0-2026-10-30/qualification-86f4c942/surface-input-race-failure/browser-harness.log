@@ -1,0 +1,11 @@
+SF_M0_ORDINARY_POLL Error: Runtime.evaluate CDP deadline expired
+SF_M0_ORDINARY_OBSERVATION {"phase":"initial-menu","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":100886}
+SF_M0_ORDINARY_CAPTURE Error: Page.captureScreenshot CDP deadline expired
+SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":205389}
+SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":227305}
+SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":248841}
+SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":270529}
+SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":292407}
+SF_M0_ORDINARY_FAILURE Error: Timed out waiting for first-continue-closed
+SF_M0_ORDINARY_CAPTURE Error: Page.captureScreenshot CDP deadline expired
+SF_M0_ORDINARY_RESULT {"status":"failed","failures":["Error: Timed out waiting for first-continue-closed"],"build_source":"6352756931c58e702eb5c15c05d44515091274b2","final_tick":0}

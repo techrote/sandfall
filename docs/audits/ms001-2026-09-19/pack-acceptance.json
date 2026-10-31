@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "date": "2026-09-19",
+  "issue": 28,
+  "pr": 44,
+  "integration_base": "13a26b78b1ef4d6eafa5f2fc649c79976a2eb6ac",
+  "implementation_checkpoint": "fd6720df4403de29eb510907903084f848c2b50d",
+  "status": "PR #44 accepted and merged; post-merge review corrections registered",
+  "source_hashes": {
+    "godot/scripts/microscenario_reference_pack.gd": "9bda40b7ed6286608ad08d023591928727c61447610f6354d2064f2a9436778c",
+    "godot/scripts/microscenario_workbench.gd": "d19bb3aa1071cbe236dfb1a468227cf76d155615046bd9e1aeb32e5db059e3b3",
+    "godot/scripts/microscenario_panel.gd": "cc83a1e04d509a630abd8aa59964a38bb82735e3d7f5546116c1bc7faef2628b",
+    "godot/scripts/main.gd": "260f0bc72e45abf6ac425fbf5de8a6155a3ed093537e072a5c82d67539f0b99a",
+    "godot/scripts/web_demo_controller.gd": "007fe18cc8f22389d68af249139f9e1d30a36d62c0a76f2b66bdf315e40d416c",
+    "godot/tests/test_microscenario_flood_control.gd": "b84659baf93a9abbc4434693fa35ee1d02b7c2c3d7d34d0cd0065647ece3d3b3",
+    "godot/tests/test_microscenario_stress.gd": "a4b78bcd7a6bf883e057b98b77ffbdf3c21e9999dd043a659331305aaa116edc",
+    "godot/tests/test_microscenario_workbench_lifecycle.gd": "e6030c81bd931c2c6320280b6c8ea8ddfe4085b12723fe03ccf711c51a01b896",
+    "godot/tests/test_microscenario_reference_pack_ui.gd": "809a7fe88d2be0ab48a9f893725cc3ef20694078d7dd23a2463941d8dfc65418",
+    "godot/tests/test_microscenario_materials_lab.gd": "4965cab797823d1645ab9caf8b970516faaca3bf1bf32b2047286651c5bd40e0"
+  },
+  "definitions": {
+    "materials/contact-lab": "262296b2b1f1d38ca3ca8b16a8faaf8e36ec091e201ada5255a62c2705ba3ba9",
+    "ms001/flood-control": "b6a31f5c92769e70acf870d0a862ca13c8cf8b737e8ac6dee5e05a6c1f7b4744",
+    "ms001/flood-control/witness-containment": "7664883e6023270455f30ad167347589eab3c69ad11c1fedb55ea7aebdce8ebc",
+    "ms001/flood-control/witness-berm": "b22c758e28c0cab1827a152172c141c75dbff55ce546037469ef2d990bdd1ee6",
+    "ms001/flood-control/witness-diversion": "449e3451eea00f56e925429f9ebaab3757a784976281ed35d120087cd77d6f94",
+    "ms001/stress/water-flow": "ac5b686cc103b0e4e1653064d56e025eccdde3cf44b474083b1db0dd45a61a92",
+    "ms001/stress/granular-collapse": "e5af6ace396e9f74efd06be05a157042ae9e3f32a0b69c215b4e9a2bb53265aa",
+    "ms001/stress/gas-column": "361dab9cb7cb7c000a8dc3d782e22d63c7820f10a330a984f590d4dc132442e8",
+    "ms001/stress/mixed": "1781a74f18f6cd7e81dcf066d06242f0c3cffafd000dc79b5e449a674fc2ea61"
+  },
+  "flood": {
+    "tick": 180,
+    "objective": "protected-water integer quantity equals zero",
+    "untreated": {
+      "protected_water": 5031,
+      "outcome": "fail",
+      "content_hash": "ff092bc3e0b99e35"
+    },
+    "witnesses": {
+      "containment": {
+        "protected_water": 0,
+        "outcome": "complete",
+        "content_hash": "889c3e03e64dafe0"
+      },
+      "berm": {
+        "protected_water": 0,
+        "outcome": "complete",
+        "content_hash": "3f105c0a24d63e80"
+      },
+      "diversion": {
+        "protected_water": 0,
+        "outcome": "complete",
+        "content_hash": "5d62d593332d1acd"
+      }
+    },
+    "mode_worker_observer_parity": true
+  },
+  "stress": {
+    "tick": 180,
+    "profiles": {
+      "water-flow": {
+        "visited_cells_sum": 2111536,
+        "events": 14,
+        "content_hash": "c2f7b0d1e2d6a56e"
+      },
+      "granular-collapse": {
+        "visited_cells_sum": 9815552,
+        "events": 1,
+        "content_hash": "851562f86338ce3d"
+      },
+      "gas-column": {
+        "visited_cells_sum": 6117120,
+        "events": 0,
+        "content_hash": "18d81cbbf439d673"
+      },
+      "mixed": {
+        "visited_cells_sum": 9491522,
+        "events": 6,
+        "content_hash": "4d986249d7981167"
+      }
+    },
+    "worker_observer_parity": true,
+    "unavailable": [
+      "queue_high_water",
+      "whole_heap_allocations",
+      "per_worker_utilization",
+      "per_cell_sleep"
+    ]
+  },
+  "tests": {
+    "test_microscenario_flood_control.gd": "25 assertions; 0 failures",
+    "test_microscenario_stress.gd": "50 assertions; 0 failures",
+    "test_microscenario_workbench_lifecycle.gd": "15 assertions; 0 failures",
+    "test_microscenario_reference_pack_ui.gd": "17 assertions; 0 failures headless controller; 19 assertions; 0 failures X11/Mesa",
+    "test_microscenario_reference_contract.gd": "339 assertions; 0 failures",
+    "test_microscenario_materials_lab.gd": "189 assertions; 0 failures",
+    "test_microscenarios.gd": "6498 assertions; 0 failures",
+    "test_microscenario_controllers.gd": "52 assertions; 0 failures",
+    "test_microscenario_native_observation.gd": "100 assertions; 0 failures",
+    "test_microscenario_workbench.gd": "38 assertions; 0 failures isolated headless; 42 assertions; 0 failures X11/Mesa",
+    "native C++": "61 tests passed"
+  },
+  "runtime": {
+    "godot": "4.7.stable.official.5b4e0cb0f",
+    "linux_native_sha256": "42f3d8da5988b1ce414d14a6132a621c60b5265375abe0e24e4f860ff64ae245",
+    "windows_native_sha256": "cbba322590cd43c54dcc2b8cbdb2c8c8d1ffabe4ac67331d01a7f3b538a78dba",
+    "windows_execution": "unavailable",
+    "browser_wasm_execution": "unavailable",
+    "target_gpu_performance": "unavailable",
+    "integrated_runtime_build_run": 35446887090,
+    "integrated_runtime_artifact": 10585600308
+  },
+  "limitations": [
+    "Scenario results are exploratory/versioned, not production physics acceptance.",
+    "Windows artifact is cross-compiled only.",
+    "Linux synchronous Web-controller execution is not browser/WebAssembly acceptance.",
+    "PR #44 exact-head repository/provenance, native and Godot CI passed before merge; later post-merge review corrections do not change native simulation semantics."
+  ],
+  "negative_results": [
+    "An intentionally over-parallel local regression sweep caused one 15-second headless workbench fixture wait to expire; isolated rerun passed 38/0 and X11 passed 42/0.",
+    "Actual Windows execution, browser/WebAssembly execution and target hardware-GPU performance remain unavailable."
+  ],
+  "accepted_pr_head": "95aa2a0cb7b68445ed4a23ad16481c947e5a4695",
+  "merge_commit": "c1edf907cce1693fa45f89e9f1f573f05483c1e4",
+  "exact_head_ci": {
+    "documentation_provenance": {
+      "run": 35447451359,
+      "conclusion": "PASS"
+    },
+    "native_cpp": {
+      "run": 35447451354,
+      "conclusion": "PASS"
+    },
+    "gdextension_godot": {
+      "run": 35447451361,
+      "conclusion": "PASS"
+    }
+  },
+  "post_merge_review": {
+    "review_base": "d6a616eafdbbda56a691256fd48e463ffdad58de",
+    "disposition": "implementation accepted; bounded closure corrections only",
+    "corrections": [
+      "Flood player instructions now state the implemented endpoint objective: protected-zone Water equals zero at tick 180.",
+      "Stress regression now counts distinct final native content hashes instead of duplicating the values array.",
+      "This evidence record now carries the actual current Contract.validate hashes for the four Stress definitions."
+    ],
+    "semantic_boundary": "Flood geometry, scheduled events, observations and completion conditions are unchanged; native simulation semantics and runtime binaries are unchanged.",
+    "focused_retest": {
+      "platform": "Linux x86_64 / Godot 4.7 / integrated runtime SHA-256 42f3d8da5988b1ce414d14a6132a621c60b5265375abe0e24e4f860ff64ae245",
+      "flood": "25 assertions; 0 failures; untreated protected water=5031",
+      "stress": "50 assertions; 0 failures"
+    }
+  }
+}

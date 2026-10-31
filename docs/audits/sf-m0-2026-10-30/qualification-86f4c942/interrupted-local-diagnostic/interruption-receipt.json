@@ -1,0 +1,28 @@
+{
+  "schema": "sandfall-interrupted-local-diagnostic-v1",
+  "observed_at": "2026-10-30T21:33:07.292924+00:00",
+  "status": "incomplete",
+  "acceptance": false,
+  "reason": "On resuming the execution context, the owning process sessions were unavailable and process inspection found no test Chrome, server or Node process. No terminal browser receipt or screenshot exists; the underlying process termination cause is unproven.",
+  "harness_base_commit": "350d7b9084eb71eb464913b1b4a5ac6d3a516ede",
+  "harness_working_tree_delta": "visible-view capture and bounded cleanup subsequently committed as 86f4c942bdd0e917d2edd74f5a872f8ae0806aa6",
+  "build_source_commit": "6352756931c58e702eb5c15c05d44515091274b2",
+  "files": {
+    "artifact-verification.json": {
+      "sha256": "9e4458549b410360252df32c31e806850d8284728bbf64a4bfe23f4d90282dc3",
+      "size": 6275
+    },
+    "chrome.log": {
+      "sha256": "d18491c9f5e945f24a8a5e9e7530c73ea13bf45d1af3a02bff053d25159c296c",
+      "size": 10300
+    },
+    "harness.log": {
+      "sha256": "ab8b0964b184f4930d9aebdd343a4f75eb194ea4883b53eb2fe4e42971cf87ca",
+      "size": 65
+    },
+    "http.log": {
+      "sha256": "25773da70b2482654a9bd94ffb2e26802f06208e95f7aa79fe533448a23631c0",
+      "size": 2257
+    }
+  }
+}

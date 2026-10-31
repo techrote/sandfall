@@ -1,0 +1,221 @@
+name: SF-M0 ordinary interactive Web render and input qualification
+
+on:
+  push:
+    branches: [sf-m0/source-import-20261030]
+    paths:
+      - .github/workflows/sf-m0-ordinary-view.yml
+      - tools/sandfall/sf_m0_ordinary_browser.mjs
+      - tools/sandfall/sf_m0_geometry.mjs
+      - tools/sandfall/sf_m0_png_stats.mjs
+      - tools/sandfall/sf_m0_verify_web_artifact.py
+      - tools/sandfall/sf_m0_native_smoke.py
+      - tools/sandfall/test_sf_m0_*.mjs
+      - tools/sandfall/test_sf_m0_verify_web_artifact.py
+      # Qualification-ledger publication must retain exact-head runtime checks.
+      - docs/audits/2026-10-30-sf-m0-ordinary-web.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sandfall-sf-m0-ordinary-view-v2
+  cancel-in-progress: false
+
+jobs:
+  normal-web:
+    name: Ordinary Web ${{ matrix.width }}x${{ matrix.height }} DPR${{ matrix.dpr }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Original failing shape, including horizontal letterboxing.
+          - width: 800
+            height: 450
+            dpr: 1
+          # Matching logical aspect with a distinct backing/screenshot scale.
+          - width: 640
+            height: 400
+            dpr: 2
+    steps:
+      - name: Checkout source and browser assertions with full revision identity
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - name: Restore frozen source-built compat Web export
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m0-compat-web
+          run-id: 41115189216
+          github-token: ${{ github.token }}
+          path: .
+      - name: Preserve the original red browser evidence unchanged
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m0-ordinary-visual
+          run-id: 41121317805
+          github-token: ${{ github.token }}
+          path: sf-m0-ordinary/original-failure-41121317805
+      - name: Preserve the failed DPR2 capture and input run unchanged
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m0-ordinary-640x400-dpr2
+          run-id: 41126992330
+          github-token: ${{ github.token }}
+          path: sf-m0-ordinary/dpr2-failure-41126992330
+      - name: Preserve the failed DPR2 terminal screenshot capture unchanged
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m0-ordinary-640x400-dpr2
+          run-id: 41128785495
+          github-token: ${{ github.token }}
+          path: sf-m0-ordinary/dpr2-capture-timeout-41128785495
+      - name: Test coordinates, world-only pixels and source-drift refusals
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sf-m0-ordinary
+          python3 -m unittest discover -s tools/sandfall -p 'test_sf_m0_*.py' 2>&1 | tee sf-m0-ordinary/python-tests.log
+          node tools/sandfall/test_sf_m0_geometry.mjs > sf-m0-ordinary/geometry-tests.log 2>&1
+          node tools/sandfall/test_sf_m0_png_stats.mjs > sf-m0-ordinary/png-tests.log 2>&1
+          node --check tools/sandfall/sf_m0_ordinary_browser.mjs
+          python3 tools/ci/check_ci_provider_policy.py
+      - name: Verify immutable export bytes, source equivalence and logical viewport
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/sandfall/sf_m0_verify_web_artifact.py \
+            --web-root build/web --expected-build-sha 6352756931c58e702eb5c15c05d44515091274b2 \
+            --output sf-m0-ordinary/artifact-verification.json
+          python3 - <<'PY'
+          import hashlib, json, pathlib, shutil, subprocess
+          root=pathlib.Path("sf-m0-ordinary")
+          negative=root/"original-failure-41121317805"
+          record={"source_run":41121317805,"artifact_id":13009056837,
+            "original_zip_sha256":"f0fca61f8cc5bac06ea5212b56f7f0063f65a5e1b39c11fd27a1f8db3cedb663",
+            "files":{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(negative.iterdir()) if p.is_file()},
+            "retained_status":json.loads((negative/"browser.json").read_text())["status"]}
+          assert record["retained_status"]=="failed"
+          (root/"original-failure-origin.json").write_text(json.dumps(record,indent=2)+"\n")
+          dpr2_failure=root/"dpr2-failure-41126992330"
+          dpr2_browser=json.loads((dpr2_failure/"browser.json").read_text())
+          dpr2_origin={"schema":"sandfall-retained-browser-failure-v1",
+            "evidence_kind":"preserved failed execution; NOT the current run",
+            "source_run":41126992330,"artifact_id":13011023580,
+            "original_zip_sha256":"e7291cf0c5210813e4bd530e09d75a9328d02fa2b2a1e60da9b639726858f554",
+            "retained_status":dpr2_browser["status"],
+            "files":{p.relative_to(dpr2_failure).as_posix():
+              {"sha256":hashlib.sha256(p.read_bytes()).hexdigest(),"size":p.stat().st_size}
+              for p in sorted(dpr2_failure.rglob("*")) if p.is_file()}}
+          assert dpr2_origin["retained_status"]=="failed"
+          (root/"dpr2-failure-origin.json").write_text(json.dumps(dpr2_origin,indent=2)+"\n")
+          capture_failure=root/"dpr2-capture-timeout-41128785495"
+          capture_browser=json.loads((capture_failure/"browser.json").read_text())
+          capture_origin={"schema":"sandfall-retained-browser-failure-v1",
+            "evidence_kind":"preserved failed execution; NOT the current run",
+            "source_run":41128785495,"artifact_id":13011774471,
+            "original_zip_sha256":"531b8132176a48837c96432235108759f7cf7f8316bb53b6a6237e7d64c852d2",
+            "retained_status":capture_browser["status"],
+            "retained_tick":capture_browser["final_state"]["tick"],
+            "retained_failures":capture_browser["failures"],
+            "files":{p.relative_to(capture_failure).as_posix():
+              {"sha256":hashlib.sha256(p.read_bytes()).hexdigest(),"size":p.stat().st_size}
+              for p in sorted(capture_failure.rglob("*")) if p.is_file()}}
+          assert capture_origin["retained_status"]=="failed"
+          (root/"dpr2-capture-timeout-origin.json").write_text(json.dumps(capture_origin,indent=2)+"\n")
+          # Preserve the original 600-tick execution alongside the new ordinary
+          # UI evidence. Copying it is not a new fixture execution at this HEAD.
+          original=pathlib.Path("sf-m0-evidence")
+          coupled=json.loads((original/"browser.json").read_text())
+          state=coupled["state"]
+          physics=state["rapier_test"]
+          assert coupled["status"]=="passed" and coupled["failures"]==[]
+          assert physics["ok"] is True and physics["failures"]==[]
+          assert physics["ticks"]==600 and state["rapier_steps"]==600
+          assert physics["contacts"]>0 and physics["displaced"]>0
+          build=json.loads(pathlib.Path("build/web/build-info.json").read_text())
+          assert build["source_commit"]=="6352756931c58e702eb5c15c05d44515091274b2"
+          retained=root/"original-coupled-41115189216"
+          retained.mkdir(exist_ok=True)
+          files={}
+          for name in ("browser.json","chrome.log","http.log","web-reconciliation.json"):
+              source=original/name
+              destination=retained/name
+              payload=source.read_bytes()
+              shutil.copy2(source,destination)
+              assert destination.read_bytes()==payload, name
+              files[name]={"sha256":hashlib.sha256(payload).hexdigest(),"size":len(payload)}
+          origin={"schema":"sandfall-retained-coupled-execution-v1",
+            "evidence_kind":"preserved original execution; NOT a re-execution",
+            "source_run":41115189216,"artifact_id":13004589535,
+            "build_source_commit":build["source_commit"],
+            "original_zip_sha256":"0a82292331a13b47566c868532a9554801a75b2877b120a9dda29179d40fcc09",
+            "original_observed_at":coupled["observed_at"],"retained_status":coupled["status"],
+            "validation":{"ticks":physics["ticks"],"rapier_steps":state["rapier_steps"],
+              "contacts":physics["contacts"],"displaced":physics["displaced"],"failures":physics["failures"]},
+            "files":files}
+          (root/"original-coupled-origin.json").write_text(json.dumps(origin,indent=2)+"\n")
+          (root/"source-sha.txt").write_text(subprocess.check_output(["git","rev-parse","HEAD"],text=True))
+          PY
+      - name: Launch actual Chrome, resume through UI, verify keyboard and world pixels
+        shell: bash
+        env:
+          VIEW_WIDTH: ${{ matrix.width }}
+          VIEW_HEIGHT: ${{ matrix.height }}
+          VIEW_DPR: ${{ matrix.dpr }}
+        run: |
+          set -euo pipefail
+          python3 tools/serve_web.py --directory build/web --port 8040 > sf-m0-ordinary/http.log 2>&1 &
+          SERVER_PID=$!
+          CHROME="$(command -v google-chrome-stable || command -v google-chrome)"
+          "$CHROME" --version > sf-m0-ordinary/chrome-version.txt
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
+            --remote-debugging-port=9231 \
+            --user-data-dir="$RUNNER_TEMP/sf-m0-ordinary-chrome" about:blank \
+            > sf-m0-ordinary/chrome.log 2>&1 &
+          CHROME_PID=$!
+          trap 'kill "$SERVER_PID" "$CHROME_PID" 2>/dev/null || true' EXIT
+          # Bound the real million-pixel SwiftShader/DPR2 path without lowering
+          # any tick, input-transition or world-render acceptance requirement.
+          timeout 1140 node tools/sandfall/sf_m0_ordinary_browser.mjs \
+            --port 9231 --url 'http://127.0.0.1:8040/?test=1' \
+            --verification sf-m0-ordinary/artifact-verification.json \
+            --width "$VIEW_WIDTH" --height "$VIEW_HEIGHT" --dpr "$VIEW_DPR" \
+            --output sf-m0-ordinary/browser.json \
+            --screenshot sf-m0-ordinary/browser.png --timeout-ms 900000 \
+            2>&1 | tee sf-m0-ordinary/browser-harness.log
+      - name: Preserve raw normal-run evidence or failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m0-ordinary-${{ matrix.width }}x${{ matrix.height }}-dpr${{ matrix.dpr }}
+          path: sf-m0-ordinary/
+          retention-days: 30
+          if-no-files-found: error
+
+  native-focused:
+    name: Native render, coupling and lifecycle regressions (focused)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Checkout exact harness and unchanged native inputs
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - name: Compile and run the twelve native cases and lifecycle checks
+        run: python3 tools/sandfall/sf_m0_native_smoke.py --output-dir sf-m0-native-smoke
+      - name: Preserve command logs, source hashes and terminal receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m0-native-focused
+          path: sf-m0-native-smoke/
+          retention-days: 30
+          if-no-files-found: error

@@ -1,0 +1,1175 @@
+{
+  "schema": "sandfall-sf-m0-ordinary-visual-v1",
+  "url": "http://127.0.0.1:8040/?test=1",
+  "observed_at": "2026-10-30T20:18:51.326Z",
+  "duration_ms": 385992,
+  "status": "failed",
+  "failures": [
+    "Could not close normal menu via actual CDP Continue-click or Escape input",
+    "Normal Web physics did not advance 15 native ticks"
+  ],
+  "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+  "isolated": true,
+  "key_presses": 2,
+  "mouse_attempts": 2,
+  "input_events": [
+    {
+      "action": "continue-click",
+      "x": 403,
+      "y": 600,
+      "sent": true,
+      "delivered": "not-assumed"
+    },
+    {
+      "action": "continue-click",
+      "x": 403,
+      "y": 600,
+      "sent": true,
+      "delivered": "not-assumed"
+    },
+    {
+      "action": "escape",
+      "sent": true,
+      "delivered": "not-assumed"
+    },
+    {
+      "action": "escape",
+      "sent": true,
+      "delivered": "not-assumed"
+    }
+  ],
+  "cdp_poll_errors": 2,
+  "title": "Cyber Sand Reference Sandbox",
+  "canvas": {
+    "x": 0,
+    "y": 0,
+    "width": 800,
+    "height": 450,
+    "top": 0,
+    "right": 800,
+    "bottom": 450,
+    "left": 0
+  },
+  "pixels": {
+    "width": 800,
+    "height": 450,
+    "region": {
+      "x0": 160,
+      "x1": 640,
+      "y0": 130,
+      "y1": 356
+    },
+    "samples": 36160,
+    "bright": 1245,
+    "colourful": 227,
+    "bright_fraction": 0.034430309734513276,
+    "colourful_fraction": 0.006277654867256637,
+    "unique_4bit_rgb": 37
+  },
+  "final_state": {
+    "benchmark": {},
+    "benchmark_running": false,
+    "bodies": [],
+    "buttons": {
+      "about": [
+        523,
+        687,
+        233,
+        42
+      ],
+      "blacksite_nine": [
+        286,
+        482,
+        348,
+        53
+      ],
+      "continue": [
+        286,
+        579,
+        233,
+        42
+      ],
+      "controls": [
+        286,
+        687,
+        233,
+        42
+      ],
+      "experiment_tower": [
+        646,
+        293,
+        348,
+        53
+      ],
+      "foundry": [
+        286,
+        230,
+        348,
+        53
+      ],
+      "industrial_underswamp": [
+        646,
+        419,
+        348,
+        53
+      ],
+      "material_lab": [
+        286,
+        167,
+        348,
+        53
+      ],
+      "menu": [
+        1108,
+        10,
+        152,
+        42
+      ],
+      "middle_cyberberbia": [
+        646,
+        356,
+        348,
+        53
+      ],
+      "neon_reliquary": [
+        286,
+        356,
+        348,
+        53
+      ],
+      "neon_works": [
+        646,
+        230,
+        348,
+        53
+      ],
+      "performance": [
+        760,
+        687,
+        234,
+        42
+      ],
+      "physics_pit": [
+        286,
+        293,
+        348,
+        53
+      ],
+      "quality_0": [
+        356,
+        633,
+        210,
+        42
+      ],
+      "quality_1": [
+        570,
+        633,
+        210,
+        42
+      ],
+      "quality_2": [
+        784,
+        633,
+        210,
+        42
+      ],
+      "restart": [
+        523,
+        579,
+        233,
+        42
+      ],
+      "save_load": [
+        760,
+        579,
+        234,
+        42
+      ],
+      "sewertech_alley": [
+        286,
+        419,
+        348,
+        53
+      ],
+      "waterworks": [
+        646,
+        167,
+        348,
+        53
+      ]
+    },
+    "camera": [
+      0,
+      0
+    ],
+    "collider_pending": 0,
+    "collider_shapes": 0,
+    "demo": "neon_works",
+    "error": "",
+    "hash": "",
+    "imports": 0,
+    "interest_region_test": {},
+    "local_slot": false,
+    "logical": [
+      480,
+      270
+    ],
+    "logical_threads": 4,
+    "menu": true,
+    "moves": 0,
+    "native_ms": 0,
+    "paint_commands": 0,
+    "paused": false,
+    "player": [
+      24,
+      222
+    ],
+    "probe": 0,
+    "rapier": true,
+    "rapier_reason": "Manual-step/CCD probe passed",
+    "rapier_steps": 0,
+    "rapier_test": {},
+    "ready": true,
+    "render_rejections": 0,
+    "text": "",
+    "tick": 0,
+    "tick_failure_test": {},
+    "upload_ms": 15.005,
+    "view": [
+      152.888854980469,
+      190,
+      974.222290039062,
+      548
+    ],
+    "worker_probe": {},
+    "workers": 1
+  },
+  "observations": [
+    {
+      "elapsed_ms": 67251,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 81081,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 87908,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 101445,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 115074,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 121844,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 128856,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 135744,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 142571,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 149304,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 156074,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 162885,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 169628,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 176443,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 183391,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 190268,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 197093,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 203779,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 210431,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 217048,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 223827,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 230533,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 237227,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 243985,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 250694,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 257631,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 264516,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 271249,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 277929,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 284897,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 291996,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 298874,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 305721,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 312417,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 319149,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 325789,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    },
+    {
+      "elapsed_ms": 332585,
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "tick": 0,
+      "rapier": true,
+      "workers": 1,
+      "render_rejections": 0,
+      "moves": 0,
+      "paused": false,
+      "viewport": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_rect": [
+        286,
+        579,
+        233,
+        42
+      ]
+    }
+  ],
+  "console_events": [
+    {
+      "type": "log",
+      "text": "Initialize godot-rust (API v4.7.stable.official, runtime v4.7.stable.official, safeguards balanced)"
+    },
+    {
+      "type": "log",
+      "text": "Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org"
+    },
+    {
+      "type": "log",
+      "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+    },
+    {
+      "type": "log",
+      "text": "\u001b[92mPHYSICS ENGINE 2D: Rapier2D v0.35.2\u001b[39m\u001b[0m"
+    },
+    {
+      "type": "log",
+      "text": "Build configuration: Emscripten 4.0.20, single-threaded, GDExtension support."
+    },
+    {
+      "type": "log",
+      "text": "WEB_RAPIER_PROBE {\"ok\":true,\"reason\":\"Manual-step/CCD probe passed\",\"y\":72.5059432983398}"
+    },
+    {
+      "type": "log",
+      "text": "WEB_CPP_EXCEPTION_PROBE true"
+    },
+    {
+      "type": "log",
+      "text": "WEB_TEST_BROWSER Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+    },
+    {
+      "type": "log",
+      "text": "WEB_DEMO_READY CYBERSAND/WASM · COMPAT · 1 WORKERS · RAPIER2D"
+    }
+  ]
+}

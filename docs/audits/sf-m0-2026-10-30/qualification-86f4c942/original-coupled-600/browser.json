@@ -1,0 +1,1148 @@
+{
+  "schema": "sandfall-sf-m0-browser-probe-v1",
+  "url": "http://127.0.0.1:8030/?test=1&rapier=1",
+  "observed_at": "2026-10-30T19:37:51.726Z",
+  "elapsed_ms": 259484,
+  "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+  "cross_origin_isolated": true,
+  "status": "passed",
+  "startup": {
+    "godot": true,
+    "rapier_registered": true,
+    "rapier_capability": true,
+    "cpp_exception_probe": true,
+    "web_ready": true,
+    "compat_one_worker": true
+  },
+  "failures": [],
+  "phase_events": [
+    {
+      "observed_ms": 45202,
+      "elapsed_ms": 43741,
+      "index": 40,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 41,
+      "tick": 41
+    },
+    {
+      "observed_ms": 51808,
+      "elapsed_ms": 43815,
+      "index": 60,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 61,
+      "tick": 61
+    },
+    {
+      "observed_ms": 58415,
+      "elapsed_ms": 50409,
+      "index": 80,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 81,
+      "tick": 81
+    },
+    {
+      "observed_ms": 65831,
+      "elapsed_ms": 57046,
+      "index": 100,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 101,
+      "tick": 101
+    },
+    {
+      "observed_ms": 73447,
+      "elapsed_ms": 64498,
+      "index": 120,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 121,
+      "tick": 121
+    },
+    {
+      "observed_ms": 80506,
+      "elapsed_ms": 72116,
+      "index": 140,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 141,
+      "tick": 141
+    },
+    {
+      "observed_ms": 88083,
+      "elapsed_ms": 79190,
+      "index": 160,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 161,
+      "tick": 161
+    },
+    {
+      "observed_ms": 95089,
+      "elapsed_ms": 86751,
+      "index": 180,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 181,
+      "tick": 181
+    },
+    {
+      "observed_ms": 101934,
+      "elapsed_ms": 93757,
+      "index": 200,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 201,
+      "tick": 201
+    },
+    {
+      "observed_ms": 108540,
+      "elapsed_ms": 100606,
+      "index": 220,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 221,
+      "tick": 221
+    },
+    {
+      "observed_ms": 115956,
+      "elapsed_ms": 107204,
+      "index": 240,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 241,
+      "tick": 241
+    },
+    {
+      "observed_ms": 124035,
+      "elapsed_ms": 114608,
+      "index": 260,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 261,
+      "tick": 261
+    },
+    {
+      "observed_ms": 130536,
+      "elapsed_ms": 122690,
+      "index": 280,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 281,
+      "tick": 281
+    },
+    {
+      "observed_ms": 138838,
+      "elapsed_ms": 129184,
+      "index": 300,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 301,
+      "tick": 301
+    },
+    {
+      "observed_ms": 145397,
+      "elapsed_ms": 137490,
+      "index": 320,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 321,
+      "tick": 321
+    },
+    {
+      "observed_ms": 151932,
+      "elapsed_ms": 144063,
+      "index": 340,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 341,
+      "tick": 341
+    },
+    {
+      "observed_ms": 158816,
+      "elapsed_ms": 150584,
+      "index": 360,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 361,
+      "tick": 361
+    },
+    {
+      "observed_ms": 165332,
+      "elapsed_ms": 157460,
+      "index": 380,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 381,
+      "tick": 381
+    },
+    {
+      "observed_ms": 172057,
+      "elapsed_ms": 163986,
+      "index": 400,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 401,
+      "tick": 401
+    },
+    {
+      "observed_ms": 180106,
+      "elapsed_ms": 170713,
+      "index": 420,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 421,
+      "tick": 421
+    },
+    {
+      "observed_ms": 186805,
+      "elapsed_ms": 178749,
+      "index": 440,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 441,
+      "tick": 441
+    },
+    {
+      "observed_ms": 193693,
+      "elapsed_ms": 185452,
+      "index": 460,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 461,
+      "tick": 461
+    },
+    {
+      "observed_ms": 200086,
+      "elapsed_ms": 192345,
+      "index": 480,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 481,
+      "tick": 481
+    },
+    {
+      "observed_ms": 206677,
+      "elapsed_ms": 198733,
+      "index": 500,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 501,
+      "tick": 501
+    },
+    {
+      "observed_ms": 213118,
+      "elapsed_ms": 205328,
+      "index": 520,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 521,
+      "tick": 521
+    },
+    {
+      "observed_ms": 219782,
+      "elapsed_ms": 211777,
+      "index": 540,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 541,
+      "tick": 541
+    },
+    {
+      "observed_ms": 226262,
+      "elapsed_ms": 218430,
+      "index": 560,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 561,
+      "tick": 561
+    },
+    {
+      "observed_ms": 232680,
+      "elapsed_ms": 224908,
+      "index": 580,
+      "menu_open": false,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "tick-after",
+      "rapier_initialized": true,
+      "rapier_steps": 581,
+      "tick": 581
+    },
+    {
+      "observed_ms": 239979,
+      "elapsed_ms": 231813,
+      "index": -1,
+      "menu_open": true,
+      "paused": false,
+      "pending_colliders": 0,
+      "phase": "complete",
+      "rapier_initialized": false,
+      "rapier_steps": 600,
+      "tick": 0
+    }
+  ],
+  "latest_phase": {
+    "elapsed_ms": 231813,
+    "index": -1,
+    "menu_open": true,
+    "paused": false,
+    "pending_colliders": 0,
+    "phase": "complete",
+    "rapier_initialized": false,
+    "rapier_steps": 600,
+    "tick": 0
+  },
+  "dom_state": {
+    "benchmark": {},
+    "benchmark_running": false,
+    "bodies": [],
+    "buttons": {
+      "about": [
+        0,
+        0,
+        55,
+        42
+      ],
+      "blacksite_nine": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "continue": [
+        0,
+        0,
+        79,
+        42
+      ],
+      "controls": [
+        0,
+        0,
+        74,
+        42
+      ],
+      "experiment_tower": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "foundry": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "industrial_underswamp": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "material_lab": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "menu": [
+        1108,
+        10,
+        152,
+        42
+      ],
+      "middle_cyberberbia": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "neon_reliquary": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "neon_works": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "performance": [
+        0,
+        0,
+        109,
+        42
+      ],
+      "physics_pit": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "quality_0": [
+        0,
+        0,
+        45,
+        42
+      ],
+      "quality_1": [
+        0,
+        0,
+        78,
+        42
+      ],
+      "quality_2": [
+        0,
+        0,
+        49,
+        42
+      ],
+      "restart": [
+        0,
+        0,
+        113,
+        42
+      ],
+      "save_load": [
+        0,
+        0,
+        97,
+        42
+      ],
+      "sewertech_alley": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "waterworks": [
+        0,
+        0,
+        344,
+        53
+      ]
+    },
+    "camera": [
+      0,
+      0
+    ],
+    "collider_pending": 0,
+    "collider_shapes": 0,
+    "demo": "neon_works",
+    "error": "",
+    "hash": "",
+    "imports": 1,
+    "interest_region_test": {},
+    "local_slot": false,
+    "logical": [
+      480,
+      270
+    ],
+    "logical_threads": 4,
+    "menu": true,
+    "moves": 0,
+    "native_ms": 0,
+    "paint_commands": 0,
+    "paused": false,
+    "player": [
+      24,
+      222
+    ],
+    "probe": 0,
+    "rapier": true,
+    "rapier_reason": "Manual-step/CCD probe passed",
+    "rapier_steps": 600,
+    "rapier_test": {
+      "bodies": [
+        [
+          124,
+          159.00065612793,
+          -2.99748714738257e-9,
+          0,
+          0,
+          0,
+          true
+        ],
+        [
+          243.497909545898,
+          241.999771118164,
+          -0.000117922303616069,
+          -0.050672885030508,
+          -0.0655451118946075,
+          -0.00624291226267815,
+          false
+        ],
+        [
+          383.288452148438,
+          217.466293334961,
+          0,
+          -0.00367317930795252,
+          -0.229382172226906,
+          0,
+          false
+        ]
+      ],
+      "contacts": 106717,
+      "displaced": 149,
+      "failures": [],
+      "maximum_floor_y": 160.317276000977,
+      "ok": true,
+      "ticks": 600,
+      "workers": 1
+    },
+    "ready": true,
+    "render_rejections": 0,
+    "text": "",
+    "tick": 0,
+    "tick_failure_test": {},
+    "upload_ms": 3.28,
+    "view": [
+      203.555541992188,
+      247,
+      872.888916015625,
+      491
+    ],
+    "worker_probe": {},
+    "workers": 1
+  },
+  "cdp_poll_failures": 3,
+  "state": {
+    "benchmark": {},
+    "benchmark_running": false,
+    "bodies": [],
+    "buttons": {
+      "about": [
+        0,
+        0,
+        55,
+        42
+      ],
+      "blacksite_nine": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "continue": [
+        0,
+        0,
+        79,
+        42
+      ],
+      "controls": [
+        0,
+        0,
+        74,
+        42
+      ],
+      "experiment_tower": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "foundry": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "industrial_underswamp": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "material_lab": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "menu": [
+        1108,
+        10,
+        152,
+        42
+      ],
+      "middle_cyberberbia": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "neon_reliquary": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "neon_works": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "performance": [
+        0,
+        0,
+        109,
+        42
+      ],
+      "physics_pit": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "quality_0": [
+        0,
+        0,
+        45,
+        42
+      ],
+      "quality_1": [
+        0,
+        0,
+        78,
+        42
+      ],
+      "quality_2": [
+        0,
+        0,
+        49,
+        42
+      ],
+      "restart": [
+        0,
+        0,
+        113,
+        42
+      ],
+      "save_load": [
+        0,
+        0,
+        97,
+        42
+      ],
+      "sewertech_alley": [
+        0,
+        0,
+        344,
+        53
+      ],
+      "waterworks": [
+        0,
+        0,
+        344,
+        53
+      ]
+    },
+    "camera": [
+      0,
+      0
+    ],
+    "collider_pending": 0,
+    "collider_shapes": 0,
+    "demo": "neon_works",
+    "error": "",
+    "hash": "",
+    "imports": 1,
+    "interest_region_test": {},
+    "local_slot": false,
+    "logical": [
+      480,
+      270
+    ],
+    "logical_threads": 4,
+    "menu": true,
+    "moves": 0,
+    "native_ms": 0,
+    "paint_commands": 0,
+    "paused": false,
+    "player": [
+      24,
+      222
+    ],
+    "probe": 0,
+    "rapier": true,
+    "rapier_reason": "Manual-step/CCD probe passed",
+    "rapier_steps": 600,
+    "rapier_test": {
+      "bodies": [
+        [
+          124,
+          159.00065612793,
+          -2.99748714738257e-9,
+          0,
+          0,
+          0,
+          true
+        ],
+        [
+          243.497909545898,
+          241.999771118164,
+          -0.000117922303616069,
+          -0.050672885030508,
+          -0.0655451118946075,
+          -0.00624291226267815,
+          false
+        ],
+        [
+          383.288452148438,
+          217.466293334961,
+          0,
+          -0.00367317930795252,
+          -0.229382172226906,
+          0,
+          false
+        ]
+      ],
+      "contacts": 106717,
+      "displaced": 149,
+      "failures": [],
+      "maximum_floor_y": 160.317276000977,
+      "ok": true,
+      "ticks": 600,
+      "workers": 1
+    },
+    "ready": true,
+    "render_rejections": 0,
+    "text": "",
+    "tick": 0,
+    "tick_failure_test": {},
+    "upload_ms": 3.28,
+    "view": [
+      203.555541992188,
+      247,
+      872.888916015625,
+      491
+    ],
+    "worker_probe": {},
+    "workers": 1
+  },
+  "console_events": [
+    {
+      "type": "log",
+      "text": "Initialize godot-rust (API v4.7.stable.official, runtime v4.7.stable.official, safeguards balanced)"
+    },
+    {
+      "type": "log",
+      "text": "Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org"
+    },
+    {
+      "type": "log",
+      "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+    },
+    {
+      "type": "log",
+      "text": "\u001b[92mPHYSICS ENGINE 2D: Rapier2D v0.35.2\u001b[39m\u001b[0m"
+    },
+    {
+      "type": "log",
+      "text": "Build configuration: Emscripten 4.0.20, single-threaded, GDExtension support."
+    },
+    {
+      "type": "log",
+      "text": "WEB_RAPIER_PROBE {\"ok\":true,\"reason\":\"Manual-step/CCD probe passed\",\"y\":72.5059432983398}"
+    },
+    {
+      "type": "log",
+      "text": "WEB_CPP_EXCEPTION_PROBE true"
+    },
+    {
+      "type": "log",
+      "text": "WEB_TEST_BROWSER Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+    },
+    {
+      "type": "log",
+      "text": "WEB_DEMO_READY CYBERSAND/WASM · COMPAT · 1 WORKERS · RAPIER2D"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2386,\"index\":-1,\"menu_open\":true,\"paused\":false,\"pending_colliders\":0,\"phase\":\"probe-enter\",\"rapier_initialized\":false,\"rapier_steps\":0,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2386,\"index\":-1,\"menu_open\":true,\"paused\":false,\"pending_colliders\":0,\"phase\":\"select-physics-pit-before\",\"rapier_initialized\":false,\"rapier_steps\":0,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2439,\"index\":-1,\"menu_open\":false,\"paused\":false,\"pending_colliders\":255,\"phase\":\"select-physics-pit-after\",\"rapier_initialized\":true,\"rapier_steps\":0,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2440,\"index\":-1,\"menu_open\":false,\"paused\":false,\"pending_colliders\":255,\"phase\":\"collider-drain-start\",\"rapier_initialized\":true,\"rapier_steps\":0,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2440,\"index\":0,\"menu_open\":false,\"paused\":false,\"pending_colliders\":255,\"phase\":\"collider-drain\",\"rapier_initialized\":true,\"rapier_steps\":0,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2441,\"index\":1,\"menu_open\":false,\"paused\":false,\"pending_colliders\":241,\"phase\":\"collider-drain\",\"rapier_initialized\":true,\"rapier_steps\":0,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2451,\"index\":-1,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"collider-drain-finished\",\"rapier_initialized\":true,\"rapier_steps\":0,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2452,\"index\":-1,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-loop-start\",\"rapier_initialized\":true,\"rapier_steps\":0,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2452,\"index\":0,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":0,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2466,\"index\":0,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":1,\"tick\":1}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2509,\"index\":1,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":1,\"tick\":1}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2519,\"index\":1,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":2,\"tick\":2}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2534,\"index\":20,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":20,\"tick\":20}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":2535,\"index\":20,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":21,\"tick\":21}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":43740,\"index\":40,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":40,\"tick\":40}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":43741,\"index\":40,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":41,\"tick\":41}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":43814,\"index\":60,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":60,\"tick\":60}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":43815,\"index\":60,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":61,\"tick\":61}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":50408,\"index\":80,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":80,\"tick\":80}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":50409,\"index\":80,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":81,\"tick\":81}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":57042,\"index\":100,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":100,\"tick\":100}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":57046,\"index\":100,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":101,\"tick\":101}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":64492,\"index\":120,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":120,\"tick\":120}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":64498,\"index\":120,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":121,\"tick\":121}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":72111,\"index\":140,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":140,\"tick\":140}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":72116,\"index\":140,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":141,\"tick\":141}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":79177,\"index\":160,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":160,\"tick\":160}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":79190,\"index\":160,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":161,\"tick\":161}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":86747,\"index\":180,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":180,\"tick\":180}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":86751,\"index\":180,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":181,\"tick\":181}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":93752,\"index\":200,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":200,\"tick\":200}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":93757,\"index\":200,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":201,\"tick\":201}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":100601,\"index\":220,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":220,\"tick\":220}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":100606,\"index\":220,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":221,\"tick\":221}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":107201,\"index\":240,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":240,\"tick\":240}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":107204,\"index\":240,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":241,\"tick\":241}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":114604,\"index\":260,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":260,\"tick\":260}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":114608,\"index\":260,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":261,\"tick\":261}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":122685,\"index\":280,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":280,\"tick\":280}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":122690,\"index\":280,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":281,\"tick\":281}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":129179,\"index\":300,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":300,\"tick\":300}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":129184,\"index\":300,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":301,\"tick\":301}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":137485,\"index\":320,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":320,\"tick\":320}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":137490,\"index\":320,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":321,\"tick\":321}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":144059,\"index\":340,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":340,\"tick\":340}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":144063,\"index\":340,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":341,\"tick\":341}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":150580,\"index\":360,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":360,\"tick\":360}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":150584,\"index\":360,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":361,\"tick\":361}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":157457,\"index\":380,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":380,\"tick\":380}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":157460,\"index\":380,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":381,\"tick\":381}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":163981,\"index\":400,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":400,\"tick\":400}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":163986,\"index\":400,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":401,\"tick\":401}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":170709,\"index\":420,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":420,\"tick\":420}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":170713,\"index\":420,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":421,\"tick\":421}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":178745,\"index\":440,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":440,\"tick\":440}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":178749,\"index\":440,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":441,\"tick\":441}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":185448,\"index\":460,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":460,\"tick\":460}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":185452,\"index\":460,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":461,\"tick\":461}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":192340,\"index\":480,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":480,\"tick\":480}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":192345,\"index\":480,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":481,\"tick\":481}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":198728,\"index\":500,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":500,\"tick\":500}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":198733,\"index\":500,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":501,\"tick\":501}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":205324,\"index\":520,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":520,\"tick\":520}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":205328,\"index\":520,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":521,\"tick\":521}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":211773,\"index\":540,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":540,\"tick\":540}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":211777,\"index\":540,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":541,\"tick\":541}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":218426,\"index\":560,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":560,\"tick\":560}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":218430,\"index\":560,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":561,\"tick\":561}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":224904,\"index\":580,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-before\",\"rapier_initialized\":true,\"rapier_steps\":580,\"tick\":580}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":224908,\"index\":580,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-after\",\"rapier_initialized\":true,\"rapier_steps\":581,\"tick\":581}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":231322,\"index\":-1,\"menu_open\":false,\"paused\":false,\"pending_colliders\":0,\"phase\":\"tick-loop-finished\",\"rapier_initialized\":true,\"rapier_steps\":600,\"tick\":600}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":231324,\"index\":-1,\"menu_open\":true,\"paused\":false,\"pending_colliders\":0,\"phase\":\"roundtrip-start\",\"rapier_initialized\":true,\"rapier_steps\":600,\"tick\":600}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":231666,\"index\":-1,\"menu_open\":true,\"paused\":false,\"pending_colliders\":239,\"phase\":\"roundtrip-finished\",\"rapier_initialized\":true,\"rapier_steps\":600,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "SF_M0_RAPIER_PHASE {\"elapsed_ms\":231813,\"index\":-1,\"menu_open\":true,\"paused\":false,\"pending_colliders\":0,\"phase\":\"complete\",\"rapier_initialized\":false,\"rapier_steps\":600,\"tick\":0}"
+    },
+    {
+      "type": "log",
+      "text": "WEB_RAPIER_TEST {\"bodies\":[[124.0,159.00065612793,-0.00000000299748714738257,0.0,0.0,0.0,true],[243.497909545898,241.999771118164,-0.000117922303616069,-0.050672885030508,-0.0655451118946075,-0.00624291226267815,false],[383.288452148438,217.466293334961,0.0,-0.00367317930795252,-0.229382172226906,0.0,false]],\"contacts\":106717,\"displaced\":149,\"failures\":[],\"maximum_floor_y\":160.317276000977,\"ok\":true,\"ticks\":600,\"workers\":1}"
+    }
+  ]
+}

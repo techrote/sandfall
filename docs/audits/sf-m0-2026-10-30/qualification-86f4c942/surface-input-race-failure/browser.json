@@ -1,0 +1,1545 @@
+{
+  "schema": "sandfall-sf-m0-ordinary-visual-v2",
+  "url": "http://127.0.0.1:8040/?test=1",
+  "observed_at": "2026-10-30T21:01:19.777Z",
+  "duration_ms": 353119,
+  "status": "failed",
+  "failures": [
+    "Error: Timed out waiting for first-continue-closed"
+  ],
+  "requested_viewport": {
+    "width": 640,
+    "height": 400,
+    "dpr": 2
+  },
+  "logical_viewport": {
+    "width": 1280,
+    "height": 800,
+    "stretch_mode": "canvas_items",
+    "stretch_aspect": "keep",
+    "aspect_source": "godot-4.7-default",
+    "aspect_default_source": "https://github.com/godotengine/godot/blob/5b4e0cb0f/core/config/project_settings.cpp",
+    "canvas_resize_policy": 2,
+    "focus_canvas_on_start": true,
+    "staging_replacements": [
+      {
+        "before": "viewport_width=1920",
+        "after": "viewport_width=1280"
+      },
+      {
+        "before": "viewport_height=1080",
+        "after": "viewport_height=800"
+      },
+      {
+        "before": "window_width_override=1920",
+        "after": "window_width_override=1280"
+      },
+      {
+        "before": "window_height_override=1080",
+        "after": "window_height_override=800"
+      }
+    ],
+    "source_blobs": {
+      "godot/project.godot": "3055b7976da5d9378d226805492554b75717a1a1",
+      "tools/build_web.py": "cbe83e586cc314ee177b242a7d2609ef2615c3e7",
+      "godot/export_presets.cfg": "77bacf2f42068625be5d3a534b6f1f6d79345764"
+    }
+  },
+  "served_identity": [
+    {
+      "url": "http://127.0.0.1:8040/LICENSE_STATUS.md",
+      "sha256": "3bfb7c5ddd1418ab38621d1e5b841c9e9c4845e9166a196143c8a71f3cd46b70",
+      "expected_sha256": "3bfb7c5ddd1418ab38621d1e5b841c9e9c4845e9166a196143c8a71f3cd46b70",
+      "size": 780
+    },
+    {
+      "url": "http://127.0.0.1:8040/RAPIER_LICENSE.txt",
+      "sha256": "b876a61b43cc648b56428d56a484784a88d4231809e4d7f4fd8dbdb6772400e8",
+      "expected_sha256": "b876a61b43cc648b56428d56a484784a88d4231809e4d7f4fd8dbdb6772400e8",
+      "size": 1102
+    },
+    {
+      "url": "http://127.0.0.1:8040/RAPIER_THIRDPARTY.txt",
+      "sha256": "63405a03af6a0a85dace7cc08001b34f28e8792dd2b7fb4de09137a6b58392df",
+      "expected_sha256": "63405a03af6a0a85dace7cc08001b34f28e8792dd2b7fb4de09137a6b58392df",
+      "size": 15824
+    },
+    {
+      "url": "http://127.0.0.1:8040/THIRD_PARTY_NOTICES.md",
+      "sha256": "df8aa85bb2be5b09eb92b1660f03db12484cf685ffc44ee8802c7334180e0c6c",
+      "expected_sha256": "df8aa85bb2be5b09eb92b1660f03db12484cf685ffc44ee8802c7334180e0c6c",
+      "size": 4729
+    },
+    {
+      "url": "http://127.0.0.1:8040/build-info.json",
+      "sha256": "c9db5dc697b4831f70763d4056fd73a82faf4c35803cbbcf9cc766decdc4004b",
+      "expected_sha256": "c9db5dc697b4831f70763d4056fd73a82faf4c35803cbbcf9cc766decdc4004b",
+      "size": 1131
+    },
+    {
+      "url": "http://127.0.0.1:8040/godot_rapier.wasm",
+      "sha256": "5ff6933670c1377c24dcbac30d67758a307165eacdcbd33b25bf01669577c4c2",
+      "expected_sha256": "5ff6933670c1377c24dcbac30d67758a307165eacdcbd33b25bf01669577c4c2",
+      "size": 2751606
+    },
+    {
+      "url": "http://127.0.0.1:8040/index.apple-touch-icon.png",
+      "sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5",
+      "expected_sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5",
+      "size": 11944
+    },
+    {
+      "url": "http://127.0.0.1:8040/index.audio.position.worklet.js",
+      "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
+      "expected_sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
+      "size": 2973
+    },
+    {
+      "url": "http://127.0.0.1:8040/index.audio.worklet.js",
+      "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
+      "expected_sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
+      "size": 7298
+    },
+    {
+      "url": "http://127.0.0.1:8040/index.html",
+      "sha256": "bdf53d68d4b456fd3b387d8bc3ade8feb95ae718e499523031a790ea8bff1950",
+      "expected_sha256": "bdf53d68d4b456fd3b387d8bc3ade8feb95ae718e499523031a790ea8bff1950",
+      "size": 5518
+    },
+    {
+      "url": "http://127.0.0.1:8040/index.icon.png",
+      "sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5",
+      "expected_sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5",
+      "size": 5700
+    },
+    {
+      "url": "http://127.0.0.1:8040/index.js",
+      "sha256": "631bbecee5e5136b5f29ed7dedb31a5d022d65da4b639b6e52a48d0c5e3d3154",
+      "expected_sha256": "631bbecee5e5136b5f29ed7dedb31a5d022d65da4b639b6e52a48d0c5e3d3154",
+      "size": 2859484
+    },
+    {
+      "url": "http://127.0.0.1:8040/index.pck",
+      "sha256": "df8bbea5aeccb0584610abc0ebda852e11e24ad871b17986a26dd93d4ac16dfa",
+      "expected_sha256": "df8bbea5aeccb0584610abc0ebda852e11e24ad871b17986a26dd93d4ac16dfa",
+      "size": 4418804
+    },
+    {
+      "url": "http://127.0.0.1:8040/index.png",
+      "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e",
+      "expected_sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e",
+      "size": 21443
+    },
+    {
+      "url": "http://127.0.0.1:8040/index.side.wasm",
+      "sha256": "85473bead1cf62c408d034189fae423594c45fef403fc0707a72bb8e2b87a6d2",
+      "expected_sha256": "85473bead1cf62c408d034189fae423594c45fef403fc0707a72bb8e2b87a6d2",
+      "size": 44072184
+    },
+    {
+      "url": "http://127.0.0.1:8040/index.wasm",
+      "sha256": "d37e06f7126849a81fa099f1cf89f0d8ccbb87502b8c857492490dff66fad95a",
+      "expected_sha256": "d37e06f7126849a81fa099f1cf89f0d8ccbb87502b8c857492490dff66fad95a",
+      "size": 1508095
+    },
+    {
+      "url": "http://127.0.0.1:8040/libcybersand_native.web.nothreads.wasm",
+      "sha256": "59cb17e512f89f0961871069dbcdc6064034ca671d3e205b1b1a11b46feb62cc",
+      "expected_sha256": "59cb17e512f89f0961871069dbcdc6064034ca671d3e205b1b1a11b46feb62cc",
+      "size": 4245483
+    },
+    {
+      "url": "http://127.0.0.1:8040/serve_web.py",
+      "sha256": "22c2e55cc248070b2f68ffceb0cf3d7401c6d4ef7d4202de20884d9adee97d4a",
+      "expected_sha256": "22c2e55cc248070b2f68ffceb0cf3d7401c6d4ef7d4202de20884d9adee97d4a",
+      "size": 1979
+    },
+    {
+      "url": "http://127.0.0.1:8040/SHA256SUMS",
+      "sha256": "8532e2c4278a2fcce3c21d4468c9c9a149fbca95721c2d9958f2e4dbe7b61076",
+      "expected_sha256": "8532e2c4278a2fcce3c21d4468c9c9a149fbca95721c2d9958f2e4dbe7b61076",
+      "size": 1520
+    }
+  ],
+  "harness_inputs": [
+    {
+      "path": "sf_m0_ordinary_browser.mjs",
+      "sha256": "38c9d998ec87e1458c6ea7e0ec9cbe9017af8a01062f7db523f0f43bc4fa5545"
+    },
+    {
+      "path": "sf_m0_geometry.mjs",
+      "sha256": "d9faaa320852b659140dcad35cdce3f3bbb8503d752834d1c99f9d9c60c70e44"
+    },
+    {
+      "path": "sf_m0_png_stats.mjs",
+      "sha256": "ccb172155a1f13d5aca6462707730d798f55fb94dd1ef7f3dbc651ef3fd40d55"
+    }
+  ],
+  "verification": {
+    "path": "sf-m0-ordinary/artifact-verification.json",
+    "sha256": "0db1dcdd07198b5721999b6b16bda5ec0ef7a22117094e12247aec162abaabea",
+    "build_source_commit": "6352756931c58e702eb5c15c05d44515091274b2",
+    "harness_source_commit": "476619679b13505e788404e300eb21777636d56e",
+    "source_equivalence": {
+      "committed_changed_paths": [
+        ".github/workflows/sf-m0-immutable-retest.yml",
+        ".github/workflows/sf-m0-ordinary-view.yml",
+        "AGENTS.md",
+        "README.md",
+        "docs/README.md",
+        "docs/SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md",
+        "docs/SF-M1-HOST-INPUT-CUT.md",
+        "docs/audits/2026-10-30-sf-m0-browser-timeout.md",
+        "docs/audits/2026-10-30-sf-m0-ordinary-web.md",
+        "docs/audits/2026-10-30-sf-m0-source-import.md",
+        "tools/sandfall/sf_m0_geometry.mjs",
+        "tools/sandfall/sf_m0_native_smoke.py",
+        "tools/sandfall/sf_m0_ordinary_browser.mjs",
+        "tools/sandfall/sf_m0_png_stats.mjs",
+        "tools/sandfall/sf_m0_verify_web_artifact.py",
+        "tools/sandfall/test_sf_m0_geometry.mjs",
+        "tools/sandfall/test_sf_m0_png_stats.mjs",
+        "tools/sandfall/test_sf_m0_verify_web_artifact.py"
+      ],
+      "tracked_dirty_paths": [],
+      "staged_changed_paths": [],
+      "unstaged_changed_paths": [],
+      "untracked_paths": [
+        "sf-m0-evidence/browser.json",
+        "sf-m0-evidence/web-reconciliation.json",
+        "sf-m0-ordinary/original-failure-41121317805/browser.json",
+        "sf-m0-ordinary/original-failure-41121317805/browser.png"
+      ],
+      "build_sensitive_changed_paths": [],
+      "checked_prefixes": [
+        "godot/",
+        "native/",
+        "third_party/",
+        "tools/web/"
+      ],
+      "checked_files": [
+        ".gitattributes",
+        ".gitmodules",
+        "LICENSE_STATUS.md",
+        "Makefile",
+        "THIRD_PARTY_NOTICES.md",
+        "tools/build_web.py",
+        "tools/requirements-build.txt",
+        "tools/serve_web.py"
+      ]
+    }
+  },
+  "acceptance_mode": "ordinary process/physics; read-only test=1; genuine CDP input only",
+  "initial_tick": 0,
+  "first_advance_tick": null,
+  "menu_pause_tick": null,
+  "final_state": {
+    "benchmark": {},
+    "benchmark_running": false,
+    "bodies": [],
+    "buttons": {
+      "about": [
+        523,
+        687,
+        233,
+        42
+      ],
+      "blacksite_nine": [
+        286,
+        482,
+        348,
+        53
+      ],
+      "continue": [
+        286,
+        579,
+        233,
+        42
+      ],
+      "controls": [
+        286,
+        687,
+        233,
+        42
+      ],
+      "experiment_tower": [
+        646,
+        293,
+        348,
+        53
+      ],
+      "foundry": [
+        286,
+        230,
+        348,
+        53
+      ],
+      "industrial_underswamp": [
+        646,
+        419,
+        348,
+        53
+      ],
+      "material_lab": [
+        286,
+        167,
+        348,
+        53
+      ],
+      "menu": [
+        1108,
+        10,
+        152,
+        42
+      ],
+      "middle_cyberberbia": [
+        646,
+        356,
+        348,
+        53
+      ],
+      "neon_reliquary": [
+        286,
+        356,
+        348,
+        53
+      ],
+      "neon_works": [
+        646,
+        230,
+        348,
+        53
+      ],
+      "performance": [
+        760,
+        687,
+        234,
+        42
+      ],
+      "physics_pit": [
+        286,
+        293,
+        348,
+        53
+      ],
+      "quality_0": [
+        356,
+        633,
+        210,
+        42
+      ],
+      "quality_1": [
+        570,
+        633,
+        210,
+        42
+      ],
+      "quality_2": [
+        784,
+        633,
+        210,
+        42
+      ],
+      "restart": [
+        523,
+        579,
+        233,
+        42
+      ],
+      "save_load": [
+        760,
+        579,
+        234,
+        42
+      ],
+      "sewertech_alley": [
+        286,
+        419,
+        348,
+        53
+      ],
+      "waterworks": [
+        646,
+        167,
+        348,
+        53
+      ]
+    },
+    "camera": [
+      0,
+      0
+    ],
+    "collider_pending": 0,
+    "collider_shapes": 0,
+    "demo": "neon_works",
+    "error": "",
+    "hash": "",
+    "imports": 0,
+    "interest_region_test": {},
+    "local_slot": false,
+    "logical": [
+      480,
+      270
+    ],
+    "logical_threads": 4,
+    "menu": true,
+    "moves": 0,
+    "native_ms": 0,
+    "paint_commands": 0,
+    "paused": false,
+    "player": [
+      24,
+      222
+    ],
+    "probe": 0,
+    "rapier": true,
+    "rapier_reason": "Manual-step/CCD probe passed",
+    "rapier_steps": 0,
+    "rapier_test": {},
+    "ready": true,
+    "render_rejections": 0,
+    "text": "",
+    "tick": 0,
+    "tick_failure_test": {},
+    "upload_ms": 12.05,
+    "view": [
+      152.888854980469,
+      190,
+      974.222290039062,
+      548
+    ],
+    "worker_probe": {},
+    "workers": 1
+  },
+  "final_metrics": {
+    "canvas": {
+      "x": 0,
+      "y": 0,
+      "width": 640,
+      "height": 400,
+      "top": 0,
+      "right": 640,
+      "bottom": 400,
+      "left": 0
+    },
+    "backing": {
+      "width": 1280,
+      "height": 800
+    },
+    "viewport": {
+      "width": 640,
+      "height": 400
+    },
+    "devicePixelRatio": 2,
+    "visualViewport": {
+      "width": 640,
+      "height": 400,
+      "offsetLeft": 0,
+      "offsetTop": 0,
+      "scale": 1
+    },
+    "documentFocused": true,
+    "visibility": "visible",
+    "activeElement": {
+      "tag": "CANVAS",
+      "id": "canvas"
+    },
+    "canvasStyle": {
+      "width": "640px",
+      "height": "400px",
+      "transform": "none",
+      "objectFit": "fill"
+    },
+    "title": "Cyber Sand Reference Sandbox",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "isolated": true
+  },
+  "transitions": [
+    {
+      "phase": "initial-menu",
+      "elapsed_ms": 100886,
+      "tick": 0,
+      "menu": true,
+      "paused": false
+    }
+  ],
+  "input_events": [
+    {
+      "action": "continue-target",
+      "elapsed_ms": 160935,
+      "godot": [
+        286,
+        579,
+        233,
+        42
+      ],
+      "mapped": {
+        "css": {
+          "x": 143,
+          "y": 289.5,
+          "width": 116.5,
+          "height": 21
+        },
+        "center": {
+          "x": 201.25,
+          "y": 300
+        },
+        "transform": {
+          "scale": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "backingScale": 1,
+          "backingOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "logical": {
+            "width": 1280,
+            "height": 800
+          },
+          "backing": {
+            "width": 1280,
+            "height": 800
+          },
+          "devicePixelRatio": 2,
+          "backingPerCssPixel": {
+            "x": 2,
+            "y": 2
+          },
+          "contentCss": {
+            "x": 0,
+            "y": 0,
+            "width": 640,
+            "height": 400
+          }
+        }
+      },
+      "metrics": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 400,
+          "top": 0,
+          "right": 640,
+          "bottom": 400,
+          "left": 0
+        },
+        "backing": {
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "devicePixelRatio": 2,
+        "visualViewport": {
+          "width": 640,
+          "height": 400,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "documentFocused": true,
+        "visibility": "visible",
+        "activeElement": {
+          "tag": "CANVAS",
+          "id": "canvas"
+        },
+        "canvasStyle": {
+          "width": "640px",
+          "height": "400px",
+          "transform": "none",
+          "objectFit": "fill"
+        },
+        "title": "Cyber Sand Reference Sandbox",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "isolated": true
+      }
+    },
+    {
+      "elapsed_ms": 160935,
+      "phase": "first-continue-click",
+      "method": "Input.dispatchMouseEvent",
+      "params": {
+        "type": "mouseMoved",
+        "x": 201.25,
+        "y": 300,
+        "buttons": 0
+      },
+      "acknowledged": true
+    },
+    {
+      "elapsed_ms": 162780,
+      "phase": "first-continue-click",
+      "method": "Input.dispatchMouseEvent",
+      "params": {
+        "type": "mousePressed",
+        "button": "left",
+        "buttons": 1,
+        "x": 201.25,
+        "y": 300,
+        "clickCount": 1
+      },
+      "acknowledged": false,
+      "error": "Error: Input.dispatchMouseEvent CDP deadline expired"
+    },
+    {
+      "elapsed_ms": 180881,
+      "phase": "first-continue-click",
+      "method": "Input.dispatchMouseEvent",
+      "params": {
+        "type": "mouseReleased",
+        "button": "left",
+        "buttons": 0,
+        "x": 201.25,
+        "y": 300,
+        "clickCount": 1
+      },
+      "acknowledged": true
+    }
+  ],
+  "dom_input_events": [
+    {
+      "type": "pointerdown",
+      "isTrusted": true,
+      "key": null,
+      "code": null,
+      "x": 100.625,
+      "y": 150,
+      "target": "CANVAS",
+      "targetId": "canvas",
+      "focused": true,
+      "time_ms": 182723.505
+    },
+    {
+      "type": "pointerup",
+      "isTrusted": true,
+      "key": null,
+      "code": null,
+      "x": 100.625,
+      "y": 150,
+      "target": "CANVAS",
+      "targetId": "canvas",
+      "focused": true,
+      "time_ms": 182724.21000000002
+    }
+  ],
+  "cdp_poll_errors": 1,
+  "captures": [
+    {
+      "name": "menu",
+      "phase": "initial-menu",
+      "elapsed_ms": 100886,
+      "state": {
+        "benchmark": {},
+        "benchmark_running": false,
+        "bodies": [],
+        "buttons": {
+          "about": [
+            523,
+            687,
+            233,
+            42
+          ],
+          "blacksite_nine": [
+            286,
+            482,
+            348,
+            53
+          ],
+          "continue": [
+            286,
+            579,
+            233,
+            42
+          ],
+          "controls": [
+            286,
+            687,
+            233,
+            42
+          ],
+          "experiment_tower": [
+            646,
+            293,
+            348,
+            53
+          ],
+          "foundry": [
+            286,
+            230,
+            348,
+            53
+          ],
+          "industrial_underswamp": [
+            646,
+            419,
+            348,
+            53
+          ],
+          "material_lab": [
+            286,
+            167,
+            348,
+            53
+          ],
+          "menu": [
+            1108,
+            10,
+            152,
+            42
+          ],
+          "middle_cyberberbia": [
+            646,
+            356,
+            348,
+            53
+          ],
+          "neon_reliquary": [
+            286,
+            356,
+            348,
+            53
+          ],
+          "neon_works": [
+            646,
+            230,
+            348,
+            53
+          ],
+          "performance": [
+            760,
+            687,
+            234,
+            42
+          ],
+          "physics_pit": [
+            286,
+            293,
+            348,
+            53
+          ],
+          "quality_0": [
+            356,
+            633,
+            210,
+            42
+          ],
+          "quality_1": [
+            570,
+            633,
+            210,
+            42
+          ],
+          "quality_2": [
+            784,
+            633,
+            210,
+            42
+          ],
+          "restart": [
+            523,
+            579,
+            233,
+            42
+          ],
+          "save_load": [
+            760,
+            579,
+            234,
+            42
+          ],
+          "sewertech_alley": [
+            286,
+            419,
+            348,
+            53
+          ],
+          "waterworks": [
+            646,
+            167,
+            348,
+            53
+          ]
+        },
+        "camera": [
+          0,
+          0
+        ],
+        "collider_pending": 0,
+        "collider_shapes": 0,
+        "demo": "neon_works",
+        "error": "",
+        "hash": "",
+        "imports": 0,
+        "interest_region_test": {},
+        "local_slot": false,
+        "logical": [
+          480,
+          270
+        ],
+        "logical_threads": 4,
+        "menu": true,
+        "moves": 0,
+        "native_ms": 0,
+        "paint_commands": 0,
+        "paused": false,
+        "player": [
+          24,
+          222
+        ],
+        "probe": 0,
+        "rapier": true,
+        "rapier_reason": "Manual-step/CCD probe passed",
+        "rapier_steps": 0,
+        "rapier_test": {},
+        "ready": true,
+        "render_rejections": 0,
+        "text": "",
+        "tick": 0,
+        "tick_failure_test": {},
+        "upload_ms": 12.05,
+        "view": [
+          152.888854980469,
+          190,
+          974.222290039062,
+          548
+        ],
+        "worker_probe": {},
+        "workers": 1
+      },
+      "metrics": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 400,
+          "top": 0,
+          "right": 640,
+          "bottom": 400,
+          "left": 0
+        },
+        "backing": {
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "devicePixelRatio": 2,
+        "visualViewport": {
+          "width": 640,
+          "height": 400,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "documentFocused": true,
+        "visibility": "visible",
+        "activeElement": {
+          "tag": "CANVAS",
+          "id": "canvas"
+        },
+        "canvasStyle": {
+          "width": "640px",
+          "height": "400px",
+          "transform": "none",
+          "objectFit": "fill"
+        },
+        "title": "Cyber Sand Reference Sandbox",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "isolated": true
+      },
+      "error": "Error: Page.captureScreenshot CDP deadline expired"
+    },
+    {
+      "name": "failure",
+      "phase": "first-continue-closed",
+      "elapsed_ms": 293011,
+      "state": {
+        "benchmark": {},
+        "benchmark_running": false,
+        "bodies": [],
+        "buttons": {
+          "about": [
+            523,
+            687,
+            233,
+            42
+          ],
+          "blacksite_nine": [
+            286,
+            482,
+            348,
+            53
+          ],
+          "continue": [
+            286,
+            579,
+            233,
+            42
+          ],
+          "controls": [
+            286,
+            687,
+            233,
+            42
+          ],
+          "experiment_tower": [
+            646,
+            293,
+            348,
+            53
+          ],
+          "foundry": [
+            286,
+            230,
+            348,
+            53
+          ],
+          "industrial_underswamp": [
+            646,
+            419,
+            348,
+            53
+          ],
+          "material_lab": [
+            286,
+            167,
+            348,
+            53
+          ],
+          "menu": [
+            1108,
+            10,
+            152,
+            42
+          ],
+          "middle_cyberberbia": [
+            646,
+            356,
+            348,
+            53
+          ],
+          "neon_reliquary": [
+            286,
+            356,
+            348,
+            53
+          ],
+          "neon_works": [
+            646,
+            230,
+            348,
+            53
+          ],
+          "performance": [
+            760,
+            687,
+            234,
+            42
+          ],
+          "physics_pit": [
+            286,
+            293,
+            348,
+            53
+          ],
+          "quality_0": [
+            356,
+            633,
+            210,
+            42
+          ],
+          "quality_1": [
+            570,
+            633,
+            210,
+            42
+          ],
+          "quality_2": [
+            784,
+            633,
+            210,
+            42
+          ],
+          "restart": [
+            523,
+            579,
+            233,
+            42
+          ],
+          "save_load": [
+            760,
+            579,
+            234,
+            42
+          ],
+          "sewertech_alley": [
+            286,
+            419,
+            348,
+            53
+          ],
+          "waterworks": [
+            646,
+            167,
+            348,
+            53
+          ]
+        },
+        "camera": [
+          0,
+          0
+        ],
+        "collider_pending": 0,
+        "collider_shapes": 0,
+        "demo": "neon_works",
+        "error": "",
+        "hash": "",
+        "imports": 0,
+        "interest_region_test": {},
+        "local_slot": false,
+        "logical": [
+          480,
+          270
+        ],
+        "logical_threads": 4,
+        "menu": true,
+        "moves": 0,
+        "native_ms": 0,
+        "paint_commands": 0,
+        "paused": false,
+        "player": [
+          24,
+          222
+        ],
+        "probe": 0,
+        "rapier": true,
+        "rapier_reason": "Manual-step/CCD probe passed",
+        "rapier_steps": 0,
+        "rapier_test": {},
+        "ready": true,
+        "render_rejections": 0,
+        "text": "",
+        "tick": 0,
+        "tick_failure_test": {},
+        "upload_ms": 12.05,
+        "view": [
+          152.888854980469,
+          190,
+          974.222290039062,
+          548
+        ],
+        "worker_probe": {},
+        "workers": 1
+      },
+      "metrics": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 400,
+          "top": 0,
+          "right": 640,
+          "bottom": 400,
+          "left": 0
+        },
+        "backing": {
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "devicePixelRatio": 2,
+        "visualViewport": {
+          "width": 640,
+          "height": 400,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "documentFocused": true,
+        "visibility": "visible",
+        "activeElement": {
+          "tag": "CANVAS",
+          "id": "canvas"
+        },
+        "canvasStyle": {
+          "width": "640px",
+          "height": "400px",
+          "transform": "none",
+          "objectFit": "fill"
+        },
+        "title": "Cyber Sand Reference Sandbox",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "isolated": true
+      },
+      "error": "Error: Page.captureScreenshot CDP deadline expired"
+    }
+  ],
+  "observations": [
+    {
+      "elapsed_ms": 100886,
+      "phase": "initial-menu",
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "paused": false,
+      "tick": 0,
+      "moves": 0,
+      "rapier": true,
+      "rapier_steps": 0,
+      "workers": 1,
+      "render_rejections": 0,
+      "world_godot": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_godot": [
+        286,
+        579,
+        233,
+        42
+      ],
+      "metrics": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 400,
+          "top": 0,
+          "right": 640,
+          "bottom": 400,
+          "left": 0
+        },
+        "backing": {
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "devicePixelRatio": 2,
+        "visualViewport": {
+          "width": 640,
+          "height": 400,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "documentFocused": true,
+        "visibility": "visible",
+        "activeElement": {
+          "tag": "CANVAS",
+          "id": "canvas"
+        },
+        "canvasStyle": {
+          "width": "640px",
+          "height": "400px",
+          "transform": "none",
+          "objectFit": "fill"
+        },
+        "title": "Cyber Sand Reference Sandbox",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "isolated": true
+      }
+    },
+    {
+      "elapsed_ms": 205389,
+      "phase": "first-continue-closed",
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "paused": false,
+      "tick": 0,
+      "moves": 0,
+      "rapier": true,
+      "rapier_steps": 0,
+      "workers": 1,
+      "render_rejections": 0,
+      "world_godot": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_godot": [
+        286,
+        579,
+        233,
+        42
+      ],
+      "metrics": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 400,
+          "top": 0,
+          "right": 640,
+          "bottom": 400,
+          "left": 0
+        },
+        "backing": {
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "devicePixelRatio": 2,
+        "visualViewport": {
+          "width": 640,
+          "height": 400,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "documentFocused": true,
+        "visibility": "visible",
+        "activeElement": {
+          "tag": "CANVAS",
+          "id": "canvas"
+        },
+        "canvasStyle": {
+          "width": "640px",
+          "height": "400px",
+          "transform": "none",
+          "objectFit": "fill"
+        },
+        "title": "Cyber Sand Reference Sandbox",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "isolated": true
+      }
+    },
+    {
+      "elapsed_ms": 227305,
+      "phase": "first-continue-closed",
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "paused": false,
+      "tick": 0,
+      "moves": 0,
+      "rapier": true,
+      "rapier_steps": 0,
+      "workers": 1,
+      "render_rejections": 0,
+      "world_godot": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_godot": [
+        286,
+        579,
+        233,
+        42
+      ],
+      "metrics": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 400,
+          "top": 0,
+          "right": 640,
+          "bottom": 400,
+          "left": 0
+        },
+        "backing": {
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "devicePixelRatio": 2,
+        "visualViewport": {
+          "width": 640,
+          "height": 400,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "documentFocused": true,
+        "visibility": "visible",
+        "activeElement": {
+          "tag": "CANVAS",
+          "id": "canvas"
+        },
+        "canvasStyle": {
+          "width": "640px",
+          "height": "400px",
+          "transform": "none",
+          "objectFit": "fill"
+        },
+        "title": "Cyber Sand Reference Sandbox",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "isolated": true
+      }
+    },
+    {
+      "elapsed_ms": 248841,
+      "phase": "first-continue-closed",
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "paused": false,
+      "tick": 0,
+      "moves": 0,
+      "rapier": true,
+      "rapier_steps": 0,
+      "workers": 1,
+      "render_rejections": 0,
+      "world_godot": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_godot": [
+        286,
+        579,
+        233,
+        42
+      ],
+      "metrics": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 400,
+          "top": 0,
+          "right": 640,
+          "bottom": 400,
+          "left": 0
+        },
+        "backing": {
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "devicePixelRatio": 2,
+        "visualViewport": {
+          "width": 640,
+          "height": 400,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "documentFocused": true,
+        "visibility": "visible",
+        "activeElement": {
+          "tag": "CANVAS",
+          "id": "canvas"
+        },
+        "canvasStyle": {
+          "width": "640px",
+          "height": "400px",
+          "transform": "none",
+          "objectFit": "fill"
+        },
+        "title": "Cyber Sand Reference Sandbox",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "isolated": true
+      }
+    },
+    {
+      "elapsed_ms": 270529,
+      "phase": "first-continue-closed",
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "paused": false,
+      "tick": 0,
+      "moves": 0,
+      "rapier": true,
+      "rapier_steps": 0,
+      "workers": 1,
+      "render_rejections": 0,
+      "world_godot": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_godot": [
+        286,
+        579,
+        233,
+        42
+      ],
+      "metrics": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 400,
+          "top": 0,
+          "right": 640,
+          "bottom": 400,
+          "left": 0
+        },
+        "backing": {
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "devicePixelRatio": 2,
+        "visualViewport": {
+          "width": 640,
+          "height": 400,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "documentFocused": true,
+        "visibility": "visible",
+        "activeElement": {
+          "tag": "CANVAS",
+          "id": "canvas"
+        },
+        "canvasStyle": {
+          "width": "640px",
+          "height": "400px",
+          "transform": "none",
+          "objectFit": "fill"
+        },
+        "title": "Cyber Sand Reference Sandbox",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "isolated": true
+      }
+    },
+    {
+      "elapsed_ms": 292407,
+      "phase": "first-continue-closed",
+      "ready": true,
+      "demo": "neon_works",
+      "menu": true,
+      "paused": false,
+      "tick": 0,
+      "moves": 0,
+      "rapier": true,
+      "rapier_steps": 0,
+      "workers": 1,
+      "render_rejections": 0,
+      "world_godot": [
+        152.888854980469,
+        190,
+        974.222290039062,
+        548
+      ],
+      "continue_godot": [
+        286,
+        579,
+        233,
+        42
+      ],
+      "metrics": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 640,
+          "height": 400,
+          "top": 0,
+          "right": 640,
+          "bottom": 400,
+          "left": 0
+        },
+        "backing": {
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "devicePixelRatio": 2,
+        "visualViewport": {
+          "width": 640,
+          "height": 400,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "documentFocused": true,
+        "visibility": "visible",
+        "activeElement": {
+          "tag": "CANVAS",
+          "id": "canvas"
+        },
+        "canvasStyle": {
+          "width": "640px",
+          "height": "400px",
+          "transform": "none",
+          "objectFit": "fill"
+        },
+        "title": "Cyber Sand Reference Sandbox",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "isolated": true
+      }
+    }
+  ],
+  "console_events": [
+    {
+      "type": "log",
+      "text": "Initialize godot-rust (API v4.7.stable.official, runtime v4.7.stable.official, safeguards balanced)"
+    },
+    {
+      "type": "log",
+      "text": "Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org"
+    },
+    {
+      "type": "log",
+      "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+    },
+    {
+      "type": "log",
+      "text": "\u001b[92mPHYSICS ENGINE 2D: Rapier2D v0.35.2\u001b[39m\u001b[0m"
+    },
+    {
+      "type": "log",
+      "text": "Build configuration: Emscripten 4.0.20, single-threaded, GDExtension support."
+    },
+    {
+      "type": "log",
+      "text": "WEB_RAPIER_PROBE {\"ok\":true,\"reason\":\"Manual-step/CCD probe passed\",\"y\":72.5059432983398}"
+    },
+    {
+      "type": "log",
+      "text": "WEB_CPP_EXCEPTION_PROBE true"
+    },
+    {
+      "type": "log",
+      "text": "WEB_TEST_BROWSER Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+    },
+    {
+      "type": "log",
+      "text": "WEB_DEMO_READY CYBERSAND/WASM · COMPAT · 1 WORKERS · RAPIER2D"
+    }
+  ]
+}

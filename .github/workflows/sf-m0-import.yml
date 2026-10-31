@@ -1,0 +1,37 @@
+name: SF-M0 frozen CyberSand history import
+
+on:
+  push:
+    branches:
+      - sf-m0/source-import-20261030
+    paths:
+      - .github/workflows/sf-m0-import.yml
+      - tools/sandfall/sf_m0_import.sh
+  workflow_dispatch:
+
+# One-time controlled source acquisition, NOT a generic remote-code execution
+# facility. The script checks exact upstream SHA/tree and permitted deltas.
+permissions:
+  contents: write
+
+concurrency:
+  group: sf-m0-history-import
+  cancel-in-progress: false
+
+jobs:
+  exact-history-import:
+    if: github.repository == 'techrote/sandfall' && github.ref_name == 'sf-m0/source-import-20261030'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - name: Checkout Sandfall branch with its complete bootstrap history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+          persist-credentials: true
+      - name: Verify, merge complete upstream history, transfer LFS and push
+        env:
+          GIT_LFS_SKIP_SMUDGE: "1"
+        shell: bash
+        run: bash tools/sandfall/sf_m0_import.sh

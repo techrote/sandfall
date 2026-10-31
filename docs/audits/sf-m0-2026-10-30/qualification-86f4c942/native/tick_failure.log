@@ -1,0 +1,4 @@
+[pass] issue #1 failed tick stop/reset
+[pass] issue #1 late failure and publication
+[pass] issue #1 C API failure/recovery
+3 tests passed

@@ -1,0 +1,3 @@
+[pass] immutable render snapshots
+[pass] concurrent render leases
+2 tests passed

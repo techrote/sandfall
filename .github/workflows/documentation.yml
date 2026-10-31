@@ -1,0 +1,76 @@
+name: Documentation and provenance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sandfall-documentation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  consistency:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      # Sandfall is standalone. The original CyberSand workflow checked out a
+      # companion-workspace SHA as if it belonged to Sandfall ("not our ref").
+      - name: Checkout actual Sandfall source head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - name: Verify CyberSand ancestry and Sandfall authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor b48214da1935519002a6c4bfc6d7f465eb4a3eab HEAD
+          test "$(git rev-parse 'b48214da1935519002a6c4bfc6d7f465eb4a3eab^2')" = 1d376fb38ff5df83691e468baa0639270a5f40e6
+          test "$(git rev-parse '1d376fb38ff5df83691e468baa0639270a5f40e6^{tree}')" = 97eb0f4eeedde9bbe8b83047ca45c82d8a377d66
+          grep -q '039008723172a951c7694079cd06c7a2ea137d40' docs/SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md
+          git diff --check HEAD
+      - name: Check active CI provider policy and contract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/ci/check_ci_provider_policy.py
+          python3 -m unittest discover -s tools/ci -p test_ci_provider_policy.py
+          python3 -m unittest discover -s tools/sandfall -p 'test_sf_m0_*.py'
+      - name: Materialize all current runtime objects without rewriting provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          git lfs fetch origin "$(git rev-parse HEAD)"
+          git lfs checkout
+      - name: Reconcile inherited workspace/desktop provenance strictly
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/sandfall/sf_m0_reconcile.py \
+            --output sf-m0-evidence/documentation-reconciliation.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          record=json.loads(Path("sf-m0-evidence/documentation-reconciliation.json").read_text())
+          assert record["original_checker"]["status"] == "failed"
+          assert record["safe_for_fresh_web_build"]
+          assert len(record["original_checker"]["documentation"]["errors"]) == 6
+          assert len(record["original_checker"]["errors"]) == 14
+          assert record["current_lfs_count"] == 18
+          print("SF_M0_RECONCILED_NOT_CLEARED: six inherited workspace refs + eight stale desktop source/runtime digests retained")
+          PY
+      - name: Publish the exact original checker failures as retained evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-documentation-reconciliation-${{ github.run_id }}
+          path: sf-m0-evidence/documentation-reconciliation.json
+          retention-days: 30
+          if-no-files-found: warn

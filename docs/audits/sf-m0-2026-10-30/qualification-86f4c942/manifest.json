@@ -1,0 +1,476 @@
+{
+  "schema": "sandfall-retained-qualification-evidence-v1",
+  "qualified_harness_commit": "86f4c942bdd0e917d2edd74f5a872f8ae0806aa6",
+  "build_source_commit": "6352756931c58e702eb5c15c05d44515091274b2",
+  "scope": "Selected raw receipts, screenshots and logs copied byte-for-byte. Complete artifact ZIPs remain at their original Actions URLs; this manifest does not relabel historical executions.",
+  "sources": [
+    {
+      "label": "ordinary-dpr1",
+      "kind": "actual ordinary browser execution",
+      "source_commit": "86f4c942bdd0e917d2edd74f5a872f8ae0806aa6",
+      "build_source_commit": "6352756931c58e702eb5c15c05d44515091274b2",
+      "run_id": 41131776735,
+      "artifact_id": 13014080666,
+      "job_id": 124324212099,
+      "status": "passed",
+      "zip_sha256": "ef66000cff7d4d887156c63e6e3e6803759c4a512f2dbe298c3f5d56a3b658f3",
+      "files": [
+        {
+          "path": "ordinary-dpr1/browser.json",
+          "sha256": "df83e16f86c33d234a91999ecbfba556ef79c217b44c39ae53fc7e2c174955fd",
+          "size": 61275
+        },
+        {
+          "path": "ordinary-dpr1/browser.png",
+          "sha256": "e4dd0611a69c8380e0445cf9daa7901d2254b0f14b5eaed4cdff86e184bb950e",
+          "size": 143634
+        },
+        {
+          "path": "ordinary-dpr1/chrome.log",
+          "sha256": "7047af3c7c19ba759b46837ccd84129cec22a90dc95fa363e33f0c5dd26051c3",
+          "size": 4317
+        },
+        {
+          "path": "ordinary-dpr1/chrome-version.txt",
+          "sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+          "size": 29
+        },
+        {
+          "path": "ordinary-dpr1/http.log",
+          "sha256": "6d632391e3f639f70268f55f7f15cb8cef6f579a3b1c451c82895f3e591f9337",
+          "size": 2403
+        },
+        {
+          "path": "ordinary-dpr1/artifact-verification.json",
+          "sha256": "5daa842f2b48233a1a8dc260f004c97eb6219daa207d73f4fc3b70a9b42e2b15",
+          "size": 8251
+        },
+        {
+          "path": "ordinary-dpr1/browser-harness.log",
+          "sha256": "26f7b2717a60938c57206a04720e4c2e17e4a6672558c4c110519449a4ec3cef",
+          "size": 3019
+        },
+        {
+          "path": "ordinary-dpr1/geometry-tests.log",
+          "sha256": "4123a40d98d0c4bed19e1ec004d5c214f27b005f00625c41991aeca74c0604e5",
+          "size": 2043
+        },
+        {
+          "path": "ordinary-dpr1/png-tests.log",
+          "sha256": "9ed733995b8f42f638cfbad5011d0feee4b9c96abcea5a3004661cb48e1d3f11",
+          "size": 1176
+        },
+        {
+          "path": "ordinary-dpr1/python-tests.log",
+          "sha256": "d5a5dc322d8081a54d9c64ecab724c948bce1b70093d7bb5dd1e6203a7bf3a27",
+          "size": 3852
+        },
+        {
+          "path": "ordinary-dpr1/source-sha.txt",
+          "sha256": "bbb96aa24575c22c3a5b1a98095dd5f9cc253a5fd0ccb58cae097d9c44e0ac0a",
+          "size": 41
+        }
+      ]
+    },
+    {
+      "label": "ordinary-dpr2",
+      "kind": "actual ordinary browser execution",
+      "source_commit": "86f4c942bdd0e917d2edd74f5a872f8ae0806aa6",
+      "build_source_commit": "6352756931c58e702eb5c15c05d44515091274b2",
+      "run_id": 41131776735,
+      "artifact_id": 13013254801,
+      "job_id": 124324211950,
+      "status": "passed",
+      "zip_sha256": "f500e6df4eb2c17dc40c3871615518f753881073e5597260041c669ae1377ab4",
+      "files": [
+        {
+          "path": "ordinary-dpr2/browser.json",
+          "sha256": "fbfbdfa6941f608c9037b9b02e335444d1d808efc672f0f853cf875afbc9c4b9",
+          "size": 65766
+        },
+        {
+          "path": "ordinary-dpr2/browser.png",
+          "sha256": "d57ceb2eeca97e8bd51aff10a14191090c0dc28393960dbaed46a80f70b4428f",
+          "size": 132479
+        },
+        {
+          "path": "ordinary-dpr2/chrome.log",
+          "sha256": "1495e15dda6bf2c2e4c3826a6ed3de8cb3a6b34c57a484c839f3bbc579adf7a7",
+          "size": 4317
+        },
+        {
+          "path": "ordinary-dpr2/chrome-version.txt",
+          "sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+          "size": 29
+        },
+        {
+          "path": "ordinary-dpr2/http.log",
+          "sha256": "ad88b79faf0d33c535696325f5921a3dbf49e786ed3e1032cec77bb33062bc49",
+          "size": 2403
+        },
+        {
+          "path": "ordinary-dpr2/artifact-verification.json",
+          "sha256": "5daa842f2b48233a1a8dc260f004c97eb6219daa207d73f4fc3b70a9b42e2b15",
+          "size": 8251
+        },
+        {
+          "path": "ordinary-dpr2/browser-harness.log",
+          "sha256": "aa1361d6d33cd5382b61802bceef68273057c577992975336c4855cedbf0c9a8",
+          "size": 3438
+        },
+        {
+          "path": "ordinary-dpr2/geometry-tests.log",
+          "sha256": "946d02736a778be4f94ea74fd026b2cb968b2d91a3b57499c133303c4cc58207",
+          "size": 2045
+        },
+        {
+          "path": "ordinary-dpr2/png-tests.log",
+          "sha256": "ca650d71bd711d10b2ca8f94aefbd7deb0c5826e4110e5825d80dffa8d6f8d45",
+          "size": 1176
+        },
+        {
+          "path": "ordinary-dpr2/python-tests.log",
+          "sha256": "77f6a1bebc71cd9c10a481327577f0158483a529ae4f07c7e6ea3f0e6e77bec1",
+          "size": 3852
+        },
+        {
+          "path": "ordinary-dpr2/source-sha.txt",
+          "sha256": "bbb96aa24575c22c3a5b1a98095dd5f9cc253a5fd0ccb58cae097d9c44e0ac0a",
+          "size": 41
+        }
+      ]
+    },
+    {
+      "label": "native",
+      "kind": "actual focused native execution",
+      "source_commit": "86f4c942bdd0e917d2edd74f5a872f8ae0806aa6",
+      "run_id": 41131776735,
+      "artifact_id": 13013905575,
+      "job_id": 124324211665,
+      "status": "passed",
+      "zip_sha256": "99efee0765c495d606c5486c9a9ac5165783743d8507e955ad04db202bf0cc67",
+      "files": [
+        {
+          "path": "native/body_barrier.log",
+          "sha256": "6be67f1089074b00463d7b50ed43e5446ab67cfdf098b15e1975b307d1cdc212",
+          "size": 71
+        },
+        {
+          "path": "native/body_capacity.log",
+          "sha256": "81269422a825fe6d99d99e5c9b8b4344a5e940089f1ac2a3e21f84927c4c2375",
+          "size": 65
+        },
+        {
+          "path": "native/body_contact.log",
+          "sha256": "9dd94e51d8183ae95a1c0110ddb0ebbe434483f590775808b5ab848c7c994d21",
+          "size": 52
+        },
+        {
+          "path": "native/build.log",
+          "sha256": "d4d882afe86534e16311ff83276da89f496c0374cf52a70c8a914c7539676b9e",
+          "size": 11483
+        },
+        {
+          "path": "native/dirty_rectangles.log",
+          "sha256": "69fa94e4f79f516e05cc451fa1ad41cf668779eb045cabf9ce5dd13d3f617e05",
+          "size": 39
+        },
+        {
+          "path": "native/masked_source.log",
+          "sha256": "8227b8a016ae80499411a881b7a6c3ca5679ec2d7190610e5433d0c4551c3029",
+          "size": 61
+        },
+        {
+          "path": "native/pause_unmask.log",
+          "sha256": "8399aa105c6f7f7dbe7d5c5e4e86a3591fd8fa044524d96725c77dece8b5658c",
+          "size": 58
+        },
+        {
+          "path": "native/receipt.json",
+          "sha256": "5ef54718f7d29a3429452e46502595f7be18fb7b2313f49fa253fd38a7cdf78f",
+          "size": 20229
+        },
+        {
+          "path": "native/render.log",
+          "sha256": "f238c18cf8ca0b9f6de7089a54b9d3d8e241fcadadbb6504a159c060317b6390",
+          "size": 81
+        },
+        {
+          "path": "native/rgba.log",
+          "sha256": "0e434cd3572c82dbcb73879667b74148ba1f43b1ff2c54a818e0818c39e90bf4",
+          "size": 37
+        },
+        {
+          "path": "native/settled_regions.log",
+          "sha256": "8d3b6e3c6bb292774e24f69d2edb2c2c084e7599127df8d2b9108759218745f7",
+          "size": 28
+        },
+        {
+          "path": "native/soliding_lifecycle.log",
+          "sha256": "71660186435d50811e4b99a3790d2624f26ef4943a448a76376c0490654f56f1",
+          "size": 218
+        },
+        {
+          "path": "native/tick_failure.log",
+          "sha256": "633ead3bf81eb29f0eababdafaa26f7227f38d6a43123fe0ad9b3fb5e4fe0c25",
+          "size": 138
+        }
+      ]
+    },
+    {
+      "label": "docs",
+      "kind": "narrow documentation reconciliation; inherited failures retained",
+      "source_commit": "86f4c942bdd0e917d2edd74f5a872f8ae0806aa6",
+      "run_id": 41131784531,
+      "artifact_id": 13013900438,
+      "job_id": 124324237632,
+      "status": "inherited_blockers_acknowledged_for_fresh_web_only",
+      "zip_sha256": "024c552c113dcb0fac12f0633f99687a8b30ca37d7c6f8ef9de2f8b2e5bccf0a",
+      "files": [
+        {
+          "path": "docs/documentation-reconciliation.json",
+          "sha256": "b3adc0329da528930e833344dbae36eb8a182c4b815b7d275e6362e7cb53a2f4",
+          "size": 5305
+        }
+      ]
+    },
+    {
+      "label": "workflow-logs/dpr1",
+      "kind": "decoded original Actions job log",
+      "source_commit": "86f4c942bdd0e917d2edd74f5a872f8ae0806aa6",
+      "run_id": 41131776735,
+      "job_id": 124324212099,
+      "files": [
+        {
+          "path": "workflow-logs/dpr1/dpr1-job.log",
+          "sha256": "b08d14aa895bb169ead8b1d0b7e8b6a6da56119bb6b83b5d23f69201fdc20abb",
+          "size": 42186
+        }
+      ]
+    },
+    {
+      "label": "workflow-logs/dpr2",
+      "kind": "decoded original Actions job log",
+      "source_commit": "86f4c942bdd0e917d2edd74f5a872f8ae0806aa6",
+      "run_id": 41131776735,
+      "job_id": 124324211950,
+      "files": [
+        {
+          "path": "workflow-logs/dpr2/dpr2-job.log",
+          "sha256": "f74d29f2cf6500305a03a8c259a7d2e4a9337022f34ebc3cc7fae8a207bae8b3",
+          "size": 42687
+        }
+      ]
+    },
+    {
+      "label": "workflow-logs/native",
+      "kind": "decoded original Actions job log",
+      "source_commit": "86f4c942bdd0e917d2edd74f5a872f8ae0806aa6",
+      "run_id": 41131776735,
+      "job_id": 124324211665,
+      "files": [
+        {
+          "path": "workflow-logs/native/native-job.log",
+          "sha256": "cb1b5ed5e36f27c758994a637a2742a303a3a099419a7e82fab52a83f09db304",
+          "size": 13904
+        }
+      ]
+    },
+    {
+      "label": "workflow-logs/docs",
+      "kind": "decoded original Actions job log",
+      "source_commit": "86f4c942bdd0e917d2edd74f5a872f8ae0806aa6",
+      "run_id": 41131784531,
+      "job_id": 124324237632,
+      "files": [
+        {
+          "path": "workflow-logs/docs/docs-job.log",
+          "sha256": "344ed5e587761d841ca654839eb3047338dc931edffb5f6768699223b200b30a",
+          "size": 25404
+        }
+      ]
+    },
+    {
+      "label": "original-coordinate-failure",
+      "kind": "preserved failed execution; not current acceptance",
+      "source_commit": "5f937b91f396fa8b4cf2beceede1f86de3be9262",
+      "run_id": 41121317805,
+      "artifact_id": 13009056837,
+      "zip_sha256": "f0fca61f8cc5bac06ea5212b56f7f0063f65a5e1b39c11fd27a1f8db3cedb663",
+      "files": [
+        {
+          "path": "original-coordinate-failure/browser.json",
+          "sha256": "19d71209ebe76aa5220840caa2670392242cee82c9d9056ae4a965fe8b360fd2",
+          "size": 21343
+        },
+        {
+          "path": "original-coordinate-failure/browser.png",
+          "sha256": "265f599597c5167e5bfba97442b401bcd47d401d4024d4d4b9504893649840bb",
+          "size": 41771
+        },
+        {
+          "path": "original-coordinate-failure/chrome.log",
+          "sha256": "a668380e352069e572faa85c27368f6efea2a90b81b1c9654a5d9839af5e1525",
+          "size": 4317
+        },
+        {
+          "path": "original-coordinate-failure/http.log",
+          "sha256": "fbf4de39e24d79841099032195625913e61463586374751088850f531d88132a",
+          "size": 939
+        }
+      ]
+    },
+    {
+      "label": "surface-input-race-failure",
+      "kind": "preserved failed execution; not current acceptance",
+      "source_commit": "476619679b13505e788404e300eb21777636d56e",
+      "run_id": 41126992330,
+      "artifact_id": 13011023580,
+      "zip_sha256": "e7291cf0c5210813e4bd530e09d75a9328d02fa2b2a1e60da9b639726858f554",
+      "files": [
+        {
+          "path": "surface-input-race-failure/browser.json",
+          "sha256": "e036501a48f5c524a2c09957485321704f5acd39270abb809217a736bd1c43c8",
+          "size": 36835
+        },
+        {
+          "path": "surface-input-race-failure/chrome.log",
+          "sha256": "67249de47ec168c5a1976f8de1b166288cbce40c84b6981a84fff0a10ebcc038",
+          "size": 4317
+        },
+        {
+          "path": "surface-input-race-failure/http.log",
+          "sha256": "1bc275b2ff7ecd0225bc1f4766d364b4f64422410922901bd3f437a27338bae6",
+          "size": 2403
+        },
+        {
+          "path": "surface-input-race-failure/browser-harness.log",
+          "sha256": "22ce6aa5be0f19ca6affca318f4edfa4aa3b93417c4e1a55a45c5f36a487b5e5",
+          "size": 1221
+        },
+        {
+          "path": "surface-input-race-failure/artifact-verification.json",
+          "sha256": "0db1dcdd07198b5721999b6b16bda5ec0ef7a22117094e12247aec162abaabea",
+          "size": 5906
+        }
+      ]
+    },
+    {
+      "label": "surface-capture-timeout-failure",
+      "kind": "preserved failed execution; not current acceptance",
+      "source_commit": "350d7b9084eb71eb464913b1b4a5ac6d3a516ede",
+      "run_id": 41128785495,
+      "artifact_id": 13011774471,
+      "zip_sha256": "531b8132176a48837c96432235108759f7cf7f8316bb53b6a6237e7d64c852d2",
+      "files": [
+        {
+          "path": "surface-capture-timeout-failure/browser.json",
+          "sha256": "179270d3414855772255ac197b1bb2b5f99ae1c006424d3d25f5a18b5a4f47e0",
+          "size": 59756
+        },
+        {
+          "path": "surface-capture-timeout-failure/chrome.log",
+          "sha256": "65a58bf2591af8e7169586dd3b340472f9db6d1f76a1b0a8ac922f7c931b368f",
+          "size": 4317
+        },
+        {
+          "path": "surface-capture-timeout-failure/http.log",
+          "sha256": "f2975d2c892e9850a90ffa7600d56f1ca1be2ea3d843d8e091b81fc55f5cc765",
+          "size": 2403
+        },
+        {
+          "path": "surface-capture-timeout-failure/browser-harness.log",
+          "sha256": "8941441d6b5163c78109ea17481f05cf634146183d05a8f09cf1fa69f8f4a4b9",
+          "size": 3039
+        },
+        {
+          "path": "surface-capture-timeout-failure/artifact-verification.json",
+          "sha256": "6a45a1c86f142719733ab9bd22b89dd6b4c9204ddbe9bebb79bac8556443b8cb",
+          "size": 6706
+        }
+      ]
+    },
+    {
+      "label": "original-coupled-600",
+      "kind": "preserved original 600-tick execution; not rerun at the harness head",
+      "source_commit": "6352756931c58e702eb5c15c05d44515091274b2",
+      "run_id": 41115189216,
+      "artifact_id": 13004589535,
+      "zip_sha256": "0a82292331a13b47566c868532a9554801a75b2877b120a9dda29179d40fcc09",
+      "files": [
+        {
+          "path": "original-coupled-600/browser.json",
+          "sha256": "580aba45765a01cdac71435493e078fdc253c019bf6cb81ab3b387362827683e",
+          "size": 36088
+        },
+        {
+          "path": "original-coupled-600/chrome.log",
+          "sha256": "2c6b17e0f39f631a377e91471ed56ee252a814aec67c2ba56a3efe44db8e2e23",
+          "size": 4317
+        },
+        {
+          "path": "original-coupled-600/http.log",
+          "sha256": "6761042eb0bab3e0ee5f14f5e1066c6e88e50e2300ce3a1f2dd7aa7b307356b8",
+          "size": 948
+        },
+        {
+          "path": "original-coupled-600/web-reconciliation.json",
+          "sha256": "b70546d271e927d880ac08ed8d60106f701225db4ebab76e18eee66c028299f7",
+          "size": 5305
+        }
+      ]
+    },
+    {
+      "label": "original-full-native",
+      "kind": "preserved original complete native-suite execution; not rerun at the harness head",
+      "source_commit": "6352756931c58e702eb5c15c05d44515091274b2",
+      "run_id": 41115189216,
+      "job_id": 124269728992,
+      "tests_passed": 164,
+      "files": [
+        {
+          "path": "original-full-native/job.log",
+          "sha256": "edf5cf2d3f84a070c912cde6ce0324b06eeb4dfe43bcde41dd1c94b66f50eb1e",
+          "size": 73561
+        }
+      ]
+    },
+    {
+      "label": "interrupted-local-diagnostic",
+      "kind": "incomplete local diagnostic; no terminal receipt or screenshot; not acceptance",
+      "harness_base_commit": "350d7b9084eb71eb464913b1b4a5ac6d3a516ede",
+      "build_source_commit": "6352756931c58e702eb5c15c05d44515091274b2",
+      "files": [
+        {
+          "path": "interrupted-local-diagnostic/harness.log",
+          "sha256": "ab8b0964b184f4930d9aebdd343a4f75eb194ea4883b53eb2fe4e42971cf87ca",
+          "size": 65
+        },
+        {
+          "path": "interrupted-local-diagnostic/chrome.log",
+          "sha256": "d18491c9f5e945f24a8a5e9e7530c73ea13bf45d1af3a02bff053d25159c296c",
+          "size": 10300
+        },
+        {
+          "path": "interrupted-local-diagnostic/http.log",
+          "sha256": "25773da70b2482654a9bd94ffb2e26802f06208e95f7aa79fe533448a23631c0",
+          "size": 2257
+        },
+        {
+          "path": "interrupted-local-diagnostic/artifact-verification.json",
+          "sha256": "9e4458549b410360252df32c31e806850d8284728bbf64a4bfe23f4d90282dc3",
+          "size": 6275
+        },
+        {
+          "path": "interrupted-local-diagnostic/interruption-receipt.json",
+          "sha256": "12a510bf067ad82a6ddab5477369dd9fb8beec8839fc18a054fb68f9500101b3",
+          "size": 1261
+        }
+      ]
+    }
+  ],
+  "actions_retention_days": {
+    "current_ordinary_focused_native_documentation": 30,
+    "original_web_full_native_run_41115189216": 14
+  }
+}

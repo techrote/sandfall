@@ -1,0 +1,24 @@
+SF_M0_ORDINARY_POLL Error: Runtime.evaluate CDP deadline expired
+SF_M0_ORDINARY_OBSERVATION {"phase":"initial-menu","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":126981}
+SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":189892}
+SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":210852}
+SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":6,"menu":false,"paused":false,"moves":5767,"elapsed_ms":232193}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":6,"menu":false,"paused":false,"moves":5767,"elapsed_ms":253425}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":6,"menu":false,"paused":false,"moves":5767,"elapsed_ms":274818}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":6,"menu":false,"paused":false,"moves":5767,"elapsed_ms":297014}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":6,"menu":false,"paused":false,"moves":5767,"elapsed_ms":318876}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":16,"menu":false,"paused":false,"moves":14457,"elapsed_ms":340596}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-menu-opened","tick":16,"menu":false,"paused":false,"moves":14457,"elapsed_ms":382842}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-menu-opened","tick":16,"menu":false,"paused":false,"moves":14457,"elapsed_ms":403886}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-menu-opened","tick":16,"menu":false,"paused":false,"moves":14457,"elapsed_ms":424965}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-menu-opened","tick":16,"menu":true,"paused":false,"moves":14457,"elapsed_ms":446787}
+SF_M0_ORDINARY_OBSERVATION {"phase":"menu-still-pauses","tick":16,"menu":true,"paused":false,"moves":14457,"elapsed_ms":468214}
+SF_M0_ORDINARY_OBSERVATION {"phase":"second-continue-closed","tick":16,"menu":true,"paused":false,"moves":14457,"elapsed_ms":533258}
+SF_M0_ORDINARY_OBSERVATION {"phase":"second-continue-closed","tick":20,"menu":false,"paused":false,"moves":18069,"elapsed_ms":554931}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-paused","tick":20,"menu":false,"paused":false,"moves":18069,"elapsed_ms":598560}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-paused","tick":20,"menu":false,"paused":false,"moves":18069,"elapsed_ms":619671}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-paused","tick":20,"menu":false,"paused":false,"moves":18069,"elapsed_ms":640824}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-paused","tick":22,"menu":false,"paused":true,"moves":19898,"elapsed_ms":661668}
+SF_M0_ORDINARY_OBSERVATION {"phase":"paused-stable","tick":22,"menu":false,"paused":true,"moves":19898,"elapsed_ms":682794}
+SF_M0_ORDINARY_FAILURE Error: Page.captureScreenshot CDP deadline expired
+SF_M0_ORDINARY_RESULT {"status":"failed","failures":["Error: Page.captureScreenshot CDP deadline expired"],"build_source":"6352756931c58e702eb5c15c05d44515091274b2","final_tick":22}

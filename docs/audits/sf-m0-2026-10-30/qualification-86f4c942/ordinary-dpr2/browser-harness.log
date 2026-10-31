@@ -1,0 +1,25 @@
+SF_M0_ORDINARY_POLL Error: Runtime.evaluate CDP deadline expired
+SF_M0_ORDINARY_OBSERVATION {"phase":"initial-menu","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":84678}
+SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":0,"menu":true,"paused":false,"moves":0,"elapsed_ms":131748}
+SF_M0_ORDINARY_OBSERVATION {"phase":"first-continue-closed","tick":4,"menu":false,"paused":false,"moves":4381,"elapsed_ms":143435}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":4,"menu":false,"paused":false,"moves":4381,"elapsed_ms":154984}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":4,"menu":false,"paused":false,"moves":4381,"elapsed_ms":166654}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":4,"menu":false,"paused":false,"moves":4381,"elapsed_ms":178417}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":4,"menu":false,"paused":false,"moves":4381,"elapsed_ms":190167}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":14,"menu":false,"paused":false,"moves":12638,"elapsed_ms":201603}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":14,"menu":false,"paused":false,"moves":12638,"elapsed_ms":213238}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":14,"menu":false,"paused":false,"moves":12638,"elapsed_ms":224829}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":14,"menu":false,"paused":false,"moves":12638,"elapsed_ms":236493}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":14,"menu":false,"paused":false,"moves":12638,"elapsed_ms":247972}
+SF_M0_ORDINARY_OBSERVATION {"phase":"ordinary-fifteen-ticks","tick":24,"menu":false,"paused":false,"moves":21682,"elapsed_ms":259433}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-menu-opened","tick":24,"menu":false,"paused":false,"moves":21682,"elapsed_ms":294519}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-menu-opened","tick":24,"menu":false,"paused":false,"moves":21682,"elapsed_ms":308837}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-menu-opened","tick":26,"menu":true,"paused":false,"moves":23490,"elapsed_ms":321416}
+SF_M0_ORDINARY_OBSERVATION {"phase":"menu-still-pauses","tick":26,"menu":true,"paused":false,"moves":23490,"elapsed_ms":333992}
+SF_M0_ORDINARY_OBSERVATION {"phase":"second-continue-closed","tick":28,"menu":false,"paused":false,"moves":25244,"elapsed_ms":384737}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-paused","tick":28,"menu":false,"paused":false,"moves":25244,"elapsed_ms":422661}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-paused","tick":28,"menu":false,"paused":false,"moves":25244,"elapsed_ms":435179}
+SF_M0_ORDINARY_OBSERVATION {"phase":"keyboard-paused","tick":30,"menu":false,"paused":true,"moves":27022,"elapsed_ms":447789}
+SF_M0_ORDINARY_OBSERVATION {"phase":"paused-stable","tick":30,"menu":false,"paused":true,"moves":27022,"elapsed_ms":460779}
+SF_M0_ORDINARY_OBSERVATION {"phase":"paused-stable","tick":30,"menu":false,"paused":true,"moves":27022,"elapsed_ms":548841}
+SF_M0_ORDINARY_RESULT {"status":"passed","failures":[],"build_source":"6352756931c58e702eb5c15c05d44515091274b2","final_tick":30,"pixels":{"width":640,"height":400,"region":{"x0":79,"x1":561,"y0":97,"y1":367},"sample_stride_x":3,"samples":43470,"bright":15342,"colourful":10541,"bright_fraction":0.35293305728088337,"colourful_fraction":0.24248907292385552,"unique_4bit_rgb":525}}

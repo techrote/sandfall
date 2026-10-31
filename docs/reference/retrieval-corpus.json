@@ -1,0 +1,519 @@
+{
+  "version": 1,
+  "reviewed": "2026-10-25",
+  "scope": "Explicit current-answer corpus; status and scope must accompany every chunk. Historical records are separately routed, never silently mixed into current answers.",
+  "documents": [
+    "MATERIAL_LAB.md",
+    "architecture/chunk-tile-and-buffer-model.md",
+    "architecture/data-ownership-and-lifetimes.md",
+    "architecture/determinism-and-boundary-transfers.md",
+    "architecture/item-authored-material-programs.md",
+    "architecture/module-boundaries.md",
+    "architecture/overview.md",
+    "architecture/principles-and-non-goals.md",
+    "architecture/rendering-and-gameplay-bridges.md",
+    "architecture/rigid-body-and-cellular-coupling.md",
+    "architecture/liquid-solver-family-policy.md",
+    "architecture/liquid-prepared-setup-and-receipts.md",
+    "architecture/liquid-state-transition-matrix.md",
+    "architecture/lcb-pressure-inertial-handoff.md",
+    "architecture/pressure-flow-v1.md",
+    "architecture/inertial-cellular-v1.md",
+    "architecture/simulation-tick-and-threading.md",
+    "decisions/ADR-001-native-simulation-core.md",
+    "decisions/ADR-002-double-buffered-tile-jobs.md",
+    "decisions/ADR-003-godot-bridge-and-immutable-snapshots.md",
+    "decisions/ADR-004-interest-region-and-reconfiguration.md",
+    "decisions/ADR-005-water-model.md",
+    "decisions/ADR-006-gpu-compute-deferral.md",
+    "decisions/ADR-007-rigid-body-cellular-coupling.md",
+    "decisions/ADR-008-bounded-approximate-fidelity.md",
+    "decisions/ADR-009-rapier-2d-rigid-body-backend.md",
+    "decisions/ADR-010-failed-tick-quarantine.md",
+    "decisions/ADR-011-granular-interaction-policy.md",
+    "operations/configuration-and-capacity-budgets.md",
+    "operations/current-and-historical-validation.md",
+    "operations/cybersand-codex-development-handover.md",
+    "operations/development-claims-remediation-programme.md",
+    "operations/documentation-maintenance.md",
+    "operations/github-development-and-release.md",
+    "operations/gameplay-recording.md",
+    "operations/local-build-and-validation.md",
+    "operations/physics-characterisation-plan.md",
+    "operations/physics-characterisation.md",
+    "operations/profiling-observability-and-performance.md",
+    "operations/microscenario-reference-pack.md",
+    "operations/rapier-2d-migration-runbook.md",
+    "operations/source-checkpoint-and-recovery.md",
+    "operations/testing-validation-and-replay.md",
+    "operations/troubleshooting.md",
+    "operations/web-threading.md",
+    "reference/configuration-reference.md",
+    "reference/glossary.md",
+    "reference/interfaces-and-message-contracts.md",
+    "reference/invariants.md",
+    "reference/level-saves-and-replay.md",
+    "reference/product-intent-and-priorities.md",
+    "reference/status-and-roadmap.md",
+    "reference/validation-evidence.md",
+    "research/lumped-gas-region-pressure-bookkeeping.md",
+    "research/bounded-decompression-impulse-events.md",
+    "research/sandspiel-performance-and-material-port.md",
+    "systems/activity-dirty-regions-and-waking.md",
+    "systems/actor-control-prototypes.md",
+    "systems/actor-rigs.md",
+    "systems/actor-usables.md",
+    "systems/granular-interaction-policy.md",
+    "systems/player-environment-profiles-and-traversal.md",
+    "systems/material-appearance-and-rendering.md",
+    "systems/materials-and-rule-kernels.md",
+    "systems/intermaterial-interactions.md",
+    "systems/smoke-heat-pressure-roadmap.md",
+    "systems/themed-construction-materials.md",
+    "systems/water-design.md",
+    "systems/world-storage-and-interest-region.md",
+    "operations/experiment-tower.md",
+    "operations/microscenarios-programme.md",
+    "operations/water-feel-lab-experiment.md",
+    "systems/flow-transport-and-profiles.md",
+    "operations/architecture-programme.md",
+    "operations/water-hybrid-pressure-extension-programme.md",
+    "operations/lcb-water-comparison-and-fixtures.md",
+    "operations/lcb-manual-comparison-ux.md",
+    "operations/lcb-scenario-catalogue.md",
+    "operations/architecture-programme-water-feel-addendum.md",
+    "operations/cell-layout-experiment.md",
+    "operations/liquid-characterization.md",
+    "operations/state-precision-experiment.md",
+    "operations/microscenarios.md",
+    "operations/soliding-programme.md",
+    "operations/soliding-stage3b-production-plan.md",
+    "architecture/soliding-lifecycle.md",
+    "systems/settled-region-discovery.md",
+    "operations/soliding-measurement.md",
+    "operations/soliding-macro-fracture-fixture.md",
+    "operations/soliding-stage3-freeze.md",
+    "operations/neon-reliquary-demo.md",
+    "operations/blacksite-nine-demo.md",
+    "systems/procedural-world-generation.md",
+    "systems/procedural-generation-fields-and-modifiers.md",
+    "systems/thunderbowl-control-reference.md",
+    "systems/material-visual-pattern-library.md",
+    "reference/material-effects-register.md",
+    "systems/building-material-catalogue.md",
+    "operations/physical-actor-programme.md",
+    "systems/depth-layers-and-parallax.md",
+    "systems/physical-actor-rigs.md",
+    "systems/physical-free-flight.md",
+    "systems/physical-flight-lab.md",
+    "operations/deepworks-exhibition.md",
+    "systems/player-control-playground.md",
+    "systems/procedural-typed-spatial-fields.md",
+    "reference/procedural-spatial-operators.md",
+    "systems/procedural-hierarchical-generation.md",
+    "decisions/ADR-013-canonical-semantic-generation.md",
+    "systems/procedural-semantic-planes.md",
+    "operations/semantic-depth-authoring.md",
+    "decisions/ADR-014-semantic-plane-admission.md",
+    "systems/generation-workbench-2.md",
+    "operations/procedural-qualification.md",
+    "architecture/pressure-optimization.md"
+  ],
+  "navigation": [
+    "README.md",
+    "reference/retrieval-index.md",
+    "../README.md",
+    "../AGENTS.md",
+    "../CONTRIBUTING.md",
+    "../third_party/README.md",
+    "../godot/native_extension/README.md",
+    "../.github/pull_request_template.md"
+  ],
+  "excluded": [
+    {
+      "path": "audits/2026-10-18-act002-actor-rigs.md",
+      "reason": "Dated ACT-002 source/runtime, preserved failure and scoped rig validation evidence; retrieve explicitly through the rig contract or validation ledger, not as a default Current runtime contract"
+    },
+    {
+      "path": "audits/2026-10-18-act001-actor-control-prototypes.md",
+      "reason": "Dated ACT-001 source/runtime and scoped prototype validation evidence; retrieve explicitly through the actor contract or validation ledger, not as a default Current runtime contract"
+    },
+    {
+      "path": "ARCHITECTURE.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "audits/2026-09-08-documentation-audit.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "audits/2026-09-08-performance-history.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "audits/m11/github-migration-validation.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "audits/m11/m10-independent-audit-report.redacted.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "audits/m11/m11-completion-report.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "audits/m11/README.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "audits/pre-rag-rewrite-2026-09-08/README.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "BUILD_ID.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "LARGE_WORLD_PROOF.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "NEXT_MILESTONE.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "PERFORMANCE.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "STATUS.md",
+      "reason": "Retained historical record or legacy milestone route; use only for explicitly historical questions"
+    },
+    {
+      "path": "README.md",
+      "reason": "Current navigation, not an answer owner"
+    },
+    {
+      "path": "reference/retrieval-index.md",
+      "reason": "Current question routing, not repeated answer content"
+    },
+    {
+      "path": "audits/2026-09-08-foundation-diagnostics.md",
+      "reason": "Dated audit/evaluation record; retrieve explicitly, not as a current contract"
+    },
+    {
+      "path": "audits/2026-09-08-retrieval-evaluation.md",
+      "reason": "Dated audit/evaluation record; retrieve explicitly, not as a current contract"
+    },
+    {
+      "path": "audits/2026-09-08-structural-documentation-audit.md",
+      "reason": "Dated audit/evaluation record; retrieve explicitly, not as a current contract"
+    },
+    {
+      "path": "audits/2026-09-08-github-milestone.md",
+      "reason": "Dated publication/reconstruction record; not a default current contract"
+    },
+    {
+      "path": "audits/2026-09-08-issue-1-failed-ticks.md",
+      "reason": "Dated issue #1 evidence; use only with recorded source/artifact/platform scope"
+    },
+    {
+      "path": "audits/2026-09-08-validation-reconciliation.md",
+      "reason": "Dated publication/integrity evidence; not a current contract owner"
+    },
+    {
+      "path": "audits/2026-09-09-physics-characterisation.md",
+      "reason": "Dated issue #9 measured evidence, explicitly routed with source/artifact/platform scope; not a default current contract"
+    },
+    {
+      "path": "audits/2026-09-09-issue-10-granular-policy.md",
+      "reason": "Dated issue #10 acceptance and retained failures; retrieve with its source/artifact/platform scope"
+    },
+    {
+      "path": "audits/2026-09-09-issue-13-transport.md",
+      "reason": "Dated checkpoint evidence; not a current-answer contract"
+    },
+    {
+      "path": "operations/architecture-programme-source-ledger.md",
+      "reason": "Dated source synthesis or issue execution prompt; retrieve explicitly through the architecture programme, not as Current runtime policy"
+    },
+    {
+      "path": "operations/architecture-programme-prompts/cell-layout.md",
+      "reason": "Dated source synthesis or issue execution prompt; retrieve explicitly through the architecture programme, not as Current runtime policy"
+    },
+    {
+      "path": "operations/architecture-programme-prompts/compact-motion.md",
+      "reason": "Dated source synthesis or issue execution prompt; retrieve explicitly through the architecture programme, not as Current runtime policy"
+    },
+    {
+      "path": "operations/architecture-programme-prompts/decision-review.md",
+      "reason": "Dated source synthesis or issue execution prompt; retrieve explicitly through the architecture programme, not as Current runtime policy"
+    },
+    {
+      "path": "operations/architecture-programme-prompts/fractional-presentation.md",
+      "reason": "Dated source synthesis or issue execution prompt; retrieve explicitly through the architecture programme, not as Current runtime policy"
+    },
+    {
+      "path": "operations/architecture-programme-prompts/liquid-characterization.md",
+      "reason": "Dated source synthesis or issue execution prompt; retrieve explicitly through the architecture programme, not as Current runtime policy"
+    },
+    {
+      "path": "operations/architecture-programme-prompts/soliding-supplement.md",
+      "reason": "Dated source synthesis or issue execution prompt; retrieve explicitly through the architecture programme, not as Current runtime policy"
+    },
+    {
+      "path": "operations/architecture-programme-prompts/sparse-motion.md",
+      "reason": "Dated source synthesis or issue execution prompt; retrieve explicitly through the architecture programme, not as Current runtime policy"
+    },
+    {
+      "path": "operations/architecture-programme-prompts/state-precision.md",
+      "reason": "Dated source synthesis or issue execution prompt; retrieve explicitly through the architecture programme, not as Current runtime policy"
+    },
+    {
+      "path": "audits/2026-09-18-microscenarios-interactions-programme.md",
+      "reason": "Dated planning/RAG reconciliation record; retrieve explicitly for the 2026-09-18 MicroScenarios sequencing decision, not as a default Current runtime contract"
+    },
+    {
+      "path": "operations/soliding-stage3-spark-connectivity.md",
+      "reason": "Issue execution packet; retrieve explicitly through the canonical Stage-3 freeze, not as a default Current runtime contract"
+    },
+    {
+      "path": "operations/soliding-stage3-spark-measurement.md",
+      "reason": "Issue execution packet; retrieve explicitly through the canonical Stage-3 freeze, not as a default Current runtime contract"
+    },
+    {
+      "path": "operations/soliding-stage3-spark-producer.md",
+      "reason": "Issue execution packet; retrieve explicitly through the canonical Stage-3 freeze, not as a default Current runtime contract"
+    },
+    {
+      "path": "operations/soliding-stage3-spark-verification.md",
+      "reason": "Issue execution packet; retrieve explicitly through the canonical Stage-3 freeze, not as a default Current runtime contract"
+    },
+    {
+      "path": "operations/soliding-stage3b-astra-review.md",
+      "reason": "Issue architecture-review packet; retrieve explicitly through the soliding programme and Stage-3A exit review, not as implemented Current behavior"
+    },
+    {
+      "path": "audits/issue-12-2026-09-19/luna-stage3-draft-review.md",
+      "reason": "Dated rejected-draft review; retrieve explicitly for the interrupted substitute-worker record, not as a default Current contract"
+    },
+    {
+      "path": "audits/2026-09-19-issue-26-registration.md",
+      "reason": "Dated issue #26 preregistration and frozen experiment contract; retrieve explicitly with the issue #26 evidence, not as a default Current runtime contract"
+    },
+    {
+      "path": "audits/2026-09-19-issue-26-water-leveling.md",
+      "reason": "Dated issue #26 characterization/candidate evidence; current conclusions are mirrored into Water/roadmap/architecture contracts and this audit is retrieved explicitly for measurements"
+    },
+    {
+      "path": "audits/2026-09-19-issue-26-post-merge-review.md",
+      "reason": "Dated independent review of #26 evidence/apparatus and the #49 corrective gate; retrieve explicitly when interpreting #26 or executing #45"
+    },
+    {
+      "path": "audits/2026-09-19-issue-29-int000.md",
+      "reason": "Dated issue #29 implementation/equivalence evidence; retrieve explicitly with its source/runtime/check scope, not as a default Current contract"
+    },
+    {
+      "path": "audits/2026-09-20-development-claims-closure-audit.md",
+      "reason": "Dated REM-001 closure/claims intake audit; retrieve explicitly for frozen F01-F19 evidence, while the Current remediation programme owns live status"
+    },
+    {
+      "path": "audits/2026-09-20-issue-49-water-apparatus-v2-registration.md",
+      "reason": "Dated issue #49 preregistration freezing successor apparatus-v2 metric, fixture, runner and acceptance semantics before corrected results; retrieve explicitly when auditing the correction contract"
+    },
+    {
+      "path": "audits/2026-09-20-issue-49-water-apparatus-v2-baseline.md",
+      "reason": "Dated source-matched issue #49 Current-Water successor-apparatus evidence; retrieve explicitly for corrected measurements/provenance while Current routing is mirrored into Water/roadmap/architecture contracts"
+    },
+    {
+      "path": "audits/2026-09-24-cybersand-recovery-audit.md",
+      "reason": "Dated REC-008 final recovery audit; retrieve explicitly for the 2026-09-20 through 2026-09-22 CI/Stage-3B incident and exact recovery evidence, while Current routing lives in operations/reference contracts"
+    },
+    {
+      "path": "audits/2026-10-18-blacksite-nine.md",
+      "reason": "Dated Blacksite Nine source/runtime, route-continuity and rendered-scene evidence; retrieve explicitly through the scene guide or validation ledger, not as a default Current runtime contract"
+    },
+    {
+      "path": "audits/2026-10-18-gen002-fields-and-aggregates.md",
+      "reason": "Dated GEN-002 source/runtime, compatibility-oracle and scoped field/modifier evidence; retrieve explicitly through the generation field contract, not as a default Current runtime contract"
+    },
+    {
+      "path": "audits/2026-10-18-gen001-procedural-generation.md",
+      "reason": "Dated GEN-001 procedural-generation source and validation checkpoint; retrieve explicitly with its source/artifact/platform limits, while Current generation semantics belong to the canonical subsystem contract"
+    },
+    {
+      "path": "audits/2026-10-18-act003-thunderbowl-control-lab.md",
+      "reason": "Dated ACT-003 source/runtime, preserved failure, schema and bounded arena evidence; retrieve explicitly through the Thunderbowl contract or validation ledger, not as a default Current control contract"
+    },
+    {
+      "path": "audits/2026-10-18-owner-actor-observations.md",
+      "reason": "Verbatim dated owner observations; current implementation and planned follow-up are separately scoped in the physical actor programme."
+    },
+    {
+      "path": "audits/2026-10-18-combined-features-and-physical-trial.md",
+      "reason": "Dated local validation and preserved failures; current behavior belongs to the physical actor programme and hosted final gates remain separate."
+    },
+    {
+      "path": "audits/2026-10-18-depth-parallax-prototypes.md",
+      "reason": "Historical original and reconstructed depth prototype evidence; fresh integration validation is recorded separately."
+    },
+    {
+      "path": "audits/2026-10-18-depth-integration-validation.md",
+      "reason": "Fresh dated reconstructed-depth integration evidence; runtime semantics remain in the depth contract."
+    },
+    {
+      "path": "audits/2026-10-18-act004-articulated-actors.md",
+      "reason": "Dated ACT-004 source/runtime, preserved tuning failures and scoped articulated-actor validation; retrieve explicitly through the physical actor contract or validation ledger, not as a default Current runtime contract."
+    },
+    {
+      "path": "audits/2026-10-19-act005-physical-usables.md",
+      "reason": "Dated ACT-005 implementation progress, source/runtime identities, preserved failures and physical-usable validation. Retrieve explicitly through the physical actor/usable contracts or validation ledger; checkpoints do not substitute for final acceptance."
+    },
+    {
+      "path": "audits/2026-10-20-deepworks-exhibition.md",
+      "reason": "Dated Deepworks source/runtime, native apparatus, preserved failures and actual rendered-image evidence; retrieve explicitly through the exhibition guide or validation ledger, not as the default Current map or depth contract."
+    },
+    {
+      "path": "audits/2026-10-20-player-control-playground.md",
+      "reason": "Dated player playground source/runtime, native field and actual Linux mechanical/lifecycle evidence; retrieve explicitly with its platform and human acceptance limits. Current controls and ownership belong to the player playground contract."
+    },
+    {
+      "path": "audits/2026-10-21-player-playground-pr189-completion.md",
+      "reason": "Dated PR #189 original-head and first-completion hosted evidence, GEN-003/GEN-004 integrations, quick-tap timing correction and separately tracked final gates. Retrieve explicitly through the player playground contract or validation ledger with its source/artifact/platform qualifications; prior green results do not certify a later combined tree."
+    },
+    {
+      "path": "audits/2026-10-21-gen004-hierarchical-generation.md",
+      "reason": "Dated GEN-004 source, semantic/raster validation, runtime publication and acceptance evidence; retrieve explicitly with its platform and source scope, not as a default Current contract"
+    },
+    {
+      "path": "audits/2026-10-22-water-exit-acknowledgement.md",
+      "reason": "Dated post-merge Windows Water controller failure and scoped correction evidence; retrieve explicitly through the Tower contract or validation ledger, not as a default current message contract."
+    },
+    {
+      "path": "audits/2026-10-24-lcb001-residual-shared-contract.md",
+      "reason": "Dated unmerged residual #200 native setup, normalization, typed receipt, quantity-accounting and scoped Windows execution evidence. Retrieve explicitly through the native prepared-setup contract or navigation with its source, artifact, platform and remaining acceptance limits; it is not a default Current contract or full-host qualification."
+    },
+    {
+      "path": "audits/2026-10-23-physical-actor-timeouts.md",
+      "reason": "Dated physical actor timeout investigation and stress evidence; retrieve through the build/validation guide with its unresolved root-cause and platform qualifiers."
+    },
+    {
+      "path": "audits/2026-10-23-physical-actor-timeout-handover.md",
+      "reason": "Dated paused investigation handover, hosted frequencies and uncompiled repair candidate; retrieve explicitly through the development handover, not as a confirmed physics diagnosis."
+    },
+    {
+      "path": "audits/2026-10-24-physical-actor-bvh-validation.md",
+      "reason": "Dated engine-dump attribution and paired Rapier experiment evidence; retrieve explicitly through the build guide or handover with its acceptance limits."
+    },
+    {
+      "path": "audits/2026-10-24-issue-233-physical-regression-timeouts.md",
+      "reason": "Admitted dated diagnostic campaign, timing records and retained failures; retrieve through the timeout procedure with its original source/runtime identities and no-native-stack causal limit."
+    },
+    {
+      "path": "audits/2026-10-24-issue-234-physical-hang-repair.md",
+      "reason": "Dated integrated repair admission and source-bound qualification; retrieve through the build/test guides with exact source/runtime/platform identities, separate prior campaigns and explicit remaining uncertainty."
+    },
+    {
+      "path": "audits/2026-10-24-lcb003-controlled-host-slice.md",
+      "reason": "Dated source-only #202 controlled host preparation, local Windows headless artifact/normal-controller evidence and explicit remaining platform/publication/UX gaps; retrieve through the canonical prepared-setup host section."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-liquid-comparison-ui.md",
+      "reason": "Dated unmerged normal UI/source runtime checkpoint; retrieve explicitly for measured local Windows coverage, while canonical UX and constructor matrix own Current/Planned status"
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-sampled-exploratory-host.md",
+      "reason": "Dated unmerged sampled/exploratory source and local Windows runtime evidence; canonical prepared host and UX matrix own Current coverage and remaining qualification"
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-articulated-host.md",
+      "reason": "Dated unmerged articulated-owner preparation and local Windows source/runtime evidence; canonical prepared-host contract and constructor matrix own actual coverage and remaining full-host/platform gaps."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-integrated-inertial-host.md",
+      "reason": "Dated accepted-main/IN adapter and scoped local Windows host evidence; canonical prepared-host contract and UX constructor matrix own implemented readback, explicit geometry and remaining qualification gaps."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-tower-constructor.md",
+      "reason": "Dated ordinary Tower constructor and scoped Windows native headless evidence; canonical prepared host contract and constructor matrix own actual retained controls, refusal and remaining full host/platform gaps."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-qualified-host-observation.md",
+      "reason": "Dated scoped Windows qualified host/runtime observation, controlled process-module evidence and retained failed harnesses; canonical prepared-host contract owns value scopes and remaining owner/publication/browser gaps."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-owner-observation.md",
+      "reason": "Dated bounded owner transaction/compact publication/local Windows proof and registry repair; canonical prepared-host contract owns current adoption/refusal/restart and remaining full host/platform scope."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-water-feel-constructor.md",
+      "reason": "Dated bounded ordinary Water Feel family routing/local Windows proof; canonical prepared-host contract and UX matrix own current sampler/ack/source/blind/body restrictions and remaining qualification."
+    },
+    {
+      "path": "audits/2026-10-25-lcb001-shared-contract-acceptance.md",
+      "reason": "Dated accepted #246 source/tree and Windows/Linux execution, independent receipts, preserved failures and remaining host ownership. Retrieve explicitly through canonical setup/receipt, pressure or validation pages with those source/platform limits; this is not a default contract or full-host qualification."
+    },
+    {
+      "path": "audits/2026-10-25-lcb002-pressure-variants.md",
+      "reason": "Dated pressure-variant source, retained failures, cost evidence and actual Windows/Linux publication, later accepted on main through #253. Retrieve via the optimization contract with exact source/platform limits and slower cases; it does not establish universal speedup or complete product acceptance."
+    },
+    {
+      "path": "audits/2026-10-25-lcb005-standalone-adapter.md",
+      "reason": "Dated local Windows-only standalone IN binding/readback and explicit-radius proof; retrieve through the IN reference with native base/delta, retained failures and pending published/full-host/platform gates. It is not a default or full #212 acceptance."
+    },
+    {
+      "path": "audits/2026-10-25-lcb005-pressure-union-integration.md",
+      "reason": "Dated combined-source integration, native oracles, corrected Windows/Linux publication and retained failures; the exact parent250 later passes full gates and merges as main dc915f2b. Retrieve through IN/pressure routes with source/platform and full-host qualifiers. Parent proof is not Water successor or product acceptance."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-combined-host-web-prerequisite.md",
+      "reason": "Dated combined app/DLL, native Web-apparatus and actual Rapier proof; retrieve explicitly with source/platform/failure limits, not as default actual browser or published-runtime acceptance"
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-water-reference-body.md",
+      "reason": "Dated unmerged desktop reference-body transaction and actual ordinary unpaused feedback, preserved moving-mask native failure and fresh local DLL proof; canonical host/UX routes own current scope, Web body/host-mask/publication gaps and unchanged false full-match eligibility"
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-thermal-level-preparation.md",
+      "reason": "Dated local Windows native CYSD thermal/preparation/refusal proof; canonical prepared-setup contract owns API identity and thermal limits. Ordinary importer/host/released platforms remain open."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-ordinary-demo-host.md",
+      "reason": "Dated unmerged local Windows four-demo constructor/retained-recipe/quarantine-refusal evidence. Canonical prepared setup and UX matrix own current scope; no final browser, runtime publication, complete host or Brine IN rest-contact qualification follows."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-synchronous-reference-body.md",
+      "reason": "Dated unmerged actual Windows synchronous Physics Pit body transaction, retained apparatus failures and native/Rapier feedback proof. Canonical prepared setup and constructor matrix own current admission, same-label imported refusal and final platform/full-host limits."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-synchronous-water-reference-body.md",
+      "reason": "Dated unmerged native Windows synchronous Water Feel body transaction and actual-family/feedback proof, preserved apparatus failures and corrected PhysicsPit label-only coverage. Canonical host/UX routes own current source, refusal/restart, old-runtime and final Web/publication/full-host limits."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-desktop-native-default-host.md",
+      "reason": "Dated unmerged native-default owner/capacity/local Windows proof and preserved shutdown counterevidence. Canonical prepared setup and UX own current scope; final union, source-matched platforms, Web and full-host acceptance remain explicit."
+    },
+    {
+      "path": "audits/2026-10-25-water-inertial-registration.md",
+      "reason": "Prospective isolated Water IN adapter/carrier/stencil and test registration; retrieve through the IN canonical contract, never as runtime or Gate D acceptance."
+    },
+    {
+      "path": "audits/2026-10-25-water-inertial-native.md",
+      "reason": "Dated isolated native proof, exact Current behavior/identity reduction and preserved failures. Later Windows/Linux publications and worker activity/pool lifecycle repairs are separately bound through the IN/release contracts; full ready-PR, scientific and host/Web qualification remain open."
+    },
+    {
+      "path": "audits/2026-10-25-water-inertial-publication.md",
+      "reason": "Dated actual Water sequence1 and native-repair sequence2 Windows/Linux publications, independent567-input/artifact/LFS/lease/floor review and preserved historical unarmed/local/composite failures. Retrieve through release/IN contracts; scoped publication does not establish final ready-PR, scientific or host/Web acceptance."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-final-integration.md",
+      "reason": "Dated unmerged combined application source/runtime/native/host proof and preserved apparatus failures. Later packed/startup preparation compiles18d DLL46a and tests3d with all139 compiled inputs equal: native164/SAN39 and fresh import-plus35-host proof hold696 source/646 project inputs. The failed first matrix, old-DLL A/B crash and exact helper-only correction remain preserved; earlier browser/runtime records remain source-qualified, with final Water sequence2 integration and combined publication required. Current prepared setup/UX own exact default namespaces, CY/IN future-source refusal, supported constructors and strict unarmed publisher; final source-matched platforms, browser/visual and scientific/full-host gates stay separate."
+    },
+    {
+      "path": "audits/2026-10-25-lcb003-web-common-water.md",
+      "reason": "Dated source-bound native and actualcompat77/threaded76 terminal POST functional proof for six body-free Water and four mixed arms. Canonical host/UX routes retain ordinary rendered/manual/body-bearing browser, combined desktop provenance, remaining constructors and scientific/full-host gates."
+    }
+  ],
+  "integration_note": "Retains scene, generation, actor, sampled and physical actor-usable, Thunderbowl, physical-actor and presentation routes; historical questions remain separately scoped. Deepworks routes cover full-size four-plane exhibitions, independent native source schedules and parameterized depth dimensions; its dated audit remains explicitly scoped. Player playground adds seven human movement presets, native material-field authority and circular-wheel approximation routes; dated execution remains separately scoped. GEN-003 typed-spatial and operator-reference routes from main are retained alongside player playground routes. GEN-004 hierarchy and ADR-013 canonical routes coexist with the player and GEN-003 routes; both GEN-004 and player completion audits remain explicitly excluded from ordinary retrieval. The accepted main #246 native prepared-setup, normalization, typed receipt and exact quantity contract is an explicit Current route. Its earlier local checkpoint and final accepted source/platform audit remain excluded from default retrieval; native-v1 full-host qualification and #202 ownership remain explicit. The #201 optimization contract is an explicit branch-Current route; its dated evidence remains separately scoped, with historical execution1/2 and current execution3, actual host/platform gates and no universal speedup kept explicit. The combined #212 source also retains the IN canonical route and separately qualified standalone adapter evidence; fresh combined-source proof is required before publication. The #202 canonical host extensions and separately excluded dated UI/actor/observation/Tower/Water Feel records are retained; earlier application/runtime seals are not relabelled as combined-source qualification. The native CYSD thermal preparation API and LCB-CYSD-PREP-01 are retained with ordinary importer/host and final qualification still open. Moving-mask repair and LCB-MASK-GAS-01 are retained. Historical pressure LCB10/LCB11 aliases remain under the existing LCB-MAIN-ACCEPTANCE-01/LCB-PRESSURE-OPT-01 IDs with exact query wording; all current source requires fresh matching publication. The bounded ordinary synchronous four-demo recipe route and LCB-ORDINARY-DEMO-01 are additive; its dated proof remains excluded and source-qualified, with imported labels, healthy-World recovery and remaining constructors/platforms explicit. Authored synchronous Physics Pit and LCB-SYNC-BODY-01 are additive routes; their local Windows proof is separately excluded and does not qualify actual Wasm/visual, other physical constructors, same-policy quarantine recovery or final publication. Synchronous supported-body Water Feel and LCB-SYNC-WATER-BODY-01 are additive current routes with separately excluded local Windows evidence; actual native family readback supersedes older label-only PhysicsPit coverage without rewriting its hashes or claiming final source-matched/Web acceptance. Final application union and LCB-HOST-UNION-01 add exact immutable default namespaces, both whole-cell future-source refusals and strict Water005/native-Web functional evidence; dated integration results remain excluded and publication/browser/scientific gates stay separate. The separate actual common-Water Web record qualifies source4948 terminal functional execution on both profiles; ordinary visual/manual/body-bearing browser and final desktop publication remain separate."
+}

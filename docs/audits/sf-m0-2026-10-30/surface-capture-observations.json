@@ -1,0 +1,1116 @@
+{
+  "chrome_pid": 64149,
+  "cases": [
+    {
+      "label": "before-capture",
+      "events": [
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 305.30000000074506
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 312.1000000014901
+        }
+      ],
+      "dpr": 2,
+      "width": 640,
+      "height": 400,
+      "viewport": {
+        "scale": 1,
+        "width": 640,
+        "height": 400
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 400,
+        "top": 0,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      }
+    },
+    {
+      "label": "after-completed-capture",
+      "events": [
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 305.30000000074506
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 312.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 492.5
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 494.5
+        }
+      ],
+      "dpr": 2,
+      "width": 640,
+      "height": 400,
+      "viewport": {
+        "scale": 1,
+        "width": 640,
+        "height": 400
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 400,
+        "top": 0,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      }
+    },
+    {
+      "label": "during-capture-0",
+      "events": [
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 305.30000000074506
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 312.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 492.5
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 494.5
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 496.5
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 497.19999999925494
+        }
+      ],
+      "dpr": 2,
+      "width": 640,
+      "height": 400,
+      "viewport": {
+        "scale": 1,
+        "width": 640,
+        "height": 400
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 400,
+        "top": 0,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      }
+    },
+    {
+      "label": "after-raced-capture-0",
+      "events": [
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 305.30000000074506
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 312.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 492.5
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 494.5
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 496.5
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 497.19999999925494
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 557.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 560
+        }
+      ],
+      "dpr": 2,
+      "width": 640,
+      "height": 400,
+      "viewport": {
+        "scale": 1,
+        "width": 640,
+        "height": 400
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 400,
+        "top": 0,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      }
+    },
+    {
+      "label": "during-capture-1",
+      "events": [
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 305.30000000074506
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 312.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 492.5
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 494.5
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 496.5
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 497.19999999925494
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 557.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 560
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 562.4000000022352
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 563.1000000014901
+        }
+      ],
+      "dpr": 2,
+      "width": 640,
+      "height": 400,
+      "viewport": {
+        "scale": 1,
+        "width": 640,
+        "height": 400
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 400,
+        "top": 0,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      }
+    },
+    {
+      "label": "after-raced-capture-1",
+      "events": [
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 305.30000000074506
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 312.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 492.5
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 494.5
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 496.5
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 497.19999999925494
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 557.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 560
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 562.4000000022352
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 563.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 608.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 609.3000000007451
+        }
+      ],
+      "dpr": 2,
+      "width": 640,
+      "height": 400,
+      "viewport": {
+        "scale": 1,
+        "width": 640,
+        "height": 400
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 400,
+        "top": 0,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      }
+    },
+    {
+      "label": "during-capture-2",
+      "events": [
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 305.30000000074506
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 312.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 492.5
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 494.5
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 496.5
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 497.19999999925494
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 557.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 560
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 562.4000000022352
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 563.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 608.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 609.3000000007451
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 611
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 611.6999999992549
+        }
+      ],
+      "dpr": 2,
+      "width": 640,
+      "height": 400,
+      "viewport": {
+        "scale": 1,
+        "width": 640,
+        "height": 400
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 400,
+        "top": 0,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      }
+    },
+    {
+      "label": "after-raced-capture-2",
+      "events": [
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 305.30000000074506
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 312.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 492.5
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 494.5
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 496.5
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 497.19999999925494
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 557.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 560
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 562.4000000022352
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 563.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 608.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 609.3000000007451
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 611
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 611.6999999992549
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 672.8000000007451
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 673.6000000014901
+        }
+      ],
+      "dpr": 2,
+      "width": 640,
+      "height": 400,
+      "viewport": {
+        "scale": 1,
+        "width": 640,
+        "height": 400
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 400,
+        "top": 0,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      }
+    },
+    {
+      "label": "during-capture-3",
+      "events": [
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 305.30000000074506
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 312.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 492.5
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 494.5
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 496.5
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 497.19999999925494
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 557.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 560
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 562.4000000022352
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 563.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 608.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 609.3000000007451
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 611
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 611.6999999992549
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 672.8000000007451
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 673.6000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 676.1999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 676.9000000022352
+        }
+      ],
+      "dpr": 2,
+      "width": 640,
+      "height": 400,
+      "viewport": {
+        "scale": 1,
+        "width": 640,
+        "height": 400
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 400,
+        "top": 0,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      }
+    },
+    {
+      "label": "after-raced-capture-3",
+      "events": [
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 305.30000000074506
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 312.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 492.5
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 494.5
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 496.5
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 497.19999999925494
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 557.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 560
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 562.4000000022352
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 563.1000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 608.6999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 609.3000000007451
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 611
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 611.6999999992549
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 672.8000000007451
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 673.6000000014901
+        },
+        {
+          "type": "pointerdown",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 676.1999999992549
+        },
+        {
+          "type": "pointerup",
+          "x": 100.625,
+          "y": 150,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 676.9000000022352
+        },
+        {
+          "type": "pointerdown",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 724.5
+        },
+        {
+          "type": "pointerup",
+          "x": 201.25,
+          "y": 300,
+          "trusted": true,
+          "target": "CANVAS",
+          "time": 725.1999999992549
+        }
+      ],
+      "dpr": 2,
+      "width": 640,
+      "height": 400,
+      "viewport": {
+        "scale": 1,
+        "width": 640,
+        "height": 400
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 400,
+        "top": 0,
+        "right": 640,
+        "bottom": 400,
+        "left": 0
+      }
+    }
+  ],
+  "errors": []
+}
