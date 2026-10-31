@@ -431,3 +431,18 @@ The executable ordinary-Web CI gates have passed at `86f4c942...`; proceed with 
 history remain SF-M2, generalized sixteen-body authoring SF-M3, and the portable
 `.sandfall` ZIP project archive SF-M4. No broad SF-M1 implementation is part of
 this correction. **The owner's PR #2 draft/unmerged hold remains in force.**
+
+## Subsequent SF-M1 implementation handoff
+
+After the owner explicitly requested implementation, the separate stacked
+[draft PR #3](https://github.com/techrote/sandfall/pull/3) implemented the dedicated
+Sandfall entry and removed inherited actor/launcher authority. At
+`bbe72707aa679790b66a143a71c09e7f21570993`,
+[run 41139800406](https://github.com/techrote/sandfall/actions/runs/41139800406)
+passed fresh dedicated/legacy exports, native/Godot tests, both ordinary-browser
+input/rendering cases and the unchanged special 600-tick functional contract.
+The [SF-M1 audit](2026-10-30-sf-m1-host-input.md) owns that later source, artifact,
+scope and failure ledger. It does not relabel any SF-M0 binary or test result.
+The held SF-M0 branch remains `ea96e062ecc54d24d880a8119cb40cf0461c88ad`, and
+**PR #2 remains draft and unmerged**. Human visual and additional profile/hosting
+qualification remain separate from these executable gates.

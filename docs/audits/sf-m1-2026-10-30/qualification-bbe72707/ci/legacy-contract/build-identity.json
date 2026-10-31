@@ -1,0 +1,33 @@
+{
+  "source_commit": "bbe72707aa679790b66a143a71c09e7f21570993",
+  "source_identity_kind": "git-checkout",
+  "godot": "4.7.stable.official.5b4e0cb0f",
+  "godot_cpp": "101ae38034304346a46ea9ea84ae156d3e860496",
+  "emscripten": "4.0.20",
+  "profile": "compat",
+  "native_worker_threads": 1,
+  "auto_worker_policy": "logical<4:2; logical<12:4; otherwise:6",
+  "rapier": "0.35.2",
+  "rapier_sha256": "5ff6933670c1377c24dcbac30d67758a307165eacdcbd33b25bf01669577c4c2",
+  "application_entry": "legacy",
+  "entry_scene": "res://web_main.tscn",
+  "staged_project_sha256": "346fe45a256f41f3745c39222bf0633047ac7c61c02a7013f47a99987993e4c3",
+  "water_runtime": {
+    "schema_version": 1,
+    "status": "source-built-web-export-unqualified",
+    "source_commit": "bbe72707aa679790b66a143a71c09e7f21570993",
+    "source_identity_kind": "git-checkout",
+    "artifact": "libcybersand_native.web.nothreads.wasm",
+    "sha256": "559a466fddff84e809436052a020029c7241d99d412668b80e384966b598a595",
+    "size": 4245499,
+    "build_target": "Godot Web compat",
+    "browser_execution_status": "not-established-by-export",
+    "profile": "compat",
+    "godot": "4.7.stable.official.5b4e0cb0f",
+    "godot_cpp": "101ae38034304346a46ea9ea84ae156d3e860496",
+    "emscripten": "4.0.20",
+    "native_worker_threads": 1,
+    "application_entry": "legacy",
+    "entry_scene": "res://web_main.tscn"
+  }
+}

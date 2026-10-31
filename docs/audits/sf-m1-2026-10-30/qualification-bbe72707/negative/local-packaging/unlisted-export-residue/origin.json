@@ -1,0 +1,8 @@
+{
+  "scope": "unlisted local export residue; original directory was refused by unchanged verifier",
+  "source_commit": "bbe72707aa679790b66a143a71c09e7f21570993",
+  "original_path": "/workspace/scratch/9977b5ec8836/sandfall/build/web-sandfall/index.pck-2oqtyv",
+  "sha256": "bef8197c7b4074c2593b5ebf2a0240298d93a27188d1c334c874831507e459cd",
+  "size": 4325488,
+  "producer": "not independently established; name and timing are consistent with a temporary PCK during Godot export"
+}

@@ -10,13 +10,9 @@ config_version=5
 
 [application]
 
-config/name="Cyber Sand Reference Sandbox"
-run/main_scene="res://feature_launcher.tscn"
+config/name="Sandfall"
+run/main_scene="res://sandfall_main.tscn"
 config/features=PackedStringArray("4.7")
-
-[autoload]
-
-FeatureNavigation="*res://scripts/feature_navigation.gd"
 
 [cybersand]
 
@@ -24,15 +20,16 @@ native_worker_threads=0
 
 [display]
 
-window/size/viewport_width=1920
-window/size/viewport_height=1080
-window/size/window_width_override=1920
-window/size/window_height_override=1080
+window/size/viewport_width=1280
+window/size/viewport_height=800
+window/size/window_width_override=1280
+window/size/window_height_override=800
 window/stretch/mode="canvas_items"
 
 [physics]
 
 2d/physics_engine="Rapier2D"
+common/physics_ticks_per_second=60
 
 [rendering]
 

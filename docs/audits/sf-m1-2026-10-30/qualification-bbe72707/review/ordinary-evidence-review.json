@@ -1,0 +1,292 @@
+{
+  "schema": "sandfall-sf-m1-independent-browser-evidence-review-v1",
+  "build_source_commit": "bbe72707aa679790b66a143a71c09e7f21570993",
+  "scope": "Independent retained-receipt/hash/input/checkpoint/pixel review; not a new browser run or human visual acceptance",
+  "cases": [
+    {
+      "case": "ci-ordinary-dpr1",
+      "status": "passed",
+      "browser_receipt_sha256": "956b116118732def643adced8a5bcda90df446436c0d79713647eace4be92492",
+      "verification_sha256": "559cbad11d3e1698a8f319d87f0d1485c6974f29bde1202456a97b83ef249845",
+      "duration_ms": 46194,
+      "checks_passed": 54,
+      "served_artifacts": 20,
+      "harness_inputs_verified_against_git": 4,
+      "actual_input_commands": 124,
+      "independent_trusted_deliveries": 89,
+      "max_css_pointer_error": 0,
+      "dom_event_types": {
+        "focus": 7,
+        "pointerdown": 26,
+        "pointerup": 26,
+        "keydown": 22,
+        "keyup": 18,
+        "blur": 4,
+        "visibilitychange": 4
+      },
+      "paused_samples_with_stable_live_native_revision": 87,
+      "hidden_tab_cleared_input_samples": 2,
+      "native_step": {
+        "before": [
+          46,
+          0
+        ],
+        "after": [
+          47,
+          0
+        ]
+      },
+      "coupled_step": {
+        "before": [
+          41,
+          41
+        ],
+        "after": [
+          42,
+          42
+        ]
+      },
+      "reset_identities": [
+        {
+          "scene": "material_lab",
+          "mode": "run",
+          "generation": 4,
+          "initial_hash": "1ec3f791c7054c515a4f75c36db2362235ca13b11ec82ee1440aaa8e547fe347"
+        },
+        {
+          "scene": "material_lab",
+          "mode": "edit",
+          "generation": 5,
+          "initial_hash": "1ec3f791c7054c515a4f75c36db2362235ca13b11ec82ee1440aaa8e547fe347"
+        },
+        {
+          "scene": "physics_pit",
+          "mode": "run",
+          "generation": 8,
+          "initial_hash": "c364f132a17072c7c9b8d14070e56d1fa6996be0e645bed4a5011d92a0f548a8"
+        },
+        {
+          "scene": "physics_pit",
+          "mode": "edit",
+          "generation": 9,
+          "initial_hash": "c364f132a17072c7c9b8d14070e56d1fa6996be0e645bed4a5011d92a0f548a8"
+        }
+      ],
+      "final_native_tick": 623,
+      "final_rapier_steps": 623,
+      "moves": 5220,
+      "contacts_total": 111322,
+      "displaced_total": 149,
+      "native_revision": 283,
+      "final_body_poses": [
+        [
+          124,
+          159.00065612793,
+          -2.99748714738257e-09,
+          0,
+          0,
+          0,
+          true
+        ],
+        [
+          243.5009765625,
+          242.000274658203,
+          6.18528501945548e-05,
+          -0.147780358791351,
+          -1.11294973237364e-08,
+          -0.0182065851986408,
+          false
+        ],
+        [
+          383.610107421875,
+          217.509948730469,
+          0,
+          0.8282350897789,
+          2.82409858703613,
+          0,
+          false
+        ]
+      ],
+      "last_input_ms": 45248,
+      "capture_started_ms": 45855,
+      "capture_duration_ms": 241,
+      "png_sha256": "b66b54139e853d355c9a60b92df97f1353eaa69ba21701e71c9323a8142c97a6",
+      "screenshot_size": [
+        800,
+        450
+      ],
+      "independent_png_samples": 61120,
+      "independent_bright_fraction": 0.16020942408376965,
+      "independent_quantized_colours": 44,
+      "world_roi": {
+        "x0": 114,
+        "x1": 686,
+        "y0": 65,
+        "y1": 385
+      },
+      "http_statuses": {
+        "200": 31
+      },
+      "console_exceptions_or_warnings": 0,
+      "cdp_poll_errors": 0,
+      "chrome_log_sha256": "b05f22c7080cdd9495337387a56c8e1a1759d63761a82a4b12123d1af9dba2e4",
+      "chrome_stderr_diagnostics": {
+        "dbus_desktop_service_errors": 22,
+        "other_warning_error_patterns": 0,
+        "disposition": "Retained headless runner desktop-service diagnostics; no application console error/exception, HTTP failure, or CDP timeout observed"
+      },
+      "retired_held_Step_release": {
+        "trusted_pointerup_after_real_hidden_tab": true,
+        "fresh_pointerdown_between": false,
+        "css_target": [
+          115.375,
+          429.75
+        ],
+        "tick_and_revision_unchanged": true
+      }
+    },
+    {
+      "case": "ci-ordinary-dpr2",
+      "status": "passed",
+      "browser_receipt_sha256": "3b35d788e5e1bfc6175f9f9ff1cba1229f372e14e88cfad4e3a947d8376a724f",
+      "verification_sha256": "559cbad11d3e1698a8f319d87f0d1485c6974f29bde1202456a97b83ef249845",
+      "duration_ms": 43381,
+      "checks_passed": 54,
+      "served_artifacts": 20,
+      "harness_inputs_verified_against_git": 4,
+      "actual_input_commands": 124,
+      "independent_trusted_deliveries": 89,
+      "max_css_pointer_error": 0,
+      "dom_event_types": {
+        "focus": 7,
+        "pointerdown": 26,
+        "pointerup": 26,
+        "keydown": 22,
+        "keyup": 18,
+        "blur": 4,
+        "visibilitychange": 4
+      },
+      "paused_samples_with_stable_live_native_revision": 88,
+      "hidden_tab_cleared_input_samples": 2,
+      "native_step": {
+        "before": [
+          44,
+          0
+        ],
+        "after": [
+          45,
+          0
+        ]
+      },
+      "coupled_step": {
+        "before": [
+          46,
+          46
+        ],
+        "after": [
+          47,
+          47
+        ]
+      },
+      "reset_identities": [
+        {
+          "scene": "material_lab",
+          "mode": "run",
+          "generation": 4,
+          "initial_hash": "1ec3f791c7054c515a4f75c36db2362235ca13b11ec82ee1440aaa8e547fe347"
+        },
+        {
+          "scene": "material_lab",
+          "mode": "edit",
+          "generation": 5,
+          "initial_hash": "1ec3f791c7054c515a4f75c36db2362235ca13b11ec82ee1440aaa8e547fe347"
+        },
+        {
+          "scene": "physics_pit",
+          "mode": "run",
+          "generation": 8,
+          "initial_hash": "c364f132a17072c7c9b8d14070e56d1fa6996be0e645bed4a5011d92a0f548a8"
+        },
+        {
+          "scene": "physics_pit",
+          "mode": "edit",
+          "generation": 9,
+          "initial_hash": "c364f132a17072c7c9b8d14070e56d1fa6996be0e645bed4a5011d92a0f548a8"
+        }
+      ],
+      "final_native_tick": 608,
+      "final_rapier_steps": 608,
+      "moves": 5220,
+      "contacts_total": 108319,
+      "displaced_total": 149,
+      "native_revision": 283,
+      "final_body_poses": [
+        [
+          124,
+          159.00065612793,
+          -2.99748714738257e-09,
+          0,
+          0,
+          0,
+          true
+        ],
+        [
+          243.497634887695,
+          241.998229980469,
+          0.000479907466797158,
+          0.331815272569656,
+          -0.397251844406128,
+          0.0408797450363636,
+          false
+        ],
+        [
+          383.333251953125,
+          217.514373779297,
+          0,
+          0.593187868595123,
+          2.82409834861755,
+          0,
+          false
+        ]
+      ],
+      "last_input_ms": 42373,
+      "capture_started_ms": 43024,
+      "capture_duration_ms": 306,
+      "png_sha256": "123a6b17ac14af365778058efd894c3abdc04d67624d970d9135ceb00b9bb54d",
+      "screenshot_size": [
+        640,
+        400
+      ],
+      "independent_png_samples": 48280,
+      "independent_bright_fraction": 0.17071251035625518,
+      "independent_quantized_colours": 74,
+      "world_roi": {
+        "x0": 66,
+        "x1": 574,
+        "y0": 58,
+        "y1": 342
+      },
+      "http_statuses": {
+        "200": 31
+      },
+      "console_exceptions_or_warnings": 0,
+      "cdp_poll_errors": 0,
+      "chrome_log_sha256": "976ac76e7798ecfdb30d043223508c293f2adb4a32da6dbf9376f6f51bd08a03",
+      "chrome_stderr_diagnostics": {
+        "dbus_desktop_service_errors": 22,
+        "other_warning_error_patterns": 0,
+        "disposition": "Retained headless runner desktop-service diagnostics; no application console error/exception, HTTP failure, or CDP timeout observed"
+      },
+      "retired_held_Step_release": {
+        "trusted_pointerup_after_real_hidden_tab": true,
+        "fresh_pointerdown_between": false,
+        "css_target": [
+          67,
+          382
+        ],
+        "tick_and_revision_unchanged": true
+      }
+    }
+  ],
+  "status": "passed"
+}
