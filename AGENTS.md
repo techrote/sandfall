@@ -11,6 +11,21 @@ milestones are **not Sandfall assignments**.
 
 ## Sandfall-specific requirements
 
+- **Current integration reconciliation, 31 October 2026:** SF-M0/M1/M2 PRs
+  #2/#3/#4 are merged by their separately authorized owner. Historical holds
+  below are retained chronology. **SF-M3 PR #5 and SF-M4 remain draft/unmerged.**
+  SF-M4 starts from verified SF-M3 `0dd5d0606c92b37d3abbf6e252eae9977c1807bd`;
+  do not move dependency refs or merge either milestone.
+- [SF-M4 projects/exhibitions](docs/SF-M4-PROJECTS-EXHIBITIONS.md) and the
+  [portable format](docs/SANDFALL-PROJECT-FORMAT.md) own initial project storage,
+  staged native/Rapier replacement, same-document presentation history,
+  Gallery/evidence and confirmed declarative intervention promotion. Keep ZIP
+  parsing data-only and bounded; failed candidates must preserve the active
+  owner. Save during Run uses the frozen authored document. Preserve precise
+  negative diagnostics and source-bound file/browser qualification. The
+  [dated audit](docs/audits/2026-10-31-sf-m4-projects-exhibitions.md) distinguishes
+  local development, terminal exact-head gates and remaining SF-M5 acceptance.
+
 - Audit actual live Sandfall main/branch/PR SHAs, exact-head GitHub Actions,
   reviews, repo instructions, LFS materialization, source/runtime provenance
   and competing owners before every implementation or merge.

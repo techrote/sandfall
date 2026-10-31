@@ -1,0 +1,343 @@
+name: Sandfall SF-M4 portable projects, exhibitions and actual Web qualification
+
+on:
+  push:
+    branches: ['sf-m4/**']
+    paths:
+      - 'godot/**'
+      - 'native/**'
+      - 'tools/**'
+      - 'docs/SF-M4*'
+      - 'docs/audits/2026-10-31-sf-m4*'
+      - '.github/workflows/sf-m4-web.yml'
+      - 'README.md'
+      - 'AGENTS.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sandfall-sf-m4-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  full-native:
+    name: Fresh full native C++ suite including restored-occupancy regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - name: Preserve source identity and execute the complete native target
+        run: |
+          set -euo pipefail
+          mkdir -p sf-m4-native-full
+          git rev-parse HEAD > sf-m4-native-full/source-sha.txt
+          git ls-files -z native Makefile | xargs -0 sha256sum > sf-m4-native-full/source-inputs.sha256
+          g++ --version > sf-m4-native-full/compiler.txt
+          uname -a > sf-m4-native-full/environment.txt
+          timeout 2400 make test 2>&1 | tee sf-m4-native-full/make-test.log
+          sha256sum --check --strict sf-m4-native-full/source-inputs.sha256 > sf-m4-native-full/source-fence.txt
+          sha256sum build/tests > sf-m4-native-full/test-binary.sha256
+          cp build/tests sf-m4-native-full/native-tests
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-full-native
+          path: sf-m4-native-full/
+          retention-days: 30
+          if-no-files-found: warn
+
+  source-native:
+    name: Source, native regressions and fail-closed material/object browser oracles
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - run: |
+          bash tools/sandfall/sf_m4_ci.sh source
+          node --check tools/sandfall/sf_m3_browser.mjs
+          node --check tools/sandfall/sf_m4_browser.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-source-native
+          path: sf-m4-evidence/
+          retention-days: 30
+          if-no-files-found: warn
+
+  web-export:
+    name: Fresh native and Web adapters, dedicated Godot object/material tests, both exports
+    runs-on: ubuntu-24.04
+    timeout-minutes: 85
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+      SCONS_JOBS: '2'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - run: bash tools/sandfall/sf_m4_ci.sh build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-fresh-web
+          path: build/web-sandfall/
+          retention-days: 30
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-legacy-web
+          path: build/web/
+          retention-days: 30
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-build-evidence
+          path: sf-m4-build/
+          retention-days: 30
+          if-no-files-found: warn
+
+  ordinary-web:
+    name: ${{ matrix.harness }} ordinary UI ${{ matrix.width }}x${{ matrix.height }} DPR${{ matrix.dpr }}
+    needs: web-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        harness: [sf_m1_browser, sf_m2_browser]
+        profile:
+          - {width: 800, height: 450, dpr: 1}
+          - {width: 640, height: 400, dpr: 2}
+        include:
+          - harness: sf_m1_browser
+            profile: {width: 800, height: 450, dpr: 1}
+            width: 800
+            height: 450
+            dpr: 1
+          - harness: sf_m1_browser
+            profile: {width: 640, height: 400, dpr: 2}
+            width: 640
+            height: 400
+            dpr: 2
+          - harness: sf_m2_browser
+            profile: {width: 800, height: 450, dpr: 1}
+            width: 800
+            height: 450
+            dpr: 1
+          - harness: sf_m2_browser
+            profile: {width: 640, height: 400, dpr: 2}
+            width: 640
+            height: 400
+            dpr: 2
+    env:
+      VIEW_WIDTH: ${{ matrix.width }}
+      VIEW_HEIGHT: ${{ matrix.height }}
+      VIEW_DPR: ${{ matrix.dpr }}
+      BROWSER_HARNESS: ${{ matrix.harness }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m4-fresh-web
+          path: build/web-sandfall
+      - run: bash tools/sandfall/sf_m2_ci.sh browser
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-${{ matrix.harness }}-${{ matrix.width }}x${{ matrix.height }}-dpr${{ matrix.dpr }}
+          path: sf-m2-browser/
+          retention-days: 30
+          if-no-files-found: warn
+
+  physical-workshop:
+    name: Actual 0,1,3,8,16-body workshop ${{ matrix.width }}x${{ matrix.height }} DPR${{ matrix.dpr }}
+    needs: web-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {width: 800, height: 450, dpr: 1}
+          - {width: 640, height: 400, dpr: 2}
+    env:
+      VIEW_WIDTH: ${{ matrix.width }}
+      VIEW_HEIGHT: ${{ matrix.height }}
+      VIEW_DPR: ${{ matrix.dpr }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m4-fresh-web
+          path: build/web-sandfall
+      - name: Verify exact source, actual bytes and independent export inventory
+        run: |
+          set -euo pipefail
+          python3 tools/sandfall/sf_m4_verify_web_artifact.py \
+            --web-root build/web-sandfall --expected-build-sha "$(git rev-parse HEAD)" \
+            --output sf-m4-browser/artifact-verification.json
+          node --version > sf-m4-browser/node-version.txt
+          git rev-parse HEAD > sf-m4-browser/source-sha.txt
+          uname -a > sf-m4-browser/environment.txt
+      - name: Genuine input, repeated reconstruction, physical feedback and per-body world pixels
+        run: |
+          set -euo pipefail
+          python3 tools/serve_web.py --directory build/web-sandfall --port 8040 > sf-m4-browser/http.log 2>&1 &
+          SERVER_PID=$!
+          CHROME="$(command -v google-chrome-stable || command -v google-chrome)"
+          "$CHROME" --version > sf-m4-browser/chrome-version.txt
+          CHROME_PID=''
+          trap 'kill "$SERVER_PID" ${CHROME_PID:+"$CHROME_PID"} 2>/dev/null || true' EXIT
+          failed=0
+          for bodies in 0 1 3 8 16; do
+            evidence="sf-m4-browser/body-$bodies"
+            mkdir -p "$evidence"
+            "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader \
+              --remote-debugging-port=9231 --user-data-dir="$RUNNER_TEMP/sf-m4-chrome-body-$bodies" \
+              about:blank > "$evidence/chrome.log" 2>&1 &
+            CHROME_PID=$!
+            # Allow the bounded terminal negative capture and evidence write
+            # to finish after the 540-second input/physics phase deadline.
+            if ! timeout 780 node tools/sandfall/sf_m3_browser.mjs \
+              --port 9231 --url 'http://127.0.0.1:8040/?test=1' \
+              --verification sf-m4-browser/artifact-verification.json \
+              --width "$VIEW_WIDTH" --height "$VIEW_HEIGHT" --dpr "$VIEW_DPR" --bodies "$bodies" \
+              --output "$evidence/browser.json" --screenshot "$evidence/browser.png" \
+              --timeout-ms 540000 2>&1 | tee "$evidence/harness.log"; then
+              failed=1
+            fi
+            kill "$CHROME_PID" 2>/dev/null || true
+            CHROME_PID=''
+          done
+          exit "$failed"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-workshop-${{ matrix.width }}x${{ matrix.height }}-dpr${{ matrix.dpr }}
+          path: sf-m4-browser/
+          retention-days: 30
+          if-no-files-found: warn
+
+  legacy-contract:
+    name: Unchanged legacy 600-tick physical save/restore and reset oracle
+    needs: web-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m4-legacy-web
+          path: build/web
+      - run: bash tools/sandfall/sf_m2_ci.sh legacy
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-legacy-600-contract
+          path: sf-m2-legacy/
+          retention-days: 30
+          if-no-files-found: warn
+
+  portable-projects:
+    name: Project ZIP ${{ matrix.bodies }} bodies ${{ matrix.profile.width }}x${{ matrix.profile.height }} DPR${{ matrix.profile.dpr }}
+    needs: web-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        bodies: [0, 1, 3, 8, 16]
+        profile:
+          - {width: 800, height: 450, dpr: 1}
+          - {width: 640, height: 400, dpr: 2}
+    env:
+      VIEW_WIDTH: ${{ matrix.profile.width }}
+      VIEW_HEIGHT: ${{ matrix.profile.height }}
+      VIEW_DPR: ${{ matrix.profile.dpr }}
+      BODY_COUNT: ${{ matrix.bodies }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m4-fresh-web
+          path: build/web-sandfall
+      - name: Actual browser project upload/download and transactional replacement
+        run: bash tools/sandfall/sf_m4_browser_ci.sh projects
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-projects-${{ matrix.bodies }}-${{ matrix.profile.width }}x${{ matrix.profile.height }}-dpr${{ matrix.profile.dpr }}
+          path: sf-m4-project-browser/
+          retention-days: 30
+          if-no-files-found: warn
+
+  exhibitions:
+    name: Gallery, presentation and run evidence ${{ matrix.width }}x${{ matrix.height }} DPR${{ matrix.dpr }}
+    needs: web-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {width: 800, height: 450, dpr: 1}
+          - {width: 640, height: 400, dpr: 2}
+    env:
+      VIEW_WIDTH: ${{ matrix.width }}
+      VIEW_HEIGHT: ${{ matrix.height }}
+      VIEW_DPR: ${{ matrix.dpr }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m4-fresh-web
+          path: build/web-sandfall
+      - name: Genuine Gallery launches, physical outcomes and presentation pixels
+        run: bash tools/sandfall/sf_m4_browser_ci.sh gallery
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-exhibitions-${{ matrix.width }}x${{ matrix.height }}-dpr${{ matrix.dpr }}
+          path: sf-m4-project-browser/
+          retention-days: 30
+          if-no-files-found: warn

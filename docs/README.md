@@ -28,6 +28,15 @@ and the [independent review](audits/2026-10-31-sf-m3-independent-review.md)
 records cross-author findings and their disposition. Dependency integration is separately authorized;
 the SF-M3 PR must remain draft and unmerged.
 
+[SF-M4](SF-M4-PROJECTS-EXHIBITIONS.md) implements portable projects,
+presentation, curated Gallery, run evidence and safe initial-state promotion.
+The [format reference](SANDFALL-PROJECT-FORMAT.md) specifies the ordinary ZIP
+and editable folder. Its [dated audit](audits/2026-10-31-sf-m4-projects-exhibitions.md)
+records branch ownership, original negatives and exact-head qualification.
+The [independent review](audits/2026-10-31-sf-m4-independent-review.md) records
+cross-author findings, corrections and the final evidence boundary.
+SF-M0/M1/M2 are now merged; SF-M3 and SF-M4 remain draft/unmerged.
+
 ## Retained CyberSand technical reference
 
 The inherited dated programme and runtime claims below preserve their original

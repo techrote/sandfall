@@ -306,3 +306,13 @@ executed results belong to the [dated Deepworks audit](../audits/2026-10-20-deep
 ## Semantic four-plane generation and authoring
 
 GEN-005 projection, typed link, fixture lifecycle, atomic admission and frozen-background questions route to the [semantic-plane contract](../systems/procedural-semantic-planes.md). Refinery/cavern JSON, source programmes, controls, actor placements, actual captures and provenance inspection route to the [authoring guide](../operations/semantic-depth-authoring.md).
+
+## Sandfall project and exhibition routes
+
+Use [SF-M4](../SF-M4-PROJECTS-EXHIBITIONS.md) for project replacement ownership,
+presentation history, passive subjects, Gallery/run evidence and safe promotion.
+Use [the portable format](../SANDFALL-PROJECT-FORMAT.md) for ordinary ZIP entries,
+cell encoding, source identity, hashes and hostile-input limits. Source behavior
+and dated execution are distinct; the [SF-M4 audit](../audits/2026-10-31-sf-m4-projects-exhibitions.md)
+and exact-head PR record own runtime qualification. Historical CyberSand saves
+and inherited platform claims do not describe a Sandfall authored project.
