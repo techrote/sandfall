@@ -14,7 +14,7 @@ import {mapWorldCell} from "./sf_m2_geometry.mjs";
 import {
   assertOrdinaryState, assertEdit, assertInputClear, physicalCheckpoint,
   assertPausedStable, assertStep, assertReset, assertGallery600, assertTrustedDelivery,
-  assertEditMutation, assertHistoryLocked, assertRunIntervention,
+  assertEditMutation, assertHistoryLocked, assertRunIntervention, gestureAcknowledged,
 } from "./sf_m2_browser_assertions.mjs";
 
 const argv = new Map();
@@ -213,20 +213,20 @@ async function click(name, {holdMs = 100, heldBaseline = null} = {}) {
     expectedDOM.push({action:name,type,button:0,x,y,start_index:startIndex,end_index:domInputEvents.length});
 }
 
-async function keyEvent(type, key, code, keyCode, {repeat = false, modifiers = 0} = {}) {
+async function keyEvent(type, key, code, keyCode, {repeat = false, modifiers = 0, allowGodotIME = false} = {}) {
   await observe();
   const startIndex = domInputEvents.length;
   await input("Input.dispatchKeyEvent",{type,key,code,autoRepeat:repeat,
     windowsVirtualKeyCode:keyCode,nativeVirtualKeyCode:keyCode,modifiers});
   await observe();
   expectedDOM.push({action:`${code}-${type}${repeat ? "-repeat" : ""}`,
-    type:type === "keyUp" ? "keyup" : "keydown",code,repeat,
+    type:type === "keyUp" ? "keyup" : "keydown",code,repeat,allow_godot_ime:allowGodotIME,
     start_index:startIndex,end_index:domInputEvents.length});
 }
 
-async function key(key, code, keyCode) {
-  await keyEvent("keyDown",key,code,keyCode);
-  await keyEvent("keyUp",key,code,keyCode);
+async function key(key, code, keyCode, options = {}) {
+  await keyEvent("keyDown",key,code,keyCode,options);
+  await keyEvent("keyUp",key,code,keyCode,options);
 }
 
 async function legacyKeys() {
@@ -352,8 +352,8 @@ async function material(name,id) {
 }
 async function field(name,text,predicate) {
   await click(name);
-  await keyEvent("keyDown","a","KeyA",65,{modifiers:2});
-  await keyEvent("keyUp","a","KeyA",65,{modifiers:2});
+  await keyEvent("keyDown","a","KeyA",65,{modifiers:2,allowGodotIME:true});
+  await keyEvent("keyUp","a","KeyA",65,{modifiers:2,allowGodotIME:true});
   for (const ch of String(text)) {
     const code = ch === "-" ? "Minus" : "Digit"+ch;
     const keyCode = ch === "-" ? 189 : ch.charCodeAt(0);
@@ -365,9 +365,9 @@ async function field(name,text,predicate) {
       windowsVirtualKeyCode:keyCode,nativeVirtualKeyCode:keyCode});
     await observe();
     for (const type of ["keydown","keyup"]) expectedDOM.push({action:name+"-text-"+ch,type,code,
-      repeat:false,start_index:startIndex,end_index:domInputEvents.length});
+      repeat:false,allow_godot_ime:true,start_index:startIndex,end_index:domInputEvents.length});
   }
-  await key("Enter","Enter",13);
+  await key("Enter","Enter",13,{allowGodotIME:true});
   await waitFor("field-"+name+"-"+text,predicate);
 }
 async function stroke(a,b,{button="left",preview=false,label="stroke"}={}) {
@@ -385,7 +385,7 @@ async function stroke(a,b,{button="left",preview=false,label="stroke"}={}) {
   if (preview) {
     // Observe a processed motion, then assert the exact cells independently of
     // the changed-cell count. A one-cell shift must not pass as an equal-size edit.
-    await waitFor(label+"-preview",s=>s.editor.gesture_active && s.frame >= pressedFrame+3);
+    await waitFor(label+"-preview",s=>gestureAcknowledged(s,a,b,pressedFrame),30000);
     check(label+"-exact-gesture-cells",()=>{
       assert.deepEqual(state.editor.preview_first,a);
       assert.deepEqual(state.editor.preview_last,b);
@@ -485,6 +485,9 @@ try {
           key:event.key??null,code:event.code??null,repeat:event.repeat??false,
           button:event.button??null,buttons:event.buttons??null,x:event.clientX??null,y:event.clientY??null,
           target:event.target?.tagName,targetId:event.target?.id,
+          targetClass:event.target?.className,targetContentEditable:event.target?.isContentEditable===true,
+          targetIsActive:event.target===document.activeElement,
+          targetSharesCanvasParent:event.target?.parentElement===document.querySelector("canvas")?.parentElement,
           focused:document.hasFocus(),time_ms:performance.now()});
       },{capture:true,passive:true});
     }

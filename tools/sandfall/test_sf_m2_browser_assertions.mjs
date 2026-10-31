@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {assertEdit,assertEditMutation,assertPausedStable,assertHistoryLocked,assertRunIntervention,assertGallery600,assertTrustedDelivery} from './sf_m2_browser_assertions.mjs';
+import {assertEdit,assertEditMutation,assertPausedStable,assertHistoryLocked,assertRunIntervention,assertGallery600,assertTrustedDelivery,gestureAcknowledged} from './sf_m2_browser_assertions.mjs';
 const a='a'.repeat(64), b='b'.repeat(64);
 function state() {return {schema:'sandfall-host-v1',app_ready:true,ready:true,entry:'sandbox',scene_id:'blank',mode:'edit',paused:true,menu:false,fault:false,workers:1,tick:0,rapier_steps:0,rapier_active:false,rapier_available:true,generation:1,definition_hash:a,initial_hash:a,current_hash:a,body_poses:[],initial_body_poses:[],actor_count:0,paint_commands:0,mutation_count:0,render_rejections:0,pending_steps:0,native:{native_revision:1},simulation_interest:{origin:[0,0],size:[1024,1024]},document:{valid:true,cells_sha256:a,revision:0,undo_depth:0,redo_depth:0,history_bytes:0,locked:false,retired:false,can_undo:false,can_redo:false},input:{held_keys:[],pointer_buttons:0,gesture_active:false,pending_ui_gestures:0,clear_serial:0},camera:{origin:[0,0],zoom:1},pristine:true,intervention_count:0};}
 function edited() {const s=state(); return {...s,current_hash:b,paint_commands:1,mutation_count:1,native:{native_revision:2},document:{...s.document,cells_sha256:b,revision:1,undo_depth:1,can_undo:true},last_edit:{accepted:true,mode:'edit',kind:'pencil_stroke',cells:11}};}
@@ -22,4 +22,25 @@ test('material targeting requires actual legacy mouse and pointer coordinates, n
     assert.throws(()=>assertTrustedDelivery([{...event,y:84}],expected),/coordinate/);
     assert.throws(()=>assertTrustedDelivery([{...event,isTrusted:false}],expected),/Untrusted/);
   }
+});
+
+test('only scoped text field keys may reach the verified Godot IME sibling',()=>{
+  const expected=[{action:'temperature',type:'keydown',code:'Digit7',allow_godot_ime:true,start_index:0,end_index:1}];
+  const event={type:'keydown',code:'Digit7',isTrusted:true,focused:true,target:'DIV',targetClass:'ime',targetContentEditable:true,targetIsActive:true,targetSharesCanvasParent:true};
+  assertTrustedDelivery([event],expected);
+  assertTrustedDelivery([{...event,target:'CANVAS'}],expected);
+  for (const delta of [{target:'BODY'},{targetClass:'other'},{targetContentEditable:false},{targetIsActive:false},{targetSharesCanvasParent:false},{isTrusted:false},{focused:false}])
+    assert.throws(()=>assertTrustedDelivery([{...event,...delta}],expected));
+  assert.throws(()=>assertTrustedDelivery([event],[{...expected[0],allow_godot_ime:false}]));
+  assert.throws(()=>assertTrustedDelivery([{...event,type:'pointerdown'}],[{...expected[0],type:'pointerdown'}]),/keyboard-only/);
+});
+test('motion acknowledgement rejects a stale preview even after unrelated process frames',()=>{
+  const from=[30,30],to=[40,30];
+  const old={frame:1214,editor:{gesture_active:true,preview_first:from,preview_last:from}};
+  assert.equal(gestureAcknowledged(old,from,to,1200),false);
+  const arrived={...old,editor:{...old.editor,preview_last:to}};
+  assert.equal(gestureAcknowledged(arrived,from,to,1200),true);
+  assert.equal(gestureAcknowledged({...arrived,frame:1200},from,to,1200),false);
+  assert.equal(gestureAcknowledged({...arrived,editor:{...arrived.editor,gesture_active:false}},from,to,1200),false);
+  assert.equal(gestureAcknowledged({...arrived,editor:{...arrived.editor,preview_first:[29,30]}},from,to,1200),false);
 });

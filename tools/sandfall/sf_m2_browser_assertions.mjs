@@ -165,7 +165,19 @@ export function assertTrustedDelivery(events, expected) {
       (request.button === undefined || event.button === request.button));
     assert.ok(match, `Missing DOM ${request.type} for ${request.action}`);
     assert.equal(match.isTrusted, true, `Untrusted DOM input for ${request.action}`);
-    assert.equal(match.target, "CANVAS", `Input missed the Godot canvas for ${request.action}`);
+    if (match.target !== "CANVAS" && request.allow_godot_ime === true) {
+      // The SHA-verified Godot runtime installs this contenteditable sibling
+      // and routes its key callbacks to the same native input owner. Only
+      // explicitly scoped text-field events may use it; not arbitrary DIVs.
+      assert.ok(["keydown","keyup"].includes(request.type), "IME is keyboard-only");
+      assert.equal(match.target, "DIV", "Text input missed Godot IME");
+      assert.equal(match.targetClass, "ime", "Unexpected IME class");
+      assert.equal(match.targetContentEditable, true, "IME must be contenteditable");
+      assert.equal(match.targetIsActive, true, "IME must own keyboard focus");
+      assert.equal(match.targetSharesCanvasParent, true, "IME must belong to the canvas host");
+    } else {
+      assert.equal(match.target, "CANVAS", `Input missed the Godot canvas for ${request.action}`);
+    }
     assert.equal(match.focused, true, `Input reached an unfocused canvas for ${request.action}`);
     if (request.x !== undefined) {
       const tolerance = request.coordinate_tolerance ?? 1;
@@ -230,4 +242,13 @@ export function assertRunIntervention(before, after, kind) {
   assert.equal(after.initial_hash, before.initial_hash);
   assert.notEqual(after.current_hash, before.current_hash);
   samePhysicalValue(after.body_poses, before.body_poses, "intervention body poses");
+}
+
+// A CDP acknowledgement and an unrelated frame count do not prove Godot has
+// consumed the motion. Wait for the exact read-only gesture endpoints instead.
+export function gestureAcknowledged(state, from, to, afterFrame) {
+  return Number.isSafeInteger(state?.frame) && state.frame > afterFrame &&
+    state.editor?.gesture_active === true &&
+    JSON.stringify(state.editor.preview_first) === JSON.stringify(from) &&
+    JSON.stringify(state.editor.preview_last) === JSON.stringify(to);
 }
