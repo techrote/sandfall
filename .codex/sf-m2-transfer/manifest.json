@@ -1,0 +1,7 @@
+{
+  "schema": "sandfall-reviewed-source-transfer-v1",
+  "sha256": "56e7ed744e8911ce92887972bcd090592f01b36d0f6e4fe6ca710c9917e1f237",
+  "compressed_sha256": "bc995a8cc703cc2c511433e29eb44d0d16acbc7c465b760392fba76a21e62746",
+  "encoding": "base64-lzma-json",
+  "parts": ["part-00.txt", "part-01.txt", "part-02.txt", "part-03.txt", "part-04.txt"]
+}
