@@ -1,0 +1,112 @@
+name: SF-M2 browser repair source custody and focused retest
+on:
+  push:
+    branches: ['transport/sf-m2-browser-repair-20261031']
+    paths: ['sf-m2-repair-packet.b64', '.github/workflows/sf-m2-browser-repair.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      source: ${{ steps.prepare.outputs.source }}
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - id: prepare
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p custody
+          python3 - <<'PY'
+          import base64,gzip,hashlib,json,pathlib,subprocess
+          raw=gzip.decompress(base64.b64decode(pathlib.Path('sf-m2-repair-packet.b64').read_text(),validate=False))
+          assert hashlib.sha256(raw).hexdigest()=='db196b33fef72d555eb537da55db2b5f571b6792bc7193643e4d758ed467cc50'
+          packet=json.loads(raw)
+          assert packet['base']=='3a008a55d62958d74b33889d90088e0d2898321a'
+          assert set(packet['files'])=={'tools/sandfall/sf_m2_browser.mjs','tools/sandfall/sf_m2_browser_assertions.mjs','tools/sandfall/sf_m2_geometry.mjs','tools/sandfall/test_sf_m2_browser_assertions.mjs','tools/sandfall/test_sf_m2_geometry.mjs'}
+          pathlib.Path('custody/packet.json').write_bytes(raw)
+          pathlib.Path('custody/reviewed.patch').write_text(packet['patch'])
+          subprocess.run(['git','worktree','add','--detach','prepared-source',packet['base']],check=True)
+          subprocess.run(['git','-C','prepared-source','apply','--check','../custody/reviewed.patch'],check=True)
+          subprocess.run(['git','-C','prepared-source','apply','--index','../custody/reviewed.patch'],check=True)
+          paths=subprocess.check_output(['git','-C','prepared-source','diff','--cached','--name-only'],text=True).splitlines()
+          assert set(paths)==set(packet['files'])
+          for path,digest in packet['files'].items():
+              assert hashlib.sha256((pathlib.Path('prepared-source')/path).read_bytes()).hexdigest()==digest,path
+          PY
+          cd prepared-source
+          git diff --cached --check
+          for test in tools/sandfall/test_sf_m*.mjs; do node "$test"; done 2>&1 | tee ../custody/javascript-tests.log
+          python3 -m unittest discover -s tools/sandfall -p 'test_sf_m*.py' 2>&1 | tee ../custody/python-tests.log
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(sandfall): address editor cells with integer browser input coordinates' -m 'Retain exact tuple/count assertions; verify legacy mouse delivery and Godot gesture endpoints. Preserve original negative evidence. Harness-only correction; application bytes retain their build identity.'
+          SOURCE="$(git rev-parse HEAD)"
+          echo "source=$SOURCE" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$SOURCE" > ../custody/source-sha.txt
+          git rev-parse 'HEAD^{tree}' > ../custody/tree-sha.txt
+          git bundle create ../custody/prepared.bundle HEAD ^3a008a55d62958d74b33889d90088e0d2898321a
+          git push origin HEAD:refs/heads/sf-m2-prepared/browser-repair-20261031
+          cd ../custody
+          sha256sum packet.json reviewed.patch prepared.bundle source-sha.txt tree-sha.txt javascript-tests.log python-tests.log > SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sf-m2-browser-repair-source-custody
+          path: custody/
+          retention-days: 30
+  browser:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        profile:
+          - {width: 800, height: 450, dpr: 1}
+          - {width: 640, height: 400, dpr: 2}
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ needs.prepare.outputs.source }}
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          github-token: ${{ github.token }}
+          run-id: 41158379128
+          name: sandfall-sf-m2-fresh-web
+          path: build/web-sandfall
+      - name: Verify original artifact and exercise genuine editor input
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          python3 tools/sandfall/sf_m1_verify_web_artifact.py --web-root build/web-sandfall --expected-build-sha 3a008a55d62958d74b33889d90088e0d2898321a --output evidence/artifact-verification.json
+          node --version > evidence/node-version.txt
+          python3 tools/serve_web.py --directory build/web-sandfall --port 8040 > evidence/http.log 2>&1 &
+          SERVER_PID=$!
+          CHROME="$(command -v google-chrome-stable || command -v google-chrome)"
+          "$CHROME" --version > evidence/chrome-version.txt
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --enable-unsafe-swiftshader --use-gl=angle --use-angle=swiftshader --remote-debugging-port=9231 --user-data-dir="$RUNNER_TEMP/sf-m2-chrome" about:blank > evidence/chrome.log 2>&1 &
+          CHROME_PID=$!
+          trap 'kill "$SERVER_PID" "$CHROME_PID" 2>/dev/null || true' EXIT
+          timeout 1740 node tools/sandfall/sf_m2_browser.mjs --port 9231 --url 'http://127.0.0.1:8040/?test=1' --verification evidence/artifact-verification.json --width '${{ matrix.profile.width }}' --height '${{ matrix.profile.height }}' --dpr '${{ matrix.profile.dpr }}' --output evidence/browser.json --screenshot evidence/browser.png --timeout-ms 1200000 2>&1 | tee evidence/harness.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sf-m2-browser-repair-${{ matrix.profile.width }}x${{ matrix.profile.height }}-dpr${{ matrix.profile.dpr }}
+          path: evidence/
+          retention-days: 30
