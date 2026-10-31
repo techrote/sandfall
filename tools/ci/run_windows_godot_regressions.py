@@ -218,7 +218,24 @@ def execute_cases(godot: str, output: Path, report: dict, cases: list[runner.Cas
     # Always finish the applicable scope after a case fails, preserving each
     # original timeout and strict error/skip semantics from the shared runner.
     for case in selected:
-        run(case, "case")
+        if case.name == "test_sandfall_archive_interop":
+            try:
+                env, receipt = runner.prepare_sf_m4_interop(godot, output)
+                report.setdefault("prerequisite_receipts", {})[case.name] = receipt
+                record, failed = runner.run_case(godot, case, output, "case", env=env)
+                report["results"].append(record)
+                report["log_sha256"][record["log"]] = runner.sha256(output / record["log"])
+                report["executed_case_count"] = sum(item["role"] == "case" for item in report["results"])
+                if failed:
+                    report["status"] = "failed"
+                runner.write_json(output / "windows-execution.json", report)
+            except (OSError, ValueError, RuntimeError, subprocess.SubprocessError, json.JSONDecodeError) as error:
+                report["status"] = "failed"
+                report.setdefault("errors", []).append("Archive interoperability prerequisite failed: " + str(error))
+                runner.write_json(output / "windows-execution.json", report)
+                return
+        else:
+            run(case, "case")
     actual = Counter(item["name"] for item in report["results"] if item["role"] == "case")
     if actual != Counter(case.name for case in selected):
         raise RuntimeError("Windows cases were not executed exactly once")

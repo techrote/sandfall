@@ -15,6 +15,7 @@ uniform sampler2D material_lut : filter_nearest, repeat_disable;
 uniform vec2 camera_origin = vec2(0.0);
 uniform vec2 view_size = vec2(480.0, 270.0);
 uniform int body_count = 0;
+uniform int presentation_theme = 0;
 uniform vec4 body_data[16];
 uniform float body_rotation[16];
 
@@ -34,6 +35,12 @@ void fragment() {
     vec4 colour = texture(material_lut, vec2((variation + 0.5) / 64.0, (id + 0.5) / 256.0));
     if (id == 3.0) {
         colour.rgb *= 0.8 + 0.2 * material_state.g;
+    }
+    if (presentation_theme == 1) {
+        float luminance = dot(colour.rgb, vec3(0.2126, 0.7152, 0.0722));
+        colour.rgb = mix(colour.rgb, vec3(luminance), 0.45);
+    } else if (presentation_theme == 2) {
+        colour.rgb = clamp((colour.rgb - vec3(0.16)) * 1.35, vec3(0.0), vec3(1.0));
     }
     for (int index = 0; index < 16; index++) {
         if (index >= body_count) { break; }
@@ -61,6 +68,7 @@ var _last_payload_bytes: int = 0
 var _force_full_required: bool = true
 var _rendered_body_ids: Array = []
 var _rendered_body_count: int = 0
+var _presentation_theme: String = "classic"
 
 
 func _init() -> void:
@@ -205,6 +213,25 @@ func fit() -> void:
 	_camera_changed()
 
 
+func set_initial_camera(camera: Dictionary) -> void:
+	var origin: Array = camera.get("origin", [0.0, 0.0])
+	var view_size: Array = camera.get("size", [480.0, 270.0])
+	if origin.size() != 2 or view_size.size() != 2 or float(view_size[0]) <= 0.0:
+		return
+	_zoom = clampf(float(camera.get("zoom", 1.0)), MIN_ZOOM, MAX_ZOOM)
+	_camera_origin = Vector2(float(origin[0]), float(origin[1]))
+	_camera_changed()
+
+
+func set_presentation_style(style: Dictionary) -> void:
+	var theme: String = str(style.get("theme", "classic"))
+	if theme == _presentation_theme:
+		return
+	_presentation_theme = theme
+	_shader_material.set_shader_parameter("presentation_theme", SandfallPresentationModel.THEMES.find(theme))
+	queue_redraw()
+
+
 func state() -> Dictionary:
 	var content: Rect2 = global_content_rect()
 	var dimensions: Vector2 = _view_size()
@@ -217,6 +244,7 @@ func state() -> Dictionary:
 		"render_patch_count": _last_patch_count, "render_payload_bytes": _last_payload_bytes,
 		"projection": "copied native RG8 / material appearance LUT / bounded rigid-body overlay",
 		"body_capacity": MAX_BODIES, "body_count": _rendered_body_count, "body_ids": _rendered_body_ids.duplicate(),
+		"presentation_theme": _presentation_theme,
 	}
 
 

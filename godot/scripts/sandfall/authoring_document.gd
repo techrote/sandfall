@@ -7,6 +7,7 @@ const CELL_BYTES: int = 5
 const WORLD_CELLS: int = 1024 * 1024
 const MAX_HISTORY_BYTES: int = 64 * 1024 * 1024
 const MAX_HISTORY_ENTRIES: int = 512
+const Presentation = preload("res://scripts/sandfall/presentation_model.gd")
 
 var _bridge: Variant
 var _definition: Dictionary = {}
@@ -36,6 +37,12 @@ func _init(definition: Dictionary, cells: PackedByteArray) -> void:
 		return
 	_definition = definition.duplicate(true)
 	_definition.erase("initial_cells")
+	var presentation_check: Dictionary = Presentation.validate(definition.get("presentation", Presentation.defaults()))
+	if not bool(presentation_check.ok):
+		_locked = true
+		_retired = true
+		return
+	_definition["presentation"] = presentation_check.presentation
 	_definition["bodies"] = objects.definitions.duplicate(true)
 	_definition["object_schema_version"] = 1
 	_definition.rectangles = PackedInt32Array(definition.rectangles).duplicate()
@@ -63,6 +70,14 @@ func cells_copy() -> PackedByteArray:
 
 func objects_copy() -> Array:
 	return _definition.get("bodies", []).duplicate(true)
+
+
+func project_metadata() -> Dictionary:
+	return _definition.get("project", {}).duplicate(true)
+
+
+func presentation_copy() -> Dictionary:
+	return _definition.get("presentation", Presentation.defaults()).duplicate(true)
 
 
 func cell(index: int) -> PackedByteArray:
@@ -130,6 +145,30 @@ func prepare_objects(candidate: Array, expected_revision: int, kind: String) -> 
 		"cost": cost, "kind": kind, "revision": _revision, "history_action": "edit"})
 
 
+func prepare_presentation(candidate: Dictionary, expected_revision: int) -> Dictionary:
+	_prepared.clear()
+	if _locked or not valid():
+		return _refusal("document_not_editable")
+	if expected_revision != _revision:
+		return _refusal("stale_document_revision")
+	var checked: Dictionary = Presentation.validate(candidate)
+	if not bool(checked.ok):
+		return _refusal(str(checked.error))
+	var before: Dictionary = presentation_copy()
+	var after: Dictionary = checked.presentation
+	if before == after:
+		return _refusal("no_effect")
+	var cost: int = Presentation.payload_bytes(before) + Presentation.payload_bytes(after)
+	var redo_bytes: int = 0
+	for entry: Dictionary in _redo:
+		redo_bytes += int(entry.cost)
+	if _undo.size() >= MAX_HISTORY_ENTRIES or _history_bytes - redo_bytes + cost > MAX_HISTORY_BYTES:
+		return _refusal("history_capacity_refused_before_mutation")
+	return _hold_prepared({"ok": true, "domain": "presentation", "before_presentation": before,
+		"after_presentation": after, "cost": cost, "kind": "presentation", "revision": _revision,
+		"history_action": "edit"})
+
+
 func prepare_history(direction: String) -> Dictionary:
 	_prepared.clear()
 	if _locked or direction not in ["undo", "redo"]:
@@ -138,6 +177,13 @@ func prepare_history(direction: String) -> Dictionary:
 	if source.is_empty():
 		return _refusal("history_empty")
 	var entry: Dictionary = source.back()
+	if str(entry.get("domain", "cells")) == "presentation":
+		var expected_presentation: Dictionary = entry.after_presentation if direction == "undo" else entry.before_presentation
+		if presentation_copy() != expected_presentation:
+			return _refusal("history_presentation_conflict")
+		return _hold_prepared({"ok": true, "domain": "presentation", "before_presentation": expected_presentation,
+			"after_presentation": entry.before_presentation if direction == "undo" else entry.after_presentation,
+			"revision": _revision, "history_action": direction, "kind": entry.kind, "cost": entry.cost})
 	if str(entry.get("domain", "cells")) == "objects":
 		var expected_objects: Array = entry.after_objects if direction == "undo" else entry.before_objects
 		if objects_copy() != expected_objects:
@@ -173,8 +219,12 @@ func commit(patch: Dictionary) -> bool:
 		return false
 	if not patch.has("history_action") or patch.get("domain", "cells") != _prepared.get("domain", "cells") or patch.history_action != _prepared.history_action:
 		return false
+	var presentation_patch: bool = str(_prepared.get("domain", "cells")) == "presentation"
 	var object_patch: bool = str(_prepared.get("domain", "cells")) == "objects"
-	if object_patch:
+	if presentation_patch:
+		if patch.get("before_presentation") != _prepared.before_presentation or patch.get("after_presentation") != _prepared.after_presentation:
+			return false
+	elif object_patch:
 		if not patch.get("before_objects") is Array or not patch.get("after_objects") is Array \
 				or patch.before_objects != _prepared.before_objects or patch.after_objects != _prepared.after_objects:
 			return false
@@ -188,7 +238,10 @@ func commit(patch: Dictionary) -> bool:
 			for entry: Dictionary in _redo:
 				_history_bytes -= int(entry.cost)
 			_redo.clear()
-			if object_patch:
+			if presentation_patch:
+				_undo.append({"domain": "presentation", "before_presentation": _prepared.before_presentation,
+					"after_presentation": _prepared.after_presentation, "kind": "presentation", "cost": int(_prepared.cost)})
+			elif object_patch:
 				_undo.append({"domain": "objects", "before_objects": _prepared.before_objects,
 					"after_objects": _prepared.after_objects, "kind": str(_prepared.kind), "cost": int(_prepared.cost)})
 			else:
@@ -201,8 +254,16 @@ func commit(patch: Dictionary) -> bool:
 			_undo.append(_redo.pop_back())
 		_:
 			return false
-	if object_patch:
+	if presentation_patch:
+		_definition.presentation = _prepared.after_presentation
+	elif object_patch:
 		_definition.bodies = _prepared.candidate_objects
+		if _definition.has("project"):
+			var subjects: Array = []
+			for object: Dictionary in _definition.bodies:
+				if bool(object.passive_subject):
+					subjects.append(str(object.id))
+			_definition.project.passive_subject_id = subjects[0] if subjects.size() == 1 else ""
 	else:
 		_cells = _prepared.candidate
 	_prepared = {}

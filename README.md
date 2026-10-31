@@ -1,11 +1,13 @@
 # Sandfall
 
-**Status: SF-M0/M1/M2 have bounded compatibility-Web qualification; their
-[dependency merge-down](https://github.com/techrote/sandfall/pull/2) is separately
-owned. SF-M3 implements the stable-ID 0–16-body Rapier workshop on
-`sf-m3/rapier-workshop-20261031`. Its exact-source browser qualification is tracked
-in the [dated audit](docs/audits/2026-10-31-sf-m3-rapier-workshop.md).
-The SF-M3 PR remains draft and unmerged.**
+**Status: SF-M0/M1/M2 are merged. SF-M3's source-matched compatibility-Web
+workshop is on draft, unmerged [PR #5](https://github.com/techrote/sandfall/pull/5).
+[SF-M4 projects and exhibitions](docs/SF-M4-PROJECTS-EXHIBITIONS.md) now implement
+portable initial projects, transactional import, presentation, Gallery, run
+evidence and confirmed intervention promotion on `sf-m4/projects-exhibitions-20261031`.
+The [dated audit](docs/audits/2026-10-31-sf-m4-projects-exhibitions.md) separates
+source/development checks from exact-head native and actual-browser qualification.
+SF-M4 also remains draft and unmerged.**
 
 Sandfall is a Web-native, interactive, **zero-player cellular + Rapier physics exhibition and editor** derived from CyberSand. “Zero-player” removes player/actor movement and action controls, **not** painting, object creation, time control or camera interaction.
 
@@ -80,10 +82,30 @@ starts empty history. The [dated audit](docs/audits/2026-10-31-sf-m3-rapier-work
 distinguishes local native/Godot results from mandatory source-matched browser
 physics, trusted input and individual object pixels.
 
-**Next after SF-M3's executable gates:** SF-M4's portable project codec,
-presentation, curated Gallery and explicit intervention promotion. Human visual
-acceptance, threaded/unisolated hosting and broad desktop qualification remain
-separate. The internal logical object representation does not implement the
-`.sandfall` ZIP format.
+## SF-M4 project files and exhibitions
+
+**Open project** stages a `.sandfall` file and asks for confirmation before
+replacing the active scene. **Save authored project** saves Edit's initial
+design; **Save frozen initial** during Run saves the same frozen definition,
+including exact thermal tuples and all stable-ID objects. Rename the file to
+`.zip` to inspect/edit its `project/` folder with ordinary tools. The
+[implemented format](docs/SANDFALL-PROJECT-FORMAT.md) documents JSON fields,
+cell bytes, hashes, allowed assets, policy and refusal limits.
+
+Choose **Browse Gallery** for searchable Gravity Cascade, Fluid Messenger,
+Passive Subject Ride, inertial Kinetic Loop, Intervention, Time Controls and
+16-Body scenes. The **Presentation** tools add non-physical labels/strokes and
+themes. A passive subject is a marked physical body; it has no player motor.
+**Run evidence** exports a separate source-bound JSON receipt. **Apply
+interventions to new draft** previews eligible declarative changes and requires
+**Create new Edit draft** confirmation; evolved chemistry and physical caches
+are never copied into authored history.
+
+The [SF-M4 contract](docs/SF-M4-PROJECTS-EXHIBITIONS.md) maps these controls to
+the existing document/session/native owners. Its dated audit and final exact-head
+PR ledger identify runnable artifacts and freshly executed tests. Historical
+SF-M1/M2/M3 exports above retain their original identities and do not contain
+SF-M4. SF-M5 still owns broader platform/threaded qualification and human
+Gallery acceptance.
 
 This root filename is deliberately **README.md**, matching normal Git conventions and avoiding the prior **readme.md / README.md** case conflict on Windows during upstream import.

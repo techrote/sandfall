@@ -5,6 +5,7 @@ import argparse
 from collections import Counter
 from dataclasses import dataclass
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -47,6 +48,10 @@ CASE_WEIGHTS_SECONDS = {
     "test_cell_world": 10.0,
     "test_worker_benchmark": 4.0,
     "test_microscenario_controllers": 3.0,
+    # 16 real Gallery runs x 600 coupled ticks; scheduling weight is not
+    # a time limit and prevents a long physical workload sharing a heavy shard.
+    "test_sandfall_gallery": 450.0,
+    "test_sandfall_archive_interop": 90.0,
     "test_water_feel_controller": 3.0,
     "test_water_feel_integration": 3.0,
     "test_physics_async": 2.5,
@@ -93,7 +98,11 @@ def discover_cases(root: Path = ROOT) -> list[Case]:
             # Scored native/Rapier development cases can consume tens of
             # thousands of real 60 Hz ticks. Keep their CI budget finite
             # without falsely classifying slower Windows hosts as faults.
-            420 if p.stem in {
+            # Gallery's validated 9,000+ physical ticks were observed timing
+            # out at the inherited 180 s bound; the dedicated M4 lane already
+            # budgets 900 s. Allow slower shared runners to complete and report
+            # any real regression instead of cancelling it mid-work.
+            1200 if p.stem == "test_sandfall_gallery" else 420 if p.stem in {
                 "test_physical_flight_teacher_dev_free",
                 "test_physical_flight_teacher_dev_obstacle",
             } else 180,
@@ -328,6 +337,94 @@ def _kill_process_tree(process: subprocess.Popen, *, wait_seconds: int = 10) -> 
             print(f"Timed-out Godot PID {process.pid} did not exit after SIGKILL", flush=True)
 
 
+def exact_sf_m4_archive_diagnostics(case_name: str, output: str) -> list[dict] | None:
+    """Return exact witnessed malformed-input refusals, never a blanket ERROR waiver."""
+    if case_name not in ("test_sandfall_archive", "test_sandfall_archive_interop"):
+        return None
+    script_path = ROOT / "tools/sandfall/sf_m4_expected_diagnostics.py"
+    if not script_path.is_file():
+        raise RuntimeError("SF-M4 archive validator missing for required regression")
+    spec = importlib.util.spec_from_file_location("_sandfall_sf_m4_archive_diagnostics", script_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("SF-M4 archive validator could not load")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    # Validator requires all exact negative fixtures, terminal successful Godot
+    # result, unchanged input/candidate and no unknown engine/script errors.
+    return module.validate(output, case_name + ".gd")
+
+
+def prepare_sf_m4_interop(godot: str, output_dir: Path) -> tuple[dict[str, str], dict]:
+    """Fresh Godot ZIP roundtrip -> separate Python ZIP interchange, per runner."""
+    codec = (output_dir / "sf-m4-codec").resolve()
+    interop = (codec / "external-interop").resolve()
+    receipt = codec / "python-interop-receipt.json"
+    fixture_dir = output_dir / "sf-m4-archive-setup"
+    codec.mkdir(parents=True, exist_ok=True)
+    fixture_dir.mkdir(parents=True, exist_ok=True)
+    env = dict(os.environ)
+    env["SF_M4_TEST_OUTPUT"] = str(codec)
+    case = Case("test_sandfall_archive", ("--script", "res://tests/test_sandfall_archive.gd"), 240, 10.0)
+    record, failed = run_case(godot, case, fixture_dir, "interop_prerequisite", env=env)
+    if failed or record.get("expected_negative_receipts") is None:
+        raise RuntimeError("Fresh native/Godot archive fixture failed before independent ZIP interchange")
+    subprocess.run(
+        [sys.executable, str(ROOT / "tools/sandfall/sf_m4_archive_fixture.py"),
+         "interop", str(codec), "--destination", str(interop),
+         "--output", str(receipt)],
+        cwd=ROOT, check=True, timeout=240,
+    )
+    if not receipt.is_file() or not (interop / "interop.json").is_file():
+        raise RuntimeError("Independent Python ZIP conversion did not produce its signed receipt and fixtures")
+    env["SF_M4_INTEROP_DIR"] = str(interop)
+    return env, {
+        "prerequisite": record,
+        "source_commit": subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip(),
+        "external_manifest_sha256": hashlib.sha256((interop / "interop.json").read_bytes()).hexdigest(),
+        "python_receipt_sha256": hashlib.sha256(receipt.read_bytes()).hexdigest(),
+        "external_fixture_count": len(json.loads((interop / "interop.json").read_text(encoding="utf-8")).get("fixtures", [])),
+    }
+
+
+
+SF_M4_QUALIFIED_TERMINALS = {
+    "test_sandfall_project_input": ("SANDFALL_PROJECT_INPUT_RESULT ", list),
+    "test_sandfall_promotion": ("SANDFALL_PROMOTION_TEST ", dict),
+}
+
+
+def sf_m4_qualified_terminal_receipt(case_name: str, output: str) -> tuple[str | None, dict | None]:
+    """Ignore domain-level 'skipped' only inside an exact passing terminal JSON.
+
+    Unsupported runtime interventions in SF-M4 are recorded as 'skipped' in
+    successful *scientific data*, not a skipped test. The generic skip scanner
+    must still fail actual SKIP/SKIPPED messages and any malformed terminal.
+    """
+    if case_name not in SF_M4_QUALIFIED_TERMINALS:
+        return None, None
+    prefix, receipts_type = SF_M4_QUALIFIED_TERMINALS[case_name]
+    matches = [line for line in output.splitlines() if line.startswith(prefix)]
+    if len(matches) != 1:
+        raise ValueError("Expected exactly one actual SF-M4 terminal result: " + case_name)
+    line = matches[0]
+    receipt = json.loads(line[len(prefix):])
+    if (not isinstance(receipt, dict) or receipt.get("ok") is not True
+            or type(receipt.get("checks")) is not int or receipt["checks"] <= 0
+            or receipt.get("failures") != []
+            or not isinstance(receipt.get("receipts"), receipts_type)):
+        raise ValueError("SF-M4 terminal result does not establish a full passing case: " + case_name)
+    return line, receipt
+
+
+def collect_skip_messages(output: str, *, verified_terminal_line: str | None = None) -> list[str]:
+    """Preserve existing broad skip detection outside the one verified JSON."""
+    return [
+        line for line in output.splitlines()
+        if line != verified_terminal_line
+        and re.search(r"\bskipped\b|^\s*SKIP\b", line, flags=re.IGNORECASE)
+    ]
+
+
 def run_case(godot: str, case: Case, output_dir: Path, role: str, *,
              env: dict[str, str] | None = None) -> tuple[dict, bool]:
     log_path = output_dir / (case.name + ".log")
@@ -393,10 +490,25 @@ def run_case(godot: str, case: Case, output_dir: Path, role: str, *,
     output = log_path.read_text(encoding="utf-8", errors="replace")
     print(output, end="", flush=True)
     diagnostic_error = "SCRIPT ERROR:" in output or "ERROR:" in output
-    skip_messages = [
-        line for line in output.splitlines()
-        if re.search(r"\bskipped\b|^\s*SKIP\b", line, flags=re.IGNORECASE)
-    ]
+    negative_receipts = None
+    negative_validation_failure = None
+    if case.name in ("test_sandfall_archive", "test_sandfall_archive_interop"):
+        try:
+            negative_receipts = exact_sf_m4_archive_diagnostics(case.name, output)
+            diagnostic_error = False
+        except (ValueError, KeyError, TypeError, RuntimeError) as error:
+            negative_validation_failure = str(error)
+            diagnostic_error = True
+    terminal_line = None
+    terminal_receipt = None
+    terminal_validation_failure = None
+    if case.name in SF_M4_QUALIFIED_TERMINALS:
+        try:
+            terminal_line, terminal_receipt = sf_m4_qualified_terminal_receipt(case.name, output)
+        except (ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+            terminal_validation_failure = str(error)
+            diagnostic_error = True
+    skip_messages = collect_skip_messages(output, verified_terminal_line=terminal_line)
     failed = timed_out or returncode != 0 or diagnostic_error or bool(skip_messages)
     if timed_out:
         status = "timeout"
@@ -416,6 +528,13 @@ def run_case(godot: str, case: Case, output_dir: Path, role: str, *,
         "timeout_kind": timeout_kind,
         "returncode": returncode,
         "diagnostic_error": diagnostic_error,
+        "expected_negative_receipts": negative_receipts,
+        "negative_validation_failure": negative_validation_failure,
+        "sf_m4_terminal_receipt": (
+            {"checks": terminal_receipt["checks"], "sha256": hashlib.sha256(terminal_line.encode("utf-8")).hexdigest()}
+            if terminal_receipt is not None else None
+        ),
+        "terminal_validation_failure": terminal_validation_failure,
         "launch_error": launch_error,
         "capture_error": capture_error,
         "skip_messages": skip_messages,
@@ -543,7 +662,19 @@ def main() -> int:
 
     suite_failed = False
     for case in assigned:
-        record, failed = run_case(args.godot, case, args.output, "case")
+        env = None
+        if case.name == "test_sandfall_archive_interop":
+            try:
+                env, receipt = prepare_sf_m4_interop(args.godot, args.output)
+                timing.setdefault("prerequisite_receipts", {})[case.name] = receipt
+            except (OSError, ValueError, RuntimeError, subprocess.SubprocessError, json.JSONDecodeError) as error:
+                timing.setdefault("prerequisite_failures", {})[case.name] = str(error)
+                timing["status"] = "failed"
+                timing["completed"] = False
+                write_json(args.output / "timings.json", timing)
+                print("Archive fixture preparation failed (no interoperability pass claimed): " + str(error), flush=True)
+                return 1
+        record, failed = run_case(args.godot, case, args.output, "case", env=env)
         results.append(record)
         write_json(args.output / "timings.json", timing)
         if failed:
