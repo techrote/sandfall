@@ -32,13 +32,127 @@ Review corrected public-patch cost accounting to use private prepared metadata, 
 
 ## Published exact-source qualification
 
-**Pending at the initial implementation publication.** A fresh compatibility Web/PCK/native build is required because native adapter, Godot and build inputs changed. SF-M1 binaries cannot establish this editor. The separate SF-M2 and unchanged SF-M1 ordinary harnesses must pass both viewport/DPR cases; the legacy600 oracle and narrow provenance reconciliation remain mandatory. Their exact terminal runs, artifact hashes and original negative evidence will be recorded here or in the linked PR #4 engineering review after execution. No skipped lane counts as PASS.
+**Bounded SF-M2 compatibility-Web executable acceptance passed at
+`533a3de6352074f0cd68faca94417e80f041080e`.** The initial publication at `3a008a55`
+was not acceptance. The fresh build, actual native/Godot scripts, separate SF-M2
+and retained SF-M1 ordinary-browser matrices, legacy600 and strict provenance
+were re-executed in [run 41163426571](https://github.com/techrote/sandfall/actions/runs/41163426571).
+All seven jobs are terminal SUCCESS. The evidence-custody publisher refuses to
+publish this section unless that exact source/run is successful. The complete
+raw receipt inventory is retained in
+[sf-m2-2026-10-31/qualification-533a3de6/manifest.json](sf-m2-2026-10-31/qualification-533a3de6/manifest.json).
+Later documentation commits retain their own source identities; their exact-head
+results belong in PR #4's final engineering review, not retroactively in the
+original build receipts. No skipped lane counts as PASS.
+
+The suite includes 48 Python tests plus two legacy-staging tests, 38 JavaScript
+tests/groups, twelve focused native tests plus C-header/lifecycle/settled checks,
+fourteen dedicated Godot script invocations and ten retained legacy invocations.
+The authoring script performs 230 assertions; the actual Godot UI-input script
+performs 17. These are assertions, not 247 separate test processes. Native core
+and the Rapier bridge remain unchanged, but the new native edit adapter and
+registration were freshly compiled. The historical 164-test SF-M0 full native
+result is not relabelled as a newly executed full SF-M2 suite.
 
 ## Explicit limitations
 
-The six missing companion references and eight stale desktop digests remain negative inherited evidence. Threaded Web, unisolated hosting, full platform desktop and human Gallery legibility/pacing remain unqualified. Compatibility evidence will qualify one native worker under the tested COOP/COEP configuration only. Historical SF-M0 164-test results are not newly executed SF-M2 full-suite results. The legacy probe's screenshot deadline remains distinct from ordinary visual qualification. No general full-stack deterministic replay, physics-history undo or .sandfall file format is claimed.
+The six missing companion references and eight stale desktop digests remain negative inherited evidence. Threaded Web, unisolated hosting, full platform desktop and human Gallery legibility/pacing remain unqualified. Compatibility evidence qualifies one native worker under the tested COOP/COEP configuration only. Historical SF-M0 164-test results are not newly executed SF-M2 full-suite results. The legacy probe's screenshot deadline remains distinct from ordinary visual qualification. No general full-stack deterministic replay, physics-history undo or .sandfall file format is claimed.
 
 
 ### SF-M2 provenance delta
 
 The unchanged SF-M0 reconciler correctly refuses the new source tree: registering `SandfallEditBridge` changes `register_types.cpp`, adding **two** stale desktop input errors (Windows and Linux) beyond the original **six missing companion references plus eight stale desktop digests**. The SF-M2 reconciler retains that original refusal and permits only those exact two additional errors, after checking the reviewed two-line registration delta against SF-M1, unchanged native core and unchanged runtime payloads/manifests. Six synthetic negative tests refuse unknown/missing/duplicate errors, source or runtime drift and incomplete LFS. This enables a **fresh rebuild only**; it neither repairs nor qualifies the retained desktop binaries. The original M0 allowlist is not widened.
+
+## Browser failure adjudication and correction
+
+[Original exact-source run 41158379128](https://github.com/techrote/sandfall/actions/runs/41158379128)
+remains **FAIL**. Build/Godot, source/native, both retained SF-M1 browser profiles
+and legacy600 passed, while both new editor profiles rejected the first stroke:
+twelve changed cells instead of the required eleven. The complete original
+browser observations, failure PNGs and Chrome/HTTP logs are retained unchanged.
+
+The source-verified Godot runtime consumes `pointermove` for motion and legacy
+`mousedown`/`mouseup` for buttons. Fractional browser coordinates survived motion
+but were quantized in button events: the intended starting cell moved left in
+DPR1 and up in DPR2. `eeac43e98a617b81c2d77ff44e5392ce7de02559` chooses an integer
+CSS coordinate strictly inside the requested material cell, refuses cells with
+no addressable interior rather than painting a neighbour, and checks trusted
+legacy button delivery as well as read-only Godot gesture endpoints. This is a
+harness correction, not a change to application mutation semantics.
+
+[First focused repair 41162500529](https://github.com/techrote/sandfall/actions/runs/41162500529)
+remains **FAIL**. DPR1's stricter endpoint assertion sampled a stale motion
+preview. DPR2 completed the editing/lifecycle sequence but its final input audit
+rejected legitimate text-field input through Godot's own IME. `533a3de6` awaits
+actual endpoint acknowledgement, rather than assuming that a fixed number of
+frames acknowledges an input. Only explicitly designated text-field keyboard
+events may target a focused, contenteditable `DIV.ime` sharing the canvas parent.
+Other keys and all pointer operations remain canvas-only. Negative tests reject
+arbitrary DIVs, unfocused/untrusted events, stale endpoints and unaddressable
+cells. Exact mutation counts, tuples, thermal values and history expectations
+were not weakened. No diagnostic setter or synthetic success callback exists.
+
+## Independent immutable-artifact browser qualification
+
+[Focused run 41162933990](https://github.com/techrote/sandfall/actions/runs/41162933990)
+is terminal **SUCCESS**. It executed committed harness `533a3de6` against the
+original, strictly verified `3a008a55` Web export. All application/build-sensitive
+inputs were unchanged. This reuse is separately identified from the fresh
+`533a3de6` export above; no old binary has been relabelled.
+
+| Observation | 800x450 / DPR1 | 640x400 / DPR2 |
+|---|---:|---:|
+| Ordinary editor checks | 77 PASS | 77 PASS |
+| Final actual native / Rapier ticks | 617 / 617 | 643 / 643 |
+| Contact observations / displaced cells | 110119 / 149 | 115327 / 149 |
+| Actual CDP commands / distinct required trusted deliveries | 330 / 257 | 330 / 257 |
+| Maximum observed pointer-coordinate error | 0 CSS px | 0 CSS px |
+| World ROI (exclusive upper bounds) | x[114,686), y[65,385) | x[66,574), y[58,342) |
+| Bright samples / all samples | 9792 / 61120 | 8243 / 48280 |
+| Quantized world colours | 44 | 75 |
+| Full harness duration | 63.996 seconds | 96.486 seconds |
+
+All five executing harness/helper hashes match the source. All twenty served
+file identities match the independently downloaded export. Separate Pillow
+PNG decoding and aspect-fit calculations reproduce the measured ROI and pixel
+statistics. The PNGs show terrain, water, sand and three real body positions;
+all input precedes the sole terminal capture. There were no ordinary application
+console errors or CDP polling failures. Headless desktop-service/DBus messages
+remain in the original Chrome stderr and are not hidden or labelled application
+errors. This is automated visual evidence, not owner human acceptance.
+
+The two passing browser ZIPs are artifacts `13027163779` and `13028231557`, with
+SHA-256 `83bd5771b8b3bda4beb6dd9eb8c4e113f6cfe3e44f7d1779cb1c90abfa43bd06` and
+`e20af3fff24dfcb7a2341dedd5622ee5f2224d1fdd32d725e62ba810c2f7dc58` respectively.
+The source-custody artifacts independently bind the reviewed patch, exact source
+commit/tree and unit-test logs. The durable manifest records all retained
+original bytes and any lossless gzip storage separately.
+
+## Fresh local native cross-check and limits
+
+A separate fresh native build at `eeac43e9` passed authoring, actual Godot input,
+session and backend scripts with Godot `4.7.stable.official.5b4e0cb0f` and pinned
+godot-cpp/SCons. Native SHA-256:
+`02549245e501e44e1a05e88443aa278e6da89c874aae007b5e1bb6003e82fe43`.
+This is separate local-native evidence, not a local browser run. Local Chromium
+policy blocked navigation; those attempts remain unqualified. No browser policy
+was disabled to manufacture acceptance. The actual browser authority is the
+GitHub-hosted execution above.
+
+The legacy600 probe supplies functional pause/save/restore/reset evidence, not
+ordinary editor input. Its original `3a008a55` run completed 600 paired ticks,
+106717 contact observations and 149 displaced cells, but timed out at screenshot
+capture. The unchanged probe's raw logs retain such polling/capture limitations;
+no missing legacy PNG is counted as visual PASS. Ordinary browser lanes supply
+separate successful screenshots.
+
+## Disposition and next milestone
+
+SF-M2's implemented document/history, exact material tools, state boundaries and
+bounded compatibility-Web gates are complete in the stacked draft. This is not
+full v1 release qualification, merge permission or owner visual acceptance.
+PR #2/#3 remain untouched and PR #4 remains draft/unmerged. The next engineering
+cut is **SF-M3: stable object identities and a generalized 0-16 Rapier-box
+registry/workshop**, with qualified coupling/rendering/reset and atomic refusal
+of body 17. Archive/presentation/exhibition work remains SF-M4; threaded,
+unisolated-hosting, platform and human gates remain explicit.

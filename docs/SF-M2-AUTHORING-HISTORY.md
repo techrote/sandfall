@@ -12,6 +12,12 @@ related-documents: [SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md, SF-M1-HOST-INPUT
 
 The [approved v1 specification](SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md) remains the normative authority. This is its bounded SF-M2 implementation map, not a replacement architecture. Implementation is on stacked **draft PR #4**. PR #2 and #3 remain draft, unmerged and unchanged. Source implementation and qualified execution must not be conflated; the [dated audit](audits/2026-10-31-sf-m2-authoring-history.md) owns results and limitations.
 
+**Executable disposition:** the bounded compatibility-Web matrix passed at
+`533a3de6352074f0cd68faca94417e80f041080e` in run `41163426571`. The dated audit
+separates fresh export evidence from verified earlier-build retests and local
+native cross-checks. The next implementation milestone is SF-M3, not archive
+work or simulation rewind. Draft/merge and platform/human holds remain active.
+
 ## Ownership and interfaces
 
 `SandfallAuthoringDocument` owns copied initial material tuples and scene definitions. The five-byte logical tuple is material ID/u8, state_a/u8, state_b/u8, signed temperature/i16 little-endian. The native catalogue validates material IDs, including refusal of reserved ID 10 and Water states that would be normalized rather than restored exactly. Temperatures are displayed in **native integer units**; no Celsius conversion is invented. This is an in-memory logical schema, not implementation of the SF-M4 archive codec.
@@ -45,6 +51,14 @@ Run the new authoring and real Godot Input tests with a freshly compiled native 
 `.github/workflows/sf-m2-web.yml` builds fresh compatibility native/Web adapters and PCK from the exact commit, then independently verifies served bytes. It executes the SF-M2 ordinary editing harness at 800×450/DPR1 and 640×400/DPR2, the retained SF-M1 ordinary harness at both profiles, and the unchanged legacy600 functional oracle. Each ordinary lane uses genuine browser events and source-bound measured canvas/Control geometry. Read-only `?test=1` exposes observations only. All input precedes a sole terminal capture; the world crop excludes UI and terminal editing gizmos.
 
 Native-focused checks are scoped to the unchanged core, not relabelled full-suite execution. The historical 164-test SF-M0 result retains its identity. A passing native UI test or build export is not actual-browser acceptance. Exact terminal receipts, source/hash identity, original failures and screenshots are required before declaring SF-M2 executable completion.
+
+The browser cell-targeting helper chooses an integer CSS point strictly inside
+an actual projected cell, checks legacy mouse delivery as well as pointer
+motion, and refuses unaddressable cells until genuinely zoomed. Gesture tests
+await read-only Godot endpoint acknowledgement. Text-field keyboard audits
+recognize only Godot's focused contenteditable IME sibling; this does not
+permit arbitrary DOM targets or a parallel HTML editor. These harness rules
+preserve exact cell/tuple/history assertions and the genuine input path.
 
 ## Remaining milestones and platform boundaries
 

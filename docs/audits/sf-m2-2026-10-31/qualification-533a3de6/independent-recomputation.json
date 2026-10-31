@@ -1,0 +1,76 @@
+[
+  {
+    "profile": {
+      "width": 800,
+      "height": 450,
+      "dpr": 1
+    },
+    "checks": 77,
+    "duration_ms": 63996,
+    "browser": "Chrome/156.0.8078.47",
+    "harness_source": "533a3de6352074f0cd68faca94417e80f041080e",
+    "build_source": "3a008a55d62958d74b33889d90088e0d2898321a",
+    "native_ticks": 617,
+    "rapier_steps": 617,
+    "contacts": 110119,
+    "displaced": 149,
+    "cdp_commands": 330,
+    "trusted_required_distinct_events": 257,
+    "scoped_ime_events": 9,
+    "maximum_css_coordinate_error": 0,
+    "roi": {
+      "x0": 114,
+      "x1": 686,
+      "y0": 65,
+      "y1": 385
+    },
+    "independent_Pillow_pixel_stats": {
+      "samples": 61120,
+      "bright": 9792,
+      "colourful": 5186,
+      "unique_4bit_rgb": 44,
+      "bright_fraction": 0.16020942408376965
+    },
+    "browser_json_sha256": "39bcf66c4a7a2956ca55f8506f658683bc04f75306560b23c762eb8347a4062c",
+    "png_sha256": "4ed7fdcd269493b1cb32fbd34c2151c86a0aece0250dd1e85bf88824bad63943",
+    "console_errors": [],
+    "input_records": 419
+  },
+  {
+    "profile": {
+      "width": 640,
+      "height": 400,
+      "dpr": 2
+    },
+    "checks": 77,
+    "duration_ms": 96486,
+    "browser": "Chrome/156.0.8078.47",
+    "harness_source": "533a3de6352074f0cd68faca94417e80f041080e",
+    "build_source": "3a008a55d62958d74b33889d90088e0d2898321a",
+    "native_ticks": 643,
+    "rapier_steps": 643,
+    "contacts": 115327,
+    "displaced": 149,
+    "cdp_commands": 330,
+    "trusted_required_distinct_events": 257,
+    "scoped_ime_events": 27,
+    "maximum_css_coordinate_error": 0,
+    "roi": {
+      "x0": 66,
+      "x1": 574,
+      "y0": 58,
+      "y1": 342
+    },
+    "independent_Pillow_pixel_stats": {
+      "samples": 48280,
+      "bright": 8243,
+      "colourful": 3932,
+      "unique_4bit_rgb": 75,
+      "bright_fraction": 0.17073322286661144
+    },
+    "browser_json_sha256": "abbdfb44218368d4a956234ea1896611674d1bc79b9d2bec21f04a6e762f8945",
+    "png_sha256": "a1dd96f240dac913bed468a49e73822381acc01156cb9d05649504b96915f75e",
+    "console_errors": [],
+    "input_records": 419
+  }
+]
