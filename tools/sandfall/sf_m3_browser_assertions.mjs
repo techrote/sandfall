@@ -3,6 +3,39 @@
 import assert from 'node:assert/strict';
 import {assertOrdinaryState,assertEdit,assertHistoryLocked,samePhysicalValue,
   assertPausedStable} from './sf_m2_browser_assertions.mjs';
+import {mapGodotRect} from './sf_m0_geometry.mjs';
+
+// A newly visible Godot Container can publish a Control rectangle before its
+// deferred layout has run. Repeated reads of that same application frame are
+// not evidence that the rectangle is ready for genuine browser input.
+export function sampleControlLayout(state,metrics,layout,name) {
+  if(!state?.app_ready||!Number.isSafeInteger(state.frame)||state.frame<0||
+    !Number.isSafeInteger(state.generation)||state.generation<0||
+    typeof state.entry!=='string'||typeof state.mode!=='string'||typeof state.menu!=='boolean'||
+    !Array.isArray(state.viewport)||state.viewport.length!==2||
+    state.viewport[0]!==layout?.width||state.viewport[1]!==layout?.height) return null;
+  const rect=state.buttons?.[name]??state.editor_controls?.[name];
+  if(!rect) return null;
+  try {
+    const mapped=mapGodotRect(rect,metrics,layout);
+    if(metrics.canvasStyle?.transform&&metrics.canvasStyle.transform!=='none') return null;
+    const geometry={name,generation:state.generation,entry:state.entry,mode:state.mode,menu:state.menu,
+      tool_group:state.editor?.tool_group??null,tools_visible:state.editor?.tools_visible??null,
+      inspector_tab:state.editor?.object_inspector?.tab??null,rect,layout,logical_viewport:state.viewport,
+      canvas:metrics.canvas,backing:metrics.backing,viewport:metrics.viewport,
+      devicePixelRatio:metrics.devicePixelRatio,visualViewport:metrics.visualViewport??null,
+      canvasStyle:metrics.canvasStyle??null};
+    return structuredClone({frame:state.frame,geometry,mapped});
+  } catch { return null; }
+}
+export function sameControlLayout(before,after) {
+  return Boolean(before?.geometry&&after?.geometry&&Array.isArray(before.geometry.rect)&&
+    Array.isArray(after.geometry.rect)&&JSON.stringify(before.geometry)===JSON.stringify(after.geometry));
+}
+export function controlLayoutSettled(before,after) {
+  return Boolean(before&&after&&Number.isSafeInteger(before.frame)&&Number.isSafeInteger(after.frame)&&
+    before.frame>=0&&after.frame>=before.frame+2&&sameControlLayout(before,after));
+}
 
 const count=(n,label)=>assert.ok(Number.isSafeInteger(n)&&n>=0,`${label} is not an actual nonnegative counter`);
 const finite=(n,label)=>assert.ok(typeof n==='number'&&Number.isFinite(n),`${label} is not finite`);

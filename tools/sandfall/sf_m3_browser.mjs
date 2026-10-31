@@ -12,7 +12,8 @@ import { analyzePng, pngDimensions } from "./sf_m0_png_stats.mjs";
 import { mapGodotRect, cssRectToScreenshotROI } from "./sf_m0_geometry.mjs";
 import {analyzeBodies} from "./sf_m3_pixels.mjs";
 import {assertRegistry,assertObjectEdit,assertObjectRefusal,authoredState,assertAuthoredState,
-  assertObjectIntervention,assertObjectReset,assertPhysicalWorkload,objects,ids} from "./sf_m3_browser_assertions.mjs";
+  assertObjectIntervention,assertObjectReset,assertPhysicalWorkload,objects,ids,
+  sampleControlLayout,sameControlLayout,controlLayoutSettled} from "./sf_m3_browser_assertions.mjs";
 import {mapWorldCell} from "./sf_m2_geometry.mjs";
 import {
   assertOrdinaryState, assertEdit, assertInputClear, physicalCheckpoint,
@@ -60,6 +61,7 @@ const harnessCheckout = {head_commit:harnessHead,
 const started = Date.now();
 const observations = [], consoleEvents = [], inputEvents = [], expectedDOM = [];
 const captures = [], transitions = [], checks = [], checkpoints = [], failures = [], servedIdentity = [];
+const controlLayouts = [];
 let ws, nextId = 0, originalTarget, secondaryTarget;
 let state = null, metrics = null, domInputEvents = [], browserVersion = null;
 let phase = "startup", captureStarted = false, pollErrors = 0, lastLog = "", lastLogAt = 0;
@@ -193,10 +195,20 @@ async function input(method, params) {
 }
 
 async function click(name, {holdMs = 100, heldBaseline = null} = {}) {
-  await observe();
-  const rect = state.buttons?.[name] ?? state.editor_controls?.[name];
-  if (!rect) throw Error("No observed Control rectangle for " + name);
-  const mapped = mapGodotRect(rect,metrics,layout);
+  let baseline=null,confirmed=null;
+  // Wait before the single input attempt. A semantic tool-group/tab change can
+  // precede Godot's deferred Container reflow; neither a fixed delay nor a retry
+  // of a missed toggle establishes the actual Control coordinates.
+  await waitFor('control-'+name+'-layout-settled',s=>{
+    const current=sampleControlLayout(s,metrics,layout,name);
+    if(controlLayoutSettled(baseline,current)){confirmed=current;return true;}
+    if(!sameControlLayout(baseline,current)||current.frame<baseline.frame)baseline=current;
+    return false;
+  },15000);
+  assert.ok(controlLayoutSettled(baseline,confirmed),'Control geometry never settled on newer Godot frames');
+  const rect=confirmed.geometry.rect,mapped=confirmed.mapped;
+  controlLayouts.push({name,elapsed_ms:Date.now()-started,first_frame:baseline.frame,
+    confirmed_frame:confirmed.frame,geometry:confirmed.geometry,mapped});
   const {x,y} = mapped.center;
   const startIndex = domInputEvents.length;
   inputEvents.push({action:name,elapsed_ms:Date.now()-started,godot:rect,mapped,metrics:copy(metrics)});
@@ -819,7 +831,7 @@ try {
     scope:{compatibility_web:true,threaded_web:false,human_visual_acceptance:false,
       coupled_body_count:bodyCount,capacity_refusal:bodyCount===16,ordinary_coupled_minimum_ticks:bodyCount?600:60,
       physical_save_restore_and_partial_fault:"Separate Godot backend/session gates; not claimed by this browser receipt"},
-    final_state:state,final_metrics:metrics,checks,checkpoints,transitions,input_events:inputEvents,
+    final_state:state,final_metrics:metrics,checks,checkpoints,transitions,control_layouts:controlLayouts,input_events:inputEvents,
     expected_dom_delivery:expectedDOM,dom_input_events:domInputEvents,cdp_poll_errors:pollErrors,
     captures,observations,console_events:consoleEvents};
   mkdirSync(dirname(output),{recursive:true});

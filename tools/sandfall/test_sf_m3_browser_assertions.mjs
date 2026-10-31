@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {assertRegistry,assertObjectEdit,assertObjectRefusal,authoredState,assertAuthoredState,
-  assertObjectIntervention,assertObjectReset,assertPhysicalWorkload} from './sf_m3_browser_assertions.mjs';
+  assertObjectIntervention,assertObjectReset,assertPhysicalWorkload,
+  sampleControlLayout,sameControlLayout,controlLayoutSettled} from './sf_m3_browser_assertions.mjs';
 import {assertTrustedDelivery} from './sf_m2_browser_assertions.mjs';
 const hash='a'.repeat(64),changed='b'.repeat(64);
 function definition(i){return {schema_version:1,id:'object-'+i,creation_order:i,shape:'box',name:'',passive_subject:false,
@@ -110,4 +111,42 @@ test('stale-release invariance needs trusted motion and both releases after refo
   for(const change of [e=>e.isTrusted=false,e=>e.focused=false,e=>e.x+=1]) {
     const altered=structuredClone(events);change(altered[3]);assert.throws(()=>assertTrustedDelivery(altered,expected));
   }
+});
+test('Control input waits for unchanged measured geometry on genuinely newer Godot frames',()=>{
+  const layout={width:1280,height:800,stretch_mode:'canvas_items',stretch_aspect:'keep'};
+  const metrics={canvas:{x:0,y:0,width:800,height:450},backing:{width:800,height:450},
+    viewport:{width:800,height:450},devicePixelRatio:1,canvasStyle:{transform:'none'},
+    visualViewport:{width:800,height:450,offsetLeft:0,offsetTop:0,scale:1}};
+  const s={...state(),frame:153,viewport:[1280,800],buttons:{object_box:[16,112,72,30]},
+    editor:{tool_group:'objects',tools_visible:true,object_inspector:{tab:'shape'}}};
+  const sample=(value=s,m=metrics)=>sampleControlLayout(value,m,layout,'object_box');
+  const stale=sample();assert.ok(stale);
+  assert.equal(stale.mapped.center.y,71.4375);
+  for(const frame of [152,153,154])assert.equal(controlLayoutSettled(stale,sample({...s,frame})),false);
+  assert.equal(controlLayoutSettled(stale,sample({...s,frame:155})),true);
+  const reflowed={...s,frame:155,buttons:{object_box:[16,164,72,30]}},fresh=sample(reflowed);
+  assert.equal(fresh.mapped.center.y,100.6875);
+  assert.equal(sameControlLayout(stale,fresh),false);
+  assert.equal(controlLayoutSettled(stale,fresh),false);
+  assert.equal(controlLayoutSettled(fresh,sample({...reflowed,frame:157})),true);
+  for(const change of [m=>m.canvas.width=799,m=>m.canvas.x=1,m=>m.backing.width=1600,
+    m=>m.viewport.width=799,m=>m.devicePixelRatio=2,m=>m.visualViewport.offsetLeft=1]) {
+    const altered=structuredClone(metrics);change(altered);
+    assert.equal(controlLayoutSettled(fresh,sample({...reflowed,frame:157},altered)),false);
+  }
+  for(const change of [x=>x.generation++,x=>x.mode='run',x=>x.menu=true,
+    x=>x.editor.tool_group='materials',x=>x.editor.object_inspector.tab='physics']) {
+    const altered=structuredClone(reflowed);altered.frame=157;change(altered);
+    assert.equal(controlLayoutSettled(fresh,sample(altered)),false);
+  }
+  for(const rect of [undefined,[16,164,0,30],[16,164,72,-1],[NaN,164,72,30],[-1,164,72,30],[1270,164,72,30]]) {
+    assert.equal(sample({...reflowed,buttons:{object_box:rect}}),null);
+  }
+  for(const viewport of [undefined,[1280,799],[NaN,800],[1280,800,1]])assert.equal(sample({...reflowed,viewport}),null);
+  for(const m of [{}, {...metrics,backing:null},{...metrics,devicePixelRatio:0},
+    {...metrics,canvasStyle:{transform:'matrix(2,0,0,2,0,0)'}}])assert.equal(sample(reflowed,m),null);
+  assert.equal(controlLayoutSettled(fresh,null),false);
+  assert.equal(controlLayoutSettled(null,fresh),false);
+  assert.equal(controlLayoutSettled({frame:153},{frame:155}),false);
+  assert.equal(controlLayoutSettled({frame:153,geometry:{}},{frame:155,geometry:{}}),false);
 });

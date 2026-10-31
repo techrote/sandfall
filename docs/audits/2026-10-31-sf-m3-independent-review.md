@@ -254,3 +254,28 @@ representation can be reviewed as an SF-M4 input contract; it does not implement
 the `.sandfall` ZIP codec or establish executable SF-M4 dependency readiness
 before the remaining SF-M3 gates pass. Successful evidence never authorizes
 merging or marking this PR ready for review.
+
+## Published-head browser finding
+
+The first published source is `11bbe4dc93c3034de95b8d1155da984b550506ba`.
+Independent inspection matched the source digests above, fresh native/export
+identities and terminal per-script Godot results. The full native suite passed
+165 main tests and 17 ancillary executables. The complete DPR2 workshop and
+four retained ordinary-browser profiles passed, including independent decoding
+of per-body pixels, measured geometry and trusted event delivery.
+
+The initial DPR1 workshop is **negative**: body8 and body16 clicked a transient
+pre-layout Box rectangle in the same observation frame as the newly visible
+Objects group. The UI reviewer independently compared both negative screenshots
+and event streams with the harness author's diagnosis. Trusted delivery was
+correct at the requested point, but that point was above the settled Box
+button. This finding requires a bounded measured-geometry stability check
+across distinct fresh Godot frames before click dispatch. A new exact-head run
+must pass the full matrix; the successful initial-head evidence is retained
+under its own identity and cannot stand in for that run.
+
+The [dated audit](2026-10-31-sf-m3-rapier-workshop.md#first-published-head-run-and-retained-browser-failure)
+records the exact failed artifact, source, observed coordinates and terminal
+Actions result. It also preserves the unchanged legacy fixture's optional
+screenshot timeout and the generic inherited M2 provenance gate's refusal.
+Neither may be reported as new successful evidence.

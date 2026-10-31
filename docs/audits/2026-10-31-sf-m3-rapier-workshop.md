@@ -147,6 +147,57 @@ An export, headless test, local GL screenshot or helper-unit pass alone is not
 actual-browser acceptance. No SF-M3 completion or SF-M4 executable dependency
 readiness is claimed until the required gates and independent review pass.
 
+## First published-head run and retained browser failure
+
+The first implementation commit was
+`11bbe4dc93c3034de95b8d1155da984b550506ba`, tree
+`91293ed8c6f1ff298acebf1dd8d4e50e57a8e97a`, on the verified SF-M2 base above.
+[Actions run 41178150749](https://github.com/techrote/sandfall/actions/runs/41178150749)
+completed nine of ten jobs successfully. It freshly passed 165 main native
+tests and 17 ancillary executables; all 17 Sandfall and 10 legacy Godot scripts;
+both unchanged SF-M1/SF-M2 browser profiles; the unchanged legacy600 physical
+oracle; and the complete 640×400/DPR2 workshop matrix. These results belong to
+that commit and do not qualify a subsequent source revision automatically.
+
+The 800×450/DPR1 workshop passed its 0-, 1- and 3-body cases, but its 8- and
+16-body cases failed before spawning a body: the harness clicked the Box
+control using a transient rectangle published before deferred Godot Container
+layout. The genuine trusted events reached CSS `(69.25, 71.4375)`, derived
+from logical rectangle `[16,112,72,30]`; the settled rectangle was
+`[16,164,72,30]`, with CSS center `(69.25,100.6875)`. The screenshots show that
+the input hit the heading, so the application correctly remained in Select.
+The group-ready observation and click reused one Godot frame. Independent UI
+and harness reviewers corroborated the cause from the original events,
+observations, source and PNGs. This is a failed qualification run, not a pass
+or an unexplained timeout to retry.
+
+The correction requires stable measured control and viewport geometry across
+distinct newer Godot frames before a single click is dispatched. It does not
+hardcode positions, retry failed clicks, mutate the application through the
+observer, or relax trusted-delivery, physical, capacity or pixel assertions.
+Fresh exact-head qualification remains mandatory after this harness change.
+
+Original negative artifact: `sandfall-sf-m3-workshop-800x450-dpr1`, ID
+`13033978684`, 517,590 bytes, ZIP SHA-256
+`424001475e0b37046c33afeb6ebcffaf4a8de993b7ceed0445e6ad0c7eb18fd7`.
+The first run's successful DPR2 artifact is ID `13034317701`, SHA-256
+`e88652a5c29d30c23e24530b0a73f7e048fa58847f9516e24d375de6366c03ad`.
+Both receipts and original screenshots remain in the evidence set.
+
+The successful unchanged legacy browser fixture recorded an optional final
+`Page.captureScreenshot` timeout and three CDP polling failures. Its actual
+600 native/600 Rapier ticks, 106,717 contacts, 149 displacements and original
+save/restore/reset assertions passed; that artifact provides no legacy
+screenshot or pixel acceptance. The separate workshop and ordinary-browser
+captures provide their own rendering evidence.
+
+The generic Documentation/provenance run `41178192996` also remains negative:
+its inherited M2 reconciliation requires unchanged native core inputs and
+refuses this reviewed M3 restore delta. The separate M3 source gate accepts
+only the pinned six-file patch and the exact 20 classified checker errors.
+No inherited workflow or stale desktop provenance was changed to make that
+lane green. Final review must continue to state this distinction explicitly.
+
 ## Remaining scope boundaries
 
 Compatibility Web uses one native worker and the tested COOP/COEP server.
