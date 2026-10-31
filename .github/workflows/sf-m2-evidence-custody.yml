@@ -1,0 +1,70 @@
+name: SF-M2 closing audit and original evidence custody
+on:
+  push:
+    branches: ['transport/sf-m2-evidence-20261031']
+    paths: ['.github/workflows/sf-m2-evidence-custody.yml', 'sf-m2-retain-evidence.py', 'sf-m2-closure-packet.b64']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  retain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - name: Require terminal success of the exact source and all seven jobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p custody
+          python3 - <<'PY'
+          import json,os,time,urllib.request
+          url='https://api.github.com/repos/techrote/sandfall/actions/runs/41163426571'
+          for attempt in range(40):
+              request=urllib.request.Request(url,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+              with urllib.request.urlopen(request,timeout=30) as response: run=json.load(response)
+              assert run['head_sha']=='533a3de6352074f0cd68faca94417e80f041080e'
+              if run['status']=='completed':
+                  assert run['conclusion']=='success',run['conclusion']
+                  break
+              print('Source qualification remains nonterminal; no closing publication.',flush=True)
+              time.sleep(15)
+          else: raise SystemExit('Source qualification did not finish within bounded custody wait')
+          PY
+      - name: Verify original ZIP digests and retain byte-preserved payloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 sf-m2-retain-evidence.py 2>&1 | tee custody/materialization.log
+          cd prepared-source
+          test -z "$(git diff --cached --name-only -- godot native tools .github)"
+          for test in tools/sandfall/test_sf_m*.mjs; do node "$test"; done 2>&1 | tee ../custody/javascript-tests.log
+          python3 -m unittest discover -s tools/sandfall -p 'test_sf_m*.py' 2>&1 | tee ../custody/python-tests.log
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'docs(sandfall): close SF-M2 qualification and preserve original evidence' -m 'Retain original failures and separately identified fresh/source-equivalent browser cohorts after all seven exact-source jobs pass. No native, Godot, harness or build inputs changed. PRs 2, 3 and 4 remain draft and unmerged.'
+          git rev-parse HEAD > ../custody/source-sha.txt
+          git rev-parse 'HEAD^{tree}' > ../custody/tree-sha.txt
+          git diff --stat HEAD^ HEAD > ../custody/diff-stat.txt
+          git bundle create ../custody/prepared.bundle HEAD ^533a3de6352074f0cd68faca94417e80f041080e
+          cp docs/audits/sf-m2-2026-10-31/qualification-533a3de6/manifest.json ../custody/manifest.json
+          git push origin HEAD:refs/heads/sf-m2-prepared/evidence-20261031
+          cd ../custody
+          sha256sum prepared.bundle source-sha.txt tree-sha.txt manifest.json materialization.log javascript-tests.log python-tests.log diff-stat.txt > SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sf-m2-closing-evidence-publication
+          path: custody/
+          retention-days: 30
