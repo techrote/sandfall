@@ -54,6 +54,19 @@ func _run() -> void:
 	await process_frame
 	var button: Button = desktop.get_node("Layout/ExperimentTowerLauncher")
 	expect(button.focus_mode == Control.FOCUS_NONE, "root Tower button retained keyboard focus")
+	# The legacy desktop VBox may overflow Sandfall's 1280×800 startup profile.
+	# Exercise the SAME actual button through genuine viewport input; adapt only
+	# its fixture placement if the inherited launcher is outside the viewport.
+	var viewport_rect := Rect2(Vector2.ZERO, Vector2(root.size))
+	if not viewport_rect.encloses(button.get_global_rect()):
+		var layout: VBoxContainer = desktop.get_node("Layout")
+		layout.move_child(button, 1)
+		await process_frame
+	expect(button.is_visible_in_tree()
+		and viewport_rect.encloses(button.get_global_rect())
+		and button.get_global_rect().size.x > 0
+		and button.get_global_rect().size.y > 0,
+		"Legacy Tower input fixture must be visible and within the actual viewport")
 	# Send real GUI mouse and Space events through the viewport, not just signals.
 	for pressed: bool in [true,false]:
 		var mouse := InputEventMouseButton.new()

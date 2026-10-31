@@ -861,7 +861,8 @@ public:
         return bytes;
     }
 
-    [[nodiscard]] bool import_physical_state(const Ref<CyberNativeCellWorld>& adapter, const PackedByteArray& bytes) {
+    [[nodiscard]] bool import_physical_state(const Ref<CyberNativeCellWorld>& adapter, const PackedByteArray& bytes,
+                                             const PackedFloat32Array& packed_bodies = PackedFloat32Array()) {
         error_ = String();
         last_liquid_policy_refusal_ = Dictionary();
         if (adapter.is_null() || !adapter->world_) {
@@ -869,9 +870,12 @@ public:
             return false;
         }
         try {
+            const auto bodies = CyberNativeCellWorld::parse_body_state_values(packed_bodies, true);
+            const auto mask = CyberNativeCellWorld::restored_body_mask(bodies);
             auto execution = adapter->world_->config();
-            auto candidate = cybersand::World::restore_physical_state(
-                execution, {bytes.ptr(), static_cast<std::size_t>(bytes.size())});
+            auto candidate = cybersand::World::restore_physical_state_with_transient_obstacles(
+                execution, {bytes.ptr(), static_cast<std::size_t>(bytes.size())},
+                {0, 0, cybersand::demo::kWidth, cybersand::demo::kHeight}, mask);
             const auto region = candidate->simulation_region();
             const auto adhesion = candidate->liquid_surface_adhesion_enabled();
             install(*adapter.ptr(), std::move(candidate));
@@ -880,6 +884,8 @@ public:
             adapter->world_->set_simulation_region(region);
             adapter->world_->set_liquid_surface_adhesion_enabled(adhesion);
             adapter->liquid_surface_adhesion_enabled_ = adhesion;
+            adapter->current_bodies_ = bodies;
+            adapter->previous_bodies_ = bodies;
             return true;
         } catch (const cybersand::LiquidPolicyRefused& refused) {
             refuse_liquid_policy(refused.refusal());
@@ -964,8 +970,8 @@ protected:
         ClassDB::bind_method(D_METHOD("export_level", "world"), &CyberDemoBridge::export_level);
         ClassDB::bind_method(D_METHOD("import_level", "world", "bytes"), &CyberDemoBridge::import_level);
         ClassDB::bind_method(D_METHOD("export_physical_state", "world"), &CyberDemoBridge::export_physical_state);
-        ClassDB::bind_method(D_METHOD("import_physical_state", "world", "bytes"),
-                             &CyberDemoBridge::import_physical_state);
+        ClassDB::bind_method(D_METHOD("import_physical_state", "world", "bytes", "bodies"),
+                             &CyberDemoBridge::import_physical_state, DEFVAL(PackedFloat32Array()));
         ClassDB::bind_method(D_METHOD("build_world", "world", "rectangles"), &CyberDemoBridge::build_world);
         ClassDB::bind_method(D_METHOD("build_tuned_world", "world", "rectangles", "profile"), &CyberDemoBridge::build_tuned_world);
         ClassDB::bind_method(D_METHOD("build_water_feel_world", "world", "rectangles",

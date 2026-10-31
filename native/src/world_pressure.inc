@@ -2214,3 +2214,33 @@ std::unique_ptr<World> World::restore_physical_state(const WorldConfig& executio
     catch (const std::exception&) { refuse_state("invalid quantity ledger"); }
     return world;
 }
+
+std::unique_ptr<World> World::restore_physical_state_with_transient_obstacles(
+    const WorldConfig& execution, std::span<const std::uint8_t> bytes,
+    RectI64 region, std::span<const std::uint16_t> body_ids) {
+    if (region.width <= 0 || region.height <= 0 ||
+        static_cast<std::uint64_t>(region.width) >
+            kMaximumRestoredTransientCells / static_cast<std::uint64_t>(region.height) ||
+        region.x > std::numeric_limits<std::int64_t>::max() - (region.width - 1) ||
+        region.y > std::numeric_limits<std::int64_t>::max() - (region.height - 1))
+        throw std::invalid_argument("restored transient mask region exceeds its bounded capacity");
+    const auto required = static_cast<std::size_t>(region.width * region.height);
+    if (body_ids.size() != required || std::any_of(body_ids.begin(), body_ids.end(),
+            [](std::uint16_t id) { return id > kMaximumTransientBodies; }))
+        throw std::invalid_argument("restored transient mask has invalid length or body identity");
+    auto world = restore_physical_state(execution, bytes);
+    auto mask = std::make_unique<TransientObstacleState>();
+    mask->region = region;
+    mask->body_ids.assign(body_ids.begin(), body_ids.end());
+    mask->occupied_indices.reserve(static_cast<std::size_t>(std::count_if(
+        body_ids.begin(), body_ids.end(), [](std::uint16_t id) { return id != 0U; })));
+    for (std::size_t index = 0; index < body_ids.size(); ++index)
+        if (body_ids[index] != 0U) mask->occupied_indices.push_back(index);
+    mask->reset_contacts();
+    // The factory owns this fresh candidate exclusively. No live mask changes,
+    // cell writes, wake calls, clock changes or physical-cache rewinds occur.
+    world->transient_obstacles_.swap(mask);
+    if (world->pressure_ != nullptr && world->pressure_->cache != nullptr)
+        world->pressure_->cache->cold();
+    return world;
+}
