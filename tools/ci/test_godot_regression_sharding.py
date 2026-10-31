@@ -338,5 +338,31 @@ class SnapshotTests(unittest.TestCase):
         self.assertNotIn("\nTHREAD SNAPSHOT UNAVAILABLE:", output)
 
 
+
+class SandfallArchiveDiagnosticGateTests(unittest.TestCase):
+    def test_required_archive_scripts_never_accept_missing_receipts(self):
+        for name in ("test_sandfall_archive", "test_sandfall_archive_interop"):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                subject.exact_sf_m4_archive_diagnostics(name, "ARCHIVE_RESULT {}")
+
+    def test_unrelated_engine_errors_still_fail(self):
+        record, failed = ResultTests().run_child("print('ERROR: Unexpected renderer fault')")
+        self.assertTrue(failed)
+        self.assertTrue(record["diagnostic_error"])
+
+    def test_unrelated_suite_does_not_use_archive_exception(self):
+        self.assertIsNone(subject.exact_sf_m4_archive_diagnostics("test_web_rapier", "ERROR: Decompression failed."))
+
+    def test_interop_setup_keeps_actual_godot_and_python_failures(self):
+        import subprocess as sp
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fake = {"status": "failed", "expected_negative_receipts": None}
+            with mock.patch.object(subject, "ROOT", root), mock.patch.object(subject, "run_case", return_value=(fake, True)):
+                with self.assertRaisesRegex(RuntimeError, "archive fixture failed"):
+                    subject.prepare_sf_m4_interop("godot", root)
+            self.assertFalse((root / "sf-m4-codec/external-interop/interop.json").exists())
+
+
 if __name__ == "__main__":
     unittest.main()
