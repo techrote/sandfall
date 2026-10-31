@@ -1,0 +1,90 @@
+name: Sandfall SF-M2 reviewed source transfer (not qualification)
+on:
+  push:
+    branches: ['transport/sandfall-sf-m2-20261031']
+    paths: ['.codex/sf-m2-transfer/manifest.json']
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - name: Verify transfer bytes and preimages, prepare isolated source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64,hashlib,json,lzma,os,pathlib,re,subprocess
+          root=pathlib.Path.cwd()
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'sf-m2-prepared'
+          out.mkdir()
+          manifest=json.loads((root/'.codex/sf-m2-transfer/manifest.json').read_text())
+          assert manifest['schema']=='sandfall-reviewed-source-transfer-v1'
+          parts=manifest['parts']
+          assert parts==[f'part-{i:02}.txt' for i in range(len(parts))] and 1<=len(parts)<=16
+          encoded=''.join((root/'.codex/sf-m2-transfer'/p).read_text().strip() for p in parts)
+          packed=base64.b64decode(encoded,validate=True)
+          assert hashlib.sha256(packed).hexdigest()==manifest['compressed_sha256']
+          decoder=lzma.LZMADecompressor()
+          raw=decoder.decompress(packed,max_length=1048577)
+          assert len(raw)<=1048576 and decoder.eof and not decoder.unused_data
+          assert hashlib.sha256(raw).hexdigest()==manifest['sha256']
+          packet=json.loads(raw)
+          assert packet['schema']==manifest['schema']
+          base=packet['base']
+          assert re.fullmatch('[0-9a-f]{40}',base)
+          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
+          branch='sf-m2/authoring-history-20261031'
+          git('fetch','origin',f'refs/heads/{branch}')
+          assert git('rev-parse','FETCH_HEAD')==base, 'Source branch lease changed'
+          git('merge-base','--is-ancestor','ba7add4de9fe8027aaedeff0fa703c1a55fee21e',base)
+          patch=out/'reviewed-source.patch'
+          patch.write_text(packet['patch'],encoding='utf-8')
+          allowed_exact={'AGENTS.md','README.md','docs/README.md','docs/SANDFALL-V1-ARCHITECTURE-IMPLEMENTATION.md','docs/SF-M1-HOST-INPUT-CUT.md','docs/SF-M2-AUTHORING-HISTORY.md','docs/audits/2026-10-31-sf-m2-authoring-history.md','godot/native_extension/cyber_native_cell_world.hpp','godot/native_extension/register_types.cpp','godot/native_extension/sandfall_edit_bridge.hpp','tools/build_web.py'}
+          def allowed(p):
+              return p in allowed_exact or p.startswith('godot/scripts/sandfall/') or p.startswith('godot/tests/test_sandfall_') or p.startswith('tools/sandfall/sf_m2_') or p.startswith('tools/sandfall/test_sf_m2_')
+          files=packet['files']
+          paths=[f['path'] for f in files]
+          assert len(paths)==len(set(paths)) and 0<len(paths)<=80
+          for f in files:
+              p=pathlib.PurePosixPath(f['path'])
+              assert not p.is_absolute() and '..' not in p.parts and str(p)==f['path'] and allowed(str(p))
+              assert re.fullmatch('[0-9a-f]{64}',f['sha256'])
+          git('checkout','--detach',base)
+          for f in files:
+              before=subprocess.run(['git','rev-parse','--verify',base+':'+f['path']],capture_output=True,text=True)
+              assert (before.stdout.strip() if before.returncode==0 else None)==f['before_blob'], f['path']+' preimage mismatch'
+          git('apply','--check','--index','--whitespace=error-all',str(patch))
+          git('apply','--index','--whitespace=error-all',str(patch))
+          assert set(git('diff','--cached','--name-only').splitlines())==set(paths)
+          for f in files:
+              p=root/f['path']
+              assert p.is_file() and not p.is_symlink() and p.resolve().is_relative_to(root)
+              assert hashlib.sha256(p.read_bytes()).hexdigest()==f['sha256'], f['path']+' output mismatch'
+          git('diff','--cached','--check')
+          git('config','user.name','github-actions[bot]')
+          git('config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          git('commit','-m','feat(sandfall): implement SF-M2 authored documents, exact history and material tools','-m','Apply the byte-verified locally tested source delta. Retain first-tick retirement, exact tuple mutations, ordinary browser qualification and all existing owner holds. This prepared source commit is not an acceptance result.')
+          commit=git('rev-parse','HEAD')
+          git('push','origin','HEAD:refs/heads/sf-m2-prepared/authoring-history-20261031')
+          git('bundle','create',str(out/'prepared.bundle'),'HEAD','^77f9b28e2ce5654587364bf485722a1c8ff80753')
+          receipt={'schema':'sandfall-reviewed-source-transfer-receipt-v1','status':'source_prepared_not_qualified','source_base':base,'prepared_commit':commit,'prepared_tree':git('rev-parse','HEAD^{tree}'),'original_packet_sha256':manifest['sha256'],'files':files,'held_refs_modified':False}
+          (out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          (out/'SHA256SUMS').write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in sorted(out.iterdir()) if p.is_file()))
+          print(json.dumps({k:v for k,v in receipt.items() if k!='files'}))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sf-m2-prepared-${{ github.run_id }}
+          path: ${{ runner.temp }}/sf-m2-prepared/
+          retention-days: 30
+          if-no-files-found: error
