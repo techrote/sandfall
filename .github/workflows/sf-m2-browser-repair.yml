@@ -30,10 +30,10 @@ jobs:
           python3 - <<'PY'
           import base64,gzip,hashlib,json,pathlib,subprocess
           raw=gzip.decompress(base64.b64decode(pathlib.Path('sf-m2-repair-packet.b64').read_text(),validate=False))
-          assert hashlib.sha256(raw).hexdigest()=='db196b33fef72d555eb537da55db2b5f571b6792bc7193643e4d758ed467cc50'
+          assert hashlib.sha256(raw).hexdigest()=='3dac23f782c96388f85a778fbb356eae0f0d5d8644c29477fd0184698d461906'
           packet=json.loads(raw)
-          assert packet['base']=='3a008a55d62958d74b33889d90088e0d2898321a'
-          assert set(packet['files'])=={'tools/sandfall/sf_m2_browser.mjs','tools/sandfall/sf_m2_browser_assertions.mjs','tools/sandfall/sf_m2_geometry.mjs','tools/sandfall/test_sf_m2_browser_assertions.mjs','tools/sandfall/test_sf_m2_geometry.mjs'}
+          assert packet['base']=='eeac43e98a617b81c2d77ff44e5392ce7de02559'
+          assert set(packet['files'])=={'tools/sandfall/sf_m2_browser.mjs','tools/sandfall/sf_m2_browser_assertions.mjs','tools/sandfall/test_sf_m2_browser_assertions.mjs'}
           pathlib.Path('custody/packet.json').write_bytes(raw)
           pathlib.Path('custody/reviewed.patch').write_text(packet['patch'])
           subprocess.run(['git','worktree','add','--detach','prepared-source',packet['base']],check=True)
@@ -50,12 +50,12 @@ jobs:
           python3 -m unittest discover -s tools/sandfall -p 'test_sf_m*.py' 2>&1 | tee ../custody/python-tests.log
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'fix(sandfall): address editor cells with integer browser input coordinates' -m 'Retain exact tuple/count assertions; verify legacy mouse delivery and Godot gesture endpoints. Preserve original negative evidence. Harness-only correction; application bytes retain their build identity.'
+          git commit -m 'test(sandfall): await actual gesture motion and verify Godot IME input' -m 'Keep exact edit assertions; acknowledge read-only Godot endpoints and narrowly allow trusted text-field keyboard delivery through the source-verified IME sibling. All previous failures remain retained.'
           SOURCE="$(git rev-parse HEAD)"
           echo "source=$SOURCE" >> "$GITHUB_OUTPUT"
           printf '%s\n' "$SOURCE" > ../custody/source-sha.txt
           git rev-parse 'HEAD^{tree}' > ../custody/tree-sha.txt
-          git bundle create ../custody/prepared.bundle HEAD ^3a008a55d62958d74b33889d90088e0d2898321a
+          git bundle create ../custody/prepared.bundle HEAD ^eeac43e98a617b81c2d77ff44e5392ce7de02559
           git push origin HEAD:refs/heads/sf-m2-prepared/browser-repair-20261031
           cd ../custody
           sha256sum packet.json reviewed.patch prepared.bundle source-sha.txt tree-sha.txt javascript-tests.log python-tests.log > SHA256SUMS
