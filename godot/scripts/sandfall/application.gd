@@ -542,7 +542,9 @@ func _load_provenance() -> void:
 		if parsed is Dictionary:
 			_provenance = parsed
 	var identity_path: String = "res://sandfall_build_identity.json"
-	if FileAccess.file_exists(identity_path):
+	# Web export staging also runs native Godot tests. Its WASM identity must
+	# never replace the native/local runtime provenance in those processes.
+	if OS.has_feature("web") and FileAccess.file_exists(identity_path):
 		var identity: Variant = JSON.parse_string(FileAccess.get_file_as_string(identity_path))
 		if identity is Dictionary:
 			_provenance.merge(identity, true)

@@ -84,6 +84,11 @@ static func _curate(definition: Dictionary, entry: Dictionary) -> void:
 			40, 28, 64, 20, 2, 170, 34, 60, 20, 2, 330, 28, 60, 20, 2,
 			30, 105, 50, 3, 1, 160, 120, 50, 3, 1, 320, 105, 50, 3, 1,
 		]))
+	if entry.id == "passive_subject_ride":
+		# Water can launch the zero-gravity subject upward. Close the physical
+		# channel so its later motion stays visible in the initial camera without
+		# a motor, scripted pose correction, or camera-dependent solver region.
+		definition.rectangles.append_array(PackedInt32Array([10, 36, 460, 4, 1]))
 	if entry.id == "endless_kinetic_loop":
 		definition.rectangles = PackedInt32Array([0, 0, 1024, 1024, 0,
 			10, 220, 460, 4, 1, 10, 40, 4, 180, 1, 466, 40, 4, 180, 1])

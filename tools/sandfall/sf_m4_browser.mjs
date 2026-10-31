@@ -16,7 +16,8 @@ import {assertRegistry,assertObjectEdit,assertObjectRefusal,authoredState,assert
   sampleControlLayout,sameControlLayout,controlLayoutSettled} from "./sf_m3_browser_assertions.mjs";
 import {mapWorldCell} from "./sf_m2_geometry.mjs";
 import {assertRejectedImport,assertProjectInstalled,assertSameLogicalProject,assertFrozenSave,
-  assertProjectSource,assertPromotionBoundary,assertBrowserFileDelivery,unexpectedConsoleErrors} from "./sf_m4_browser_assertions.mjs";
+  assertProjectSource,assertPromotionBoundary,assertBrowserFileDelivery,assertMassOnlyPhysicsPreserved,
+  assertBodiesContainedInViewport,unexpectedConsoleErrors} from "./sf_m4_browser_assertions.mjs";
 import {
   assertOrdinaryState, assertEdit, assertInputClear, physicalCheckpoint,
   assertPausedStable, assertStep, assertReset, assertGallery600, assertTrustedDelivery,
@@ -775,10 +776,15 @@ async function terminalWorld({annotation=false}={}) {
   await stable('terminal-world-stays-paused',terminal,{camera:true});
   check('all-real-browser-input-has-trusted-coordinate-matched-delivery',()=>assertTrustedDelivery(domInputEvents,expectedDOM));
   check('no-unexpected-browser-console-errors',()=>assert.deepEqual(unexpectedConsoleErrors(consoleEvents,expectedDiagnostics),[]));
+  let bodyContainment;
+  check('every-complete-rotated-body-is-inside-the-observed-world-viewport',()=>{
+    bodyContainment=assertBodiesContainedInViewport(state);
+  });
   await capture('world',true);await observe();
   check('terminal-capture-cannot-advance-or-replace-world',()=>assertPausedStable(terminal,state,{camera:true}));
   check('world-and-all-physical-bodies-are-visible',()=>{
-    const frame=captures.find(x=>x.name==='world');assert.ok(frame.pixels.bright_fraction>=.008&&frame.pixels.unique_4bit_rgb>=8);
+    const frame=captures.find(x=>x.name==='world');frame.body_viewport_containment=bodyContainment;
+    assert.ok(frame.pixels.bright_fraction>=.008&&frame.pixels.unique_4bit_rgb>=8);
     assert.equal(frame.object_pixels.body_count,objects(state).length);
     assert.equal(frame.object_pixels.bodies.length,objects(state).length);
     if(annotation) {
@@ -899,7 +905,12 @@ async function projectScenario() {
   if(bodyCount>0) {
     await selectObject(ids(state)[0]);
     await inspector('physics',{mass:objects(state)[0].mass+1});
+    const beforeMass=checkpoint('evolved-live-physics-before-mass-only-change');
     await applyInspector(bodyCount,{run:true,label:'promotable-exact-mass-change'});
+    const acceptedFrame=state.frame;
+    await waitFor('mass-only-change-observed-after-fresh-idle-frames',s=>s.frame>=acceptedFrame+3&&s.paused);
+    check('mass-only-change-preserves-every-live-pose-and-velocity-after-idle',()=>
+      assertMassOnlyPhysicsPreserved(beforeMass,state,ids(beforeMass)[0],objects(beforeMass)[0].mass+1));
     expectedDefinitions[0].mass+=1;
   } else {
     await objectTool('box');const before=await objectGesture([220,60],[236,78],{label:'promotable-live-spawn'});

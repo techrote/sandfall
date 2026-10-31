@@ -83,6 +83,12 @@ confirmation installs a fresh paused Edit baseline through the staged path.
 | Reparenting a staged viewport reset actual initial body velocities despite correct logical definitions | Keep the complete physical subtree continuously attached in one inert candidate holder. Direct backend parameter/pose/velocity/RID/shape/space probes, first-step analytic motion, fixed/frozen bodies and repeated holder retirement now pass. The cache-only repair attempt failed and is retained. |
 | Browser observer rounded values differently from full-precision project/evidence exports | The shared read-only observer now uses full-precision JSON. Original project/Gallery exact-equality failures are retained; no numeric tolerance was widened. |
 | Zero-body browser paint assertion omitted its expected command kind | The assertion explicitly requires `pencil_stroke` and its exact one-cell result. The original failure after genuine import, frozen Save and live interventions remains retained. |
+| Native Godot execution in Web staging could consume the embedded Web/WASM identity | Merge the embedded Web identity only on the Web platform. A real native application regression fails two identity checks at `b2720d3`, passes with the guard, and verifies the original Web identity bytes are restored for export. Native binary/source custody remains separately measured. |
+| Retained SF-M2 occupied-cell input could land on a cell with no strict interior integer CSS coordinate | Use one real visible Zoom In operation before that dynamic probe and assert paused physical/interest invariance. Keep the same cell, exact refusal oracle and strict mapper. Original DPR-2 failure after 70 passing checks is retained. |
+| Mass-only Run replacement restored authored pose on an idle frame, leaving native occupancy inconsistent | Synchronize the replacement node transform before writing retained backend state. Independent actual-browser and native negatives, four-frame property/resize preservation, RID/shape retirement and next-step continuity are retained. |
+| Internal physical restoration had the same deferred-transform overwrite | Reuse the corrected state installer. Independent moving and sleeping snapshots remain exact through idle frames and subsequent steps; native payload/occupancy checks remain strict. |
+| Passive-subject marker obscured the body's actual rendered core | Compute the marker from rotated projected corners with an exterior gap and place its label above the ring. Preserve the original 70/90 failure and unchanged 0.8 pixel threshold. |
+| Passive Subject Ride could drift partly outside the viewport while a core-only pixel check passed | Bound the authored scene with a real hard ceiling and require every rotated body corner inside the measured viewport. The added oracle rejects exactly the two retained clipped Ride images. |
 
 ## Executed development evidence
 
@@ -95,10 +101,11 @@ godot-cpp `101ae38034304346a46ea9ea84ae156d3e860496` and SCons 4.10.1.
 |---|---|
 | Archive | 184 checks, 93 negative cases; four exact expected malformed-DEFLATE diagnostics |
 | Independent Python ZIP interchange | 83 checks; five capacity fixtures and fourteen hostile archives; exact initial tuple SHA for every positive |
-| Isolated project reconstruction | 531 checks; 0/1/3/8/16 bodies, actual nonzero initial velocity and first-step motion, imported autoplay with Run history locked at zero, capacity/malformed refusal, temporary allocation and repeated container retirement, inactive manual spaces |
+| Isolated project reconstruction and physical lifecycle | 931 checks; 0/1/3/8/16 bodies, actual initial velocity/first-step motion, autoplay history fence, refusal/temporary allocation/container retirement, inactive spaces, delayed-frame live-property and internal-restore integrity |
 | History and declarative promotion | 116 checks; copied ownership, first-tick fence, capacity, subject transfer, cancellation, exact candidate preview and fresh-draft confirmation |
-| Presentation / project Control input | 18 / 39 checks |
+| Presentation / project Control input | 22 / 43 checks; rotated/scaled subject marker geometry and native/Web identity separation |
 | Repeated Gallery | 189 checks, 15 runs, 9,000 actual native/Rapier coupled ticks, including no-Water causal control |
+| Exact-`b2720d3` local loop resource probe | 1,144 checks over 1,200 ordinary-application coupled ticks; node/object/resource and project/terrain RID counts stable after warmup; no constant-total-heap claim |
 | Unchanged Sandfall Physics Pit | 600/600 ticks, 106,717 contacts, 149 displaced cells and physical save/restore passed |
 
 Original negatives remain in the evidence bundle, including oversized exponent,

@@ -570,12 +570,7 @@ func restore_physical_state(snapshot: Dictionary) -> Dictionary:
 	if not bool(installed.ready):
 		return {"ok": false, "error": str(installed.error)}
 	for index: int in range(_bodies.size()):
-		var row: Array = body_values[index]
-		var rid: RID = _bodies[index].get_rid()
-		_rapier_bridge.reset_body(index, Vector2(float(row[0]), float(row[1])), float(row[2]))
-		PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_LINEAR_VELOCITY, Vector2(float(row[3]), float(row[4])))
-		PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_ANGULAR_VELOCITY, float(row[5]))
-		PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_SLEEPING, bool(row[6]))
+		_install_body_state(_bodies[index], restored_definition.bodies[index], body_values[index])
 	if _bridge_active():
 		_rapier_bridge.refresh_all_states()
 		_rapier_bridge.reset_result_tracking()
@@ -690,7 +685,12 @@ func _install_body_state(body: RigidBody2D, initial: Dictionary, retained: Array
 	var angular_velocity: float = float(initial.angular_velocity) if retained.is_empty() else float(retained[5])
 	var sleeping: bool = false if retained.is_empty() else bool(retained[6])
 	var rid: RID = body.get_rid()
-	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_TRANSFORM, Transform2D(rotation, position))
+	var transform: Transform2D = Transform2D(rotation, position)
+	# Newly attached CollisionObject2D nodes still have a deferred transform
+	# notification. Keep that node cache equal to the retained live pose before
+	# writing the backend, or the next idle frame restores the authored pose.
+	body.transform = transform
+	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_TRANSFORM, transform)
 	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_LINEAR_VELOCITY, velocity)
 	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_ANGULAR_VELOCITY, angular_velocity)
 	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_SLEEPING, sleeping)

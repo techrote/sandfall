@@ -50,6 +50,7 @@ func _run() -> void:
 	ProjectSettings.set_setting("cybersand/native_worker_threads", 1)
 	await _capacity_roundtrips()
 	await _adoption_preserves_backend_state()
+	await _run_reconfiguration_preserves_idle_pose()
 	await _atomic_candidate_failures()
 	await _partial_body_candidate_failure()
 	await _frozen_save_and_evidence()
@@ -247,6 +248,135 @@ func _coupling_cache(host: Variant) -> Dictionary:
 		"linear_velocities": bridge._linear_velocities.duplicate(),
 		"angular_velocities": bridge._angular_velocities.duplicate(),
 		"sleeping": bridge._sleeping.duplicate(), "slots": bridge.slot_mapping()}
+
+
+func _run_reconfiguration_preserves_idle_pose() -> void:
+	var host: Variant = Host.new()
+	root.add_child(host)
+	var session: Variant = Session.new(host)
+	_command(session, "sandbox")
+	var definition: Dictionary = session.authored_project()
+	definition.bodies = []
+	for index: int in 3:
+		var body: Dictionary = Registry.make_box("retained-%d" % index, index + 1,
+			Vector2(120 + index * 220, 80), Vector2(18, 18))
+		body.rotation = 0.35
+		body.gravity_scale = 0.0
+		body.linear_damp = 0.0
+		body.angular_damp = 0.0
+		body.linear_velocity = Vector2(120, 40) if index == 0 else Vector2.ZERO
+		body.angular_velocity = 1.5 if index == 0 else 0.0
+		definition.bodies.append(body)
+	_check(session.import_project(definition, session.state().generation, session.state().input_epoch).ok,
+		"Live reconfiguration fixture did not install")
+	_command(session, "run")
+	for _tick: int in 30:
+		_check(session.advance(), "Live reconfiguration fixture did not evolve")
+	_command(session, "toggle_pause")
+	var evolved: Array = host.state().body_states.duplicate(true)
+	_check(Vector2(evolved[0][0], evolved[0][1]).distance_to(definition.bodies[0].position) > 50,
+		"Reconfiguration fixture does not distinguish evolved from authored pose")
+	var material_hash: String = host.material_identity()
+	var rows: Array = []
+	for changes: Dictionary in [{"mass": 3.75},
+			{"friction": 0.21, "restitution": 0.41, "linear_damp": 0.1, "angular_damp": 0.22},
+			{"size": Vector2(26, 22)}]:
+		var before: Array = host.state().body_states.duplicate(true)
+		var old_id: int = host._bodies[0].get_instance_id()
+		var old_rid: int = host._bodies[0].get_rid().get_id()
+		var old_shape: WeakRef = weakref(host._bodies[0].get_child(0).shape)
+		var other_rids: Array = [host._bodies[1].get_rid().get_id(), host._bodies[2].get_rid().get_id()]
+		var lease: Dictionary = session.object_edit_snapshot()
+		_check(session.enqueue_object_edit({"operation": "update", "id": "retained-0", "changes": changes},
+			lease.revision, lease.generation, lease.input_epoch), "Run property update did not queue")
+		session.process_commands()
+		_check(not session.state().pristine and session.state().last_edit.kind == "object_update",
+			"Accepted Run property change was not journalled and Modified")
+		_check(not is_instance_id_valid(old_id) and old_shape.get_ref() == null
+			and host._bodies[0].get_rid().get_id() != old_rid,
+			"Reconfigured body did not retire the old body/shape")
+		_check([host._bodies[1].get_rid().get_id(), host._bodies[2].get_rid().get_id()] == other_rids,
+			"One property update rebuilt unrelated bodies")
+		for frame: int in 4:
+			if frame > 0:
+				await process_frame
+			var actual: Array = host.state().body_states
+			for index: int in 3:
+				for component: int in 6:
+					_check(absf(float(actual[index][component]) - float(before[index][component])) < 0.00001,
+						"Run property/size change or deferred notification altered live pose/velocity")
+			_check(session.state().tick == 30 and session.state().rapier_steps == 30,
+				"Paused reconfiguration advanced a solver")
+			var occupied: Vector2i = Vector2i(floori(actual[0][0]), floori(actual[0][1]))
+			_check(host.object_occupancy_at(occupied) == "retained-0"
+				and host.object_occupancy_at(Vector2i(120, 80)).is_empty(),
+				"Paused body and native occupancy disagree after reconfiguration")
+		_check(host.material_identity() == material_hash and session.authored_project().bodies == definition.bodies,
+			"Run property intervention changed material data or frozen initial objects")
+		rows.append({"changes": changes, "before": before, "after_idle_frames": host.state().body_states.duplicate(true),
+			"retired_rid": old_rid, "new_rid": host._bodies[0].get_rid().get_id()})
+	_command(session, "step")
+	_check(session.advance() and session.state().tick == 31 and session.state().rapier_steps == 31,
+		"Reconfigured graph failed its next coupled step")
+	var after_step: Array = host.state().body_states.duplicate(true)
+	_check(float(after_step[0][0]) > float(evolved[0][0]) + 1.0
+		and float(after_step[0][0]) < float(evolved[0][0]) + 3.0,
+		"Reconfigured body resumed from authored pose or lost evolved velocity")
+	var lease: Dictionary = session.object_edit_snapshot()
+	_check(session.enqueue_object_edit({"operation": "update", "id": "retained-0",
+		"changes": {"position": Vector2(230, 140), "rotation": -0.2}},
+		lease.revision, lease.generation, lease.input_epoch), "Explicit Run transform did not queue")
+	session.process_commands()
+	for _frame: int in 3:
+		await process_frame
+	var explicit_pose: Array = host.state().body_states[0]
+	_check(Vector2(explicit_pose[0], explicit_pose[1]).is_equal_approx(Vector2(230, 140))
+		and is_equal_approx(float(explicit_pose[2]), -0.2),
+		"Explicit Run transform was lost on a deferred frame")
+	for component: int in range(3, 6):
+		_check(absf(float(explicit_pose[component]) - float(after_step[0][component])) < 0.00001,
+			"Explicit transform reset unrequested evolved velocity")
+	_check(host.object_occupancy_at(Vector2i(230, 140)) == "retained-0"
+		and host.object_occupancy_at(Vector2i(floori(after_step[0][0]), floori(after_step[0][1]))).is_empty(),
+		"Explicit transform left ghost native occupancy")
+	# The inherited internal continuation fixture also constructs fresh nodes.
+	# Save an evolved pose different from its latest logical initial transform,
+	# then require the restored pose/masks to survive normal idle frames.
+	for _tick: int in 12:
+		_check(host.tick_once().advanced, "Internal restore fixture did not evolve")
+	var saved: Dictionary = host.capture_physical_state()
+	_check(saved.ok, "Internal continuation capture failed")
+	for _tick: int in 2:
+		_check(host.tick_once().advanced, "Internal restore fixture did not advance past its snapshot")
+	_check(host.restore_physical_state(saved).ok, "Internal physical continuation restore failed")
+	for frame: int in 4:
+		if frame > 0:
+			await process_frame
+		var actual: Array = host.state().body_states
+		for index: int in 3:
+			for component: int in 6:
+				_check(absf(float(actual[index][component]) - float(saved.bodies[index][component])) < 0.00001,
+					"Internal restored live pose/velocity changed on an idle frame")
+		_check(host.state().native_tick == saved.native_tick and host.state().rapier_steps == 0,
+			"Idle restoration changed saved native time or the reset diagnostic Rapier counter")
+		_check(host.object_occupancy_at(Vector2i(floori(actual[0][0]), floori(actual[0][1]))) == "retained-0"
+			and host.object_occupancy_at(Vector2i(230, 140)).is_empty(),
+			"Internal restored body and native occupancy disagree")
+	_check(host.capture_physical_state().native_payload == saved.native_payload,
+		"Internal restoration lost the exact native physical payload across idle frames")
+	var restored_pose: Array = host.state().body_states.duplicate(true)
+	_check(host.tick_once().advanced and host.state().native_tick == int(saved.native_tick) + 1,
+		"Internal restored graph failed its next real coupled step")
+	_check(float(host.state().body_states[0][0]) > float(restored_pose[0][0]) + 1.0,
+		"Internal restored graph resumed from its authored transform instead of its saved pose")
+	_command(session, "reset_edit")
+	_check(session.object_definitions() == definition.bodies and session.state().tick == 0
+		and session.state().document.undo_depth == 0, "Run reconfiguration changed the Reset & Edit baseline")
+	_receipts.run_reconfiguration = {"property_edits": rows, "after_resumed_step": after_step,
+		"explicit_pose": explicit_pose, "internal_restored_pose": restored_pose,
+		"internal_native_payload_exact": true, "frozen_reset_exact": true}
+	host.free()
+	await process_frame
 
 
 func _atomic_candidate_failures() -> void:

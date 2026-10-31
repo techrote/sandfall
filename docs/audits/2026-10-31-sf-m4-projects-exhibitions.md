@@ -215,12 +215,101 @@ in its paint-intervention assertion. The harness now explicitly requires
 `pencil_stroke` and retains its exact one-cell check. Both fixes require another
 actual-browser run from the corrected commit.
 
+Further qualification review at `b2720d359b5b7dddc4fdfbede2f49c13b3fbca0d`
+found that native Godot tests sharing a Web export staging directory could merge
+the Web-only `sandfall_build_identity.json` into native application provenance.
+The independently measured native binary/source records remained correct, but
+the application could incorrectly label its native Run receipts with Web WASM
+hashes. A real native Control regression preserves this original failure: two
+identity assertions fail when a valid Web identity file is present. The loader
+now merges that file only on the Web platform; native keeps its existing
+native/local provenance. The corrected 43-check Control suite passes and
+restores the original Web identity file byte-for-byte. Actual Web execution
+continues to require the measured embedded Web identity. This provenance fix
+also requires a newly committed source-matched qualification run.
+
+The `b2720d3` browser run also preserved a failure in the retained SF-M2 DPR-2
+workload after 70 passing checks. The paused body's requested occupied cell
+`[124,135]` had no strict interior integer CSS mouse coordinate at the measured
+479-pixel / 480-cell scale. The exact mapper correctly refused before sending
+input. This is repaired with one genuine visible Zoom In operation before the
+dynamic occupied-cell probe, with paused physical state and simulation-interest
+invariance asserted. The same exact occupied-cell refusal and all prior history,
+chemistry/input assertions remain; the mapper and its strict interior bounds
+are unchanged. This is an explicit, bounded targeting repair to the SF-M2
+harness, not a new product default or relaxed acceptance oracle. The original
+600-tick legacy oracle and SF-M1/M3 harnesses remain unchanged.
+
+A separate read-only local Linux probe of the exact `b2720d3` ordinary
+application completed 1,200 coupled Endless Kinetic Loop ticks with 1,144
+checks. At ticks 120, 300, 600 and 1,200, counts stayed at 353 Godot nodes,
+3,199 objects, 43 resources and zero orphan nodes; three project bodies/shapes,
+257 terrain body RIDs (14 carrying shapes), and 16 terrain shapes remained
+unchanged. All sampled IDs/RIDs stayed stable, body centres drifted zero and
+angular velocities remained `[1, -1, 1]`. The probe rehashed all 422 staged
+source files and retained its exact native/Rapier/probe identities. Static
+allocation rose 85,096 bytes including retained probe records, so this is a
+bounded resource-count result, not a constant-total-heap or performance claim.
+Its initial missing-class-registry startup failure and import repair are kept
+as separate instrumentation evidence. Browser and final-head results remain
+separate gates.
+
+Run `41197945514` finished with 34 of 36 jobs successful. Fresh native/Web
+builds, the 165-test full native target, all ten project-file browser jobs,
+both full Gallery navigation workloads, retained SF-M3 capacity workloads and
+the unchanged legacy oracle passed their then-current checks. The two job
+failures were the SF-M2 CSS-cell precondition above and Fluid Messenger at
+800×450: its fixed-radius passive marker crossed the red body interior,
+leaving only 70 of 90 required body-colour samples. The marker now encloses the
+actual rotated, projected body corners with an exterior gap; its label sits
+above that extent. The strict 0.8 body-colour threshold is unchanged.
+
+Independent inspection also found defects in artifacts whose old job checks
+were green. All eight nonzero project cases showed a mass-only intervention
+restoring the body's authored pose on the next idle frame. A newly attached
+CollisionObject2D retained its initial node transform while the host had only
+written the evolved pose into PhysicsServer2D; the deferred node notification
+then overwrote the backend. Native occupancy still described the evolved pose,
+making the discrepancy physical, not cosmetic. The host now synchronizes the
+node transform before installing the backend state. The same correction is
+used by the internal physical-restore path, where an independent probe found
+the same issue. Original moving and sleeping restore probes, failures and
+corrected results are retained. The expanded 931-check project suite covers
+mass/material-parameter/size changes across four idle frames, retained poses
+and velocities, retired RIDs/shapes, unchanged unrelated bodies, native
+occupancy, next-step continuity, explicit transforms, exact internal native
+payload restoration and Reset & Edit. Browser cases now require the evolved
+pose/velocity of every body to survive a mass-only Apply and three later frames.
+
+Both Passive Subject Ride terminal images also showed a partly clipped subject
+after the original 600-tick cutoff, despite enough remaining body-core pixels
+to pass. A real hard-material ceiling now joins that scene's basin walls;
+there is no motor or scripted pose correction. Every M4 terminal capture now
+requires all rotated body corners inside the measured world viewport before
+the existing pixel oracle runs. Applying that new oracle to the 26 retained
+M4 captures accepts 24 and rejects exactly those two original Ride images.
+These independently discovered defects prevent treating the prior green job
+receipts as completed milestone acceptance. All corrections require the next
+exact-head build and browser matrix.
+
+The first local attempt at the added per-tick Ride containment assertion
+reported three failures because its measuring helper passed a logical size
+array to Godot's `Vector2` constructor. The script diagnostics and original
+failed result are retained. The helper now reads the two numeric components
+explicitly, with the same geometric bounds. A partial subsequent full run was
+stopped in favour of the focused 1,200-tick trajectory check; it is not a pass.
+The complete revised 203-check, 16-run Gallery suite remains an exact-head CI
+gate. Independent review also tightened the mass-only browser oracle: only the
+selected body's transition from sleeping to awake may differ, while every
+unrelated body's sleeping state remains exact.
+
 ## Exact-head publication and independent review protocol
 
 The branch-scoped `sf-m4-web.yml` is the milestone qualification lane. It uses
 fresh native and Web builds, terminal full native/source jobs, dedicated Godot
 tests, independent ZIP interchange, both compatibility browser profiles,
-unchanged SF-M1/M2/M3 browser regressions and the unchanged legacy 600-tick
+retained SF-M1/M2/M3 browser regressions (with the documented genuine-zoom
+targeting repair in SF-M2) and the unchanged legacy 600-tick
 physical oracle. Build/PCK/runtime/harness hashes and all original negative
 outputs are retained. Source-scoped review checks staged ownership, archive
 parser/lifecycle, copied-data history, promotion, genuine browser inputs,

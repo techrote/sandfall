@@ -29,6 +29,9 @@ func _run() -> void:
 		_check(Presentation.validate(definition.presentation).ok, "Gallery decoration is malformed: " + id)
 		for repetition: int in [1, 2]:
 			await _measure(definition, 600, repetition)
+	# The original open channel let the subject leave the camera shortly after
+	# 600 ticks. Exercise its bounded physical enclosure beyond that boundary.
+	await _measure(Scenes.get_definition("passive_subject_ride"), 1200, 3)
 	var control: Dictionary = Scenes.get_definition("fluid_messenger")
 	control.id = "fluid-messenger-no-water-control"
 	control.rectangles = PackedInt32Array([0, 0, 1024, 1024, 0, 10, 220, 460, 4, 1, 10, 40, 4, 180, 1, 466, 40, 4, 180, 1])
@@ -48,6 +51,7 @@ func _measure(definition: Dictionary, target: int, repetition: int) -> void:
 	var initial: Array = first.body_states.duplicate(true)
 	var times: Array[int] = []
 	var completed: int = 0
+	var camera_contained: bool = true
 	for attempt: int in range(target + 100):
 		if completed >= target: break
 		var started: int = Time.get_ticks_usec()
@@ -55,6 +59,8 @@ func _measure(definition: Dictionary, target: int, repetition: int) -> void:
 		if bool(receipt.advanced):
 			completed += 1
 			times.append(Time.get_ticks_usec() - started)
+			if definition.id == "passive_subject_ride":
+				camera_contained = camera_contained and _bodies_inside_initial_camera(host.state())
 		if bool(receipt.fault):
 			_check(false, "Gallery entered Fault: " + str(receipt.error))
 			break
@@ -62,6 +68,8 @@ func _measure(definition: Dictionary, target: int, repetition: int) -> void:
 	var final: Dictionary = host.state(true)
 	_check(completed == target and final.native_tick == target and final.rapier_steps == target, "Gallery did not complete fixed coupled workload: " + str(definition.id))
 	_check(final.body_ids.size() == definition.bodies.size(), "Gallery changed bounded body count")
+	if definition.id == "passive_subject_ride":
+		_check(camera_contained, "Passive subject ride left the initial camera during its coupled trajectory")
 	for pose: Array in final.body_states:
 		_check(is_finite(float(pose[0])) and is_finite(float(pose[1])) and float(pose[0]) >= 0 and float(pose[0]) <= 1024 and float(pose[1]) >= 0 and float(pose[1]) <= 1024, "Gallery body escaped physical bounds")
 	if definition.id == "endless_kinetic_loop":
@@ -86,12 +94,24 @@ func _measure(definition: Dictionary, target: int, repetition: int) -> void:
 	_check(restored.ready and restored.body_states == initial and restored.native_tick == 0 and restored.rapier_steps == 0, "Gallery Reset did not reconstruct authored initial poses")
 	times.sort()
 	_receipts.append({"scene": definition.id, "repetition": repetition, "ticks": completed, "initial_body_poses": initial,
+		"camera_contained_every_tick": camera_contained if definition.id == "passive_subject_ride" else null,
 		"final": final, "reset_body_poses": restored.body_states, "coupled_tick_usec": {
 			"p50": times[times.size() / 2] if not times.is_empty() else 0,
 			"p95": times[int(times.size() * 0.95)] if not times.is_empty() else 0,
 			"max": times.back() if not times.is_empty() else 0}})
 	host.free()
 	await process_frame
+
+
+func _bodies_inside_initial_camera(state: Dictionary) -> bool:
+	for index: int in state.body_states.size():
+		var pose: Array = state.body_states[index]
+		var half: Vector2 = Vector2(state.body_sizes[index][0], state.body_sizes[index][1]) * 0.5
+		var extent: Vector2 = Vector2(absf(cos(pose[2])) * half.x + absf(sin(pose[2])) * half.y,
+			absf(sin(pose[2])) * half.x + absf(cos(pose[2])) * half.y)
+		if pose[0] - extent.x < 0 or pose[0] + extent.x > 480 or pose[1] - extent.y < 0 or pose[1] + extent.y > 270:
+			return false
+	return true
 
 
 func _check(ok: bool, message: String) -> void:

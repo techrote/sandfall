@@ -15,9 +15,7 @@ func _init() -> void:
 func _run() -> void:
 	root.size = Vector2i(1280, 800)
 	ProjectSettings.set_setting("cybersand/native_worker_threads", 1)
-	_app = load("res://sandfall_main.tscn").instantiate()
-	root.add_child(_app)
-	await _frames(3)
+	await _instantiate_with_platform_identity_fixture()
 	await _click("sandbox")
 	var baseline: Dictionary = _app.observation()
 	_check(baseline.mode == "edit" and baseline.tick == 0, "Sandbox is not a zero-time editor")
@@ -150,6 +148,47 @@ func _click(key: String) -> void:
 	await _frames(1)
 	_mouse_button(point, false)
 	await _frames(4)
+
+
+func _instantiate_with_platform_identity_fixture() -> void:
+	# The native tests run in the same staging tree used for the Web export.
+	# An existing Web identity must not replace the native/local runtime record.
+	var path: String = "res://sandfall_build_identity.json"
+	var had_file: bool = FileAccess.file_exists(path)
+	var previous: PackedByteArray = FileAccess.get_file_as_bytes(path) if had_file else PackedByteArray()
+	var fixture: Dictionary = {
+		"source_commit": "a".repeat(40), "source_tree": "b".repeat(40),
+		"native_source_commit": "a".repeat(40), "native_runtime_sha256": "e".repeat(64),
+		"rapier_version": "0.35.2", "rapier_runtime_sha256": "f".repeat(64),
+		"godot_version": "4.7.stable.official.5b4e0cb0f", "build_profile": "compat",
+	}
+	if not OS.has_feature("web"):
+		var writer: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+		_check(writer != null, "Cannot prepare native/Web identity boundary fixture")
+		if writer != null:
+			writer.store_string(JSON.stringify(fixture, "", true, true))
+			writer.close()
+	_app = load("res://sandfall_main.tscn").instantiate()
+	root.add_child(_app)
+	await _frames(3)
+	if not OS.has_feature("web"):
+		var actual: Dictionary = _app.observation().project_file.source_identity
+		_check(actual.build_profile == "local", "Native application claimed a Web build profile")
+		_check(actual.native_runtime_sha256 != fixture.native_runtime_sha256 \
+			and actual.rapier_runtime_sha256 != fixture.rapier_runtime_sha256,
+			"Native application claimed Web WASM runtime hashes")
+		_receipts.append({"native_source_identity": actual.duplicate(true),
+			"ignored_web_identity": fixture.duplicate(true), "platform": OS.get_name()})
+		var restored: bool = false
+		if had_file:
+			var writer: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+			if writer != null:
+				writer.store_buffer(previous)
+				writer.close()
+				restored = FileAccess.get_file_as_bytes(path) == previous
+		else:
+			restored = DirAccess.remove_absolute(ProjectSettings.globalize_path(path)) == OK and not FileAccess.file_exists(path)
+		_check(restored, "Native provenance test did not restore the original Web identity file state")
 
 
 func _field(key: String, value: String) -> void:

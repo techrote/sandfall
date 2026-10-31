@@ -50,6 +50,57 @@ export function assertProjectSource(identity,verification) {
     'The PCK identity differs from the exact-head source/native/Rapier manifest');
 }
 
+export function assertMassOnlyPhysicsPreserved(before,after,id,mass) {
+  assert.equal(before.mode,'run');assert.equal(after.mode,'run');
+  assert.equal(before.paused,true);assert.equal(after.paused,true);
+  assert.ok(Number.isSafeInteger(before.frame)&&Number.isSafeInteger(after.frame)&&after.frame>=before.frame+3,
+    'Mass-only physics must be observed after fresh idle frames');
+  for(const key of ['generation','tick','rapier_steps','current_hash','definition_hash','initial_hash'])
+    assert.equal(after[key],before[key],`Mass-only edit changed ${key}`);
+  assert.deepEqual(after.document,before.document,'Mass-only edit changed frozen authored state');
+  assert.deepEqual(ids(after),ids(before),'Mass-only edit changed stable body ownership');
+  const expected=structuredClone(objects(before)),selected=expected.find(d=>d.id===id);
+  assert.ok(selected&&Number.isFinite(mass)&&mass>0,'Mass-only comparison has no valid target');
+  selected.mass=mass;
+  assert.deepEqual(objects(after),expected,'Mass-only edit changed another logical property');
+  samePhysicalValue(after.native.body_sizes,before.native.body_sizes,'Mass-only live geometry');
+  // Waking the changed body is allowed. Its six pose/velocity values, and
+  // every unrelated body's complete state, must survive the later notification.
+  samePhysicalValue(after.native.body_states.map(row=>row.slice(0,6)),
+    before.native.body_states.map(row=>row.slice(0,6)),
+    'Mass-only edit teleported, rotated or reset a live body velocity after idle frames');
+  for(let index=0;index<ids(before).length;index++) {
+    const wasSleeping=before.native.body_states[index][6],isSleeping=after.native.body_states[index][6];
+    assert.equal(typeof wasSleeping,'boolean');assert.equal(typeof isSleeping,'boolean');
+    if(ids(before)[index]===id)
+      assert.ok(isSleeping===wasSleeping||(wasSleeping&&!isSleeping),'Mass-only edit unexpectedly put the changed body to sleep');
+    else assert.equal(isSleeping,wasSleeping,'Mass-only edit changed an unrelated body sleeping state');
+  }
+}
+
+export function assertBodiesContainedInViewport(state) {
+  const origin=state.camera?.camera_origin,size=state.camera?.view_size,tolerance=1e-5;
+  for(const pair of [origin,size])assert.ok(Array.isArray(pair)&&pair.length===2&&pair.every(Number.isFinite),
+    'Complete-body visibility requires an observed finite camera');
+  assert.ok(size.every(n=>n>0),'Complete-body visibility requires positive camera dimensions');
+  const projectIds=ids(state),poses=state.native.body_states,sizes=state.native.body_sizes;
+  assert.equal(poses.length,projectIds.length);assert.equal(sizes.length,projectIds.length);
+  const bodies=projectIds.map((id,index)=>{
+    const pose=poses[index],dimensions=sizes[index];
+    assert.ok(pose.slice(0,3).length===3&&pose.slice(0,3).every(Number.isFinite));
+    assert.ok(dimensions.length===2&&dimensions.every(n=>Number.isFinite(n)&&n>0));
+    const c=Math.cos(pose[2]),s=Math.sin(pose[2]);
+    const corners=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([x,y])=>{
+      const dx=x*dimensions[0]/2,dy=y*dimensions[1]/2;
+      return [pose[0]+c*dx-s*dy,pose[1]+s*dx+c*dy];
+    });
+    assert.ok(corners.every(point=>point.every((n,axis)=>n>=origin[axis]-tolerance&&n<=origin[axis]+size[axis]+tolerance)),
+      `Body ${id} is clipped outside the actual camera world viewport: ${JSON.stringify({pose:pose.slice(0,3),size:dimensions,corners,origin,viewport:size})}`);
+    return {id,slot:index,corners};
+  });
+  return {camera_origin:[...origin],view_size:[...size],body_count:bodies.length,tolerance,bodies};
+}
+
 export function assertBrowserFileDelivery(events,transfer) {
   const {start_index:start,end_index:end,name,bytes}=transfer;
   assert.ok(Number.isSafeInteger(start)&&Number.isSafeInteger(end)&&start>=0&&end>start&&end<=events.length,

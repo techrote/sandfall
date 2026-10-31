@@ -102,6 +102,14 @@ positions, velocities and all supported physics properties. Deletion/resize and
 Reset retain the SF-M3 feedback/collider fences. Body 17 refuses before scene or
 document replacement.
 
+Replacing a Run body preserves every unrequested live pose/velocity component
+through later scene-tree frames. The host installs the retained transform in
+both the new node cache and PhysicsServer2D before publishing occupancy; a
+deferred node notification cannot restore the authored pose. The inherited
+internal physical-restore fixture uses the same installer. Old RIDs/shapes
+retire, unrelated bodies remain owned, and Reset still uses frozen initial
+definitions. This internal fixture is separate from portable projects.
+
 Sandfall body damping now uses Godot's **REPLACE** mode: the authored coefficient
 is the total damping, including a genuine zero. Development Gallery tests found
 that the inherited combined mode silently added project-default damping. This
@@ -131,6 +139,8 @@ transfers it within one exact object transaction. Duplicating its physical box
 creates an ordinary box and preserves the original designation. Deletion and
 undo synchronize the scene's subject reference. The subject uses real Rapier
 physics and a visual marker, with no actor motor or hidden scripted steering.
+The marker encloses the actual rotated, projected body with an exterior gap;
+its label remains above that extent so decoration cannot hide the physical box.
 
 ## Curated Gallery and run evidence
 
@@ -144,6 +154,10 @@ Fluid Messenger and Passive Subject Ride place an uncontrolled zero-gravity
 body in native Water. Tests require actual native feedback and motion; the
 matching no-Water control remains stationary. Sixteen-body scenes require real
 sampling, body/body contact and native feedback, not only array length.
+Passive Subject Ride has a hard-material ceiling joined to its basin walls so
+the rising subject stays physically contained inside the initial view. Tests
+track its full rotated extents through 1,200 ticks; no scripted pose or camera
+change substitutes for that enclosure.
 
 `run_evidence()` records the exact eight-field source/runtime identity,
 canonical authored logical/physical digests, initial material digest and body
@@ -191,6 +205,14 @@ bound to a fresh event-index range and exact filename/size. Separate terminal
 capture jobs cover every Gallery entry in both profiles, while the complete
 Gallery navigation workloads remain intact. No further input follows the start
 of a screenshot capture, as required by the inherited browser contract.
+All rotated body corners must be inside the measured world viewport before the
+unchanged strict body-colour pixel oracle runs. Mass-only Run edits are checked
+again after fresh idle frames. The retained SF-M2 occupied-cell refusal uses a
+real Zoom In operation to guarantee the same cell has an interior integer CSS
+mouse coordinate; its mapper and physical/history assertions remain strict.
+Native Godot tests sharing the Web staging directory ignore the embedded
+Web-only identity; measured native custody and compatibility-Web identities
+remain separate.
 
 Malformed DEFLATE can make Godot's own bounded decompressor emit the precise
 `Decompression failed.` diagnostic before returning refusal. That original
