@@ -341,3 +341,43 @@ jobs:
           path: sf-m4-project-browser/
           retention-days: 30
           if-no-files-found: warn
+
+  # Preserve the two complete Gallery-navigation workloads above. Every
+  # exhibition also gets a fresh browser process so each actual scene can have
+  # a terminal viewport PNG without sending any later input after capture.
+  exhibition-portraits:
+    name: Gallery viewport ${{ matrix.entry }} ${{ matrix.profile.width }}x${{ matrix.profile.height }} DPR${{ matrix.profile.dpr }}
+    needs: web-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        entry: [gravity_cascade, fluid_messenger, passive_subject_ride, endless_kinetic_loop, intervention, time_controls, sixteen_body]
+        profile:
+          - {width: 800, height: 450, dpr: 1}
+          - {width: 640, height: 400, dpr: 2}
+    env:
+      VIEW_WIDTH: ${{ matrix.profile.width }}
+      VIEW_HEIGHT: ${{ matrix.profile.height }}
+      VIEW_DPR: ${{ matrix.profile.dpr }}
+      GALLERY_ENTRY: ${{ matrix.entry }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m4-fresh-web
+          path: build/web-sandfall
+      - name: Genuine launch, 600 coupled ticks, run evidence and terminal world pixels
+        run: bash tools/sandfall/sf_m4_browser_ci.sh gallery
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m4-gallery-${{ matrix.entry }}-${{ matrix.profile.width }}x${{ matrix.profile.height }}-dpr${{ matrix.profile.dpr }}
+          path: sf-m4-project-browser/
+          retention-days: 30
+          if-no-files-found: warn

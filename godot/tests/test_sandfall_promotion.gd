@@ -6,6 +6,7 @@ const Promotion = preload("res://scripts/sandfall/intervention_promotion.gd")
 const Presentation = preload("res://scripts/sandfall/presentation_model.gd")
 const Tools = preload("res://scripts/sandfall/material_tools.gd")
 const Codec = preload("res://scripts/sandfall/archive_codec.gd")
+const Registry = preload("res://scripts/sandfall/rapier_object_registry.gd")
 
 var _checks: int = 0
 var _failures: Array[String] = []
@@ -21,6 +22,7 @@ func _run() -> void:
 	await _presentation_history()
 	await _new_draft_replay()
 	await _passive_subject_promotion()
+	await _metadata_preview_uses_replayed_candidate()
 	await _partial_tick_and_capacity()
 	print("SANDFALL_PROMOTION_TEST ", JSON.stringify({"ok": _failures.is_empty(), "checks": _checks,
 		"failures": _failures, "receipts": _receipts,
@@ -203,6 +205,56 @@ func _passive_subject_promotion() -> void:
 			"Promoted passive-subject project is not an exportable fresh draft")
 	_receipts.passive_subject_promotion = {"previous_id": original_id, "new_id": new_id,
 		"single_role_preserved": preview.ok, "local_source_recorded": true, "frozen_original_preserved": true}
+	host.free()
+	await process_frame
+
+
+func _metadata_preview_uses_replayed_candidate() -> void:
+	var host: Variant = Host.new()
+	root.add_child(host)
+	var session: Variant = Session.new(host)
+	_command(session, "sandbox")
+	_object(session, {"operation": "spawn", "definition": {"position": Vector2(120, 60),
+		"name": "Frozen first", "passive_subject": true}})
+	_object(session, {"operation": "spawn", "definition": {"position": Vector2(220, 60),
+		"name": "Frozen second"}})
+	var initial: Dictionary = session.authored_project()
+	var target_id: String = str(initial.bodies[1].id)
+	_command(session, "run")
+	for _tick: int in 5: _check(session.advance(), "Metadata preview fixture did not evolve")
+	_command(session, "toggle_pause")
+	_object(session, {"operation": "update", "id": target_id,
+		"changes": {"name": "Run-only caption", "passive_subject": true}})
+	var live_objects: Array = session.object_definitions()
+	_check(session.state().pristine and session.state().intervention_count == 0
+		and not live_objects[0].passive_subject and live_objects[1].passive_subject,
+		"Run-only metadata was journalled as a physical intervention")
+	_object(session, {"operation": "update", "id": target_id, "changes": {"mass": 3.5}})
+	_check(session.state().intervention_count == 1 and not session.state().pristine,
+		"Physical mass command did not enter the promotion journal")
+	var before: Dictionary = host.capture_physical_state()
+	session.set_modal_open(true)
+	var preview: Dictionary = session.preview_promotion()
+	_check(preview.ok and preview.eligible == 1 and host.capture_physical_state() == before,
+		"Metadata preview refused or mutated the active evolved scene")
+	var preview_matches: bool = false
+	if preview.ok:
+		var candidate: Dictionary = session._promotion.definition
+		var expected: Dictionary = initial.bodies[1].duplicate(true)
+		expected.mass = 3.5
+		_check(candidate.bodies[1] == expected and candidate.bodies[0] == initial.bodies[0],
+			"Promotion copied Run-only metadata or evolved physical state")
+		preview_matches = preview.preview.object_changes.size() == 1 \
+			and preview.preview.object_changes[0].initial_properties == Registry.logical_graph([expected])[0]
+		_check(preview_matches,
+			"Detailed preview initial properties differ from the actual replay candidate")
+		var installed: Dictionary = session.confirm_promotion(int(preview.token))
+		_check(installed.ok and session.object_definitions()[1] == expected
+			and session.authored_project().project.passive_subject_id == str(initial.bodies[0].id),
+			"Confirmed candidate differs from the reviewed frozen metadata and explicit mass change")
+	_receipts.metadata_preview = {"target_id": target_id, "evolved_ticks_discarded": 5,
+		"physical_fields_replayed": ["mass"], "run_only_metadata_excluded": ["name", "passive_subject"],
+		"preview_matches_candidate": preview_matches}
 	host.free()
 	await process_frame
 

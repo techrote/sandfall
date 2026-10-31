@@ -109,12 +109,12 @@ admission now checks supported stream encodings before inflation, and exponent
 digits are bounded before integer conversion. The strict diagnostic validator
 also requires an explicit successful terminal verdict.
 
-The latest project suite passes 464 checks, including three failures after two
+At first publication the project suite passed 464 checks, including three failures after two
 real temporary bodies/shapes have been allocated. Their RIDs and shapes retire;
 the active graph, native payload and document stay unchanged and still step.
 It directly reads `PhysicsServer2D.space_is_active` and requires the private
 manual space to be inactive for every capacity, including zero bodies. The
-latest promotion suite passes 98 checks, including passive-subject transfer,
+then-current promotion suite passed 98 checks, including passive-subject transfer,
 copied source provenance and a paint-then-erase cancellation whose final diff
 must be empty. External Python ZIP interchange now passes 83 checks and verifies
 the exact initial five-byte tuple digest for all five positive capacities.
@@ -142,6 +142,78 @@ The initial strict source reconciler also refused a 52,428,800-byte temporary
 partial LFS download left by the failed smudge. That exact file and its SHA-256
 were quarantined as negative evidence; the unchanged gate then passed with all
 18 real runtime payloads. No arbitrary unknown runtime exclusion was added.
+
+### First published head and subsequent review corrections
+
+Draft PR #6 opened against unchanged SF-M3 at implementation head
+`838db02a7b1b6ade87973cef0b6ae76b4c1488cd`, tree
+`997540b5a56cc16b5eea276f153f610ce6274e52`. Its first dedicated 22-job Actions run
+is `41196390818`; that run and its original artifacts remain part of the record.
+
+Exact-head independent review found that a promotion's detailed object preview
+serialized the live journal's complete row rather than the actual frozen-state
+replay result. A Run-only name/subject change followed by a mass intervention
+therefore described metadata that the correctly reconstructed candidate did not
+contain. A real five-tick session reproduces the discrepancy at the first head:
+116 assertions, one failure. The narrow fix serializes the actual replayed row;
+the same 116-check suite passes, including preview/candidate/confirmed-draft
+equality. Both original and corrected logs are retained.
+
+Browser review also tightened each upload's trusted change proof to its own
+fresh event range and exact filename/size. A prior equal-sized upload can no
+longer satisfy a later attempt's proof; explicit negative tests cover stale,
+absent, duplicate, untrusted and wrong-file events. Fourteen isolated Gallery
+terminal-capture jobs supplement the two unchanged full navigation workloads,
+giving 36 jobs in the expanded lane. Each scene/profile completes its real
+physics and evidence/input work before its one terminal PNG; no later input
+follows capture. These corrections require a fresh source-matched qualification
+head; the first run is not relabelled as testing them.
+
+A second independent exact-head probe found an actual import defect missed by
+logical-definition equality: reparenting the staged SubViewport detached its
+CollisionObject2D bodies from the Rapier space and reset nonzero velocities.
+The original body changed from `(12, -7)` linear and `1.5` angular velocity to
+zero at adoption. A full pinned-runtime probe found the other initial backend
+properties, shapes, RIDs and space unchanged. Synchronizing node velocity caches
+alone was tried and failed; that original failure is retained too. Pinned Godot
+source confirms that tree exit calls `body_set_space(rid, RID())` and tree entry
+rebinds the body.
+
+The correction retains the staged physical subtree continuously in place,
+using its emptied candidate node as one inert ownership container. All solver
+references transfer to the live host; shutdown retires the viewport and then
+the prior container. The expanded project suite passes 531 checks: actual
+initial backend velocities at every nonzero capacity, complete initial backend
+property/RID/shape/space equality, first-step analytic motion with no damping or
+gravity, fixed/frozen stability, and repeated imports/reset with constant holder
+depth and retired old holders, plus a real ZIP-imported autoplay Run with history
+locked at zero and the same nonzero first-step motion. An independent full-parameter probe passes on
+the corrected source. The first test trial also corrected its sampling
+observation: `pack_body_states()` deliberately consumes a serial, so the
+ownership assertion now reads copied coupling caches without consuming samples.
+
+Actual-browser project fixtures now author nonzero linear/angular velocities
+through the visible inspector and compare actual backend poses/velocities after
+original import, external JSON editing, promotion and final reimport. Logical
+JSON preservation alone cannot qualify this correction. Fresh final-head build
+and browser execution remain mandatory.
+
+The first published run completed fresh native/Web exports, the full 165-test
+native C++ target, all dedicated Godot tests, independent ZIP interchange, both
+SF-M1/M2 ordinary-browser profiles and the unchanged legacy 600-tick browser
+oracle successfully. These are exact `838db02` results and do not cover the
+subsequent corrections above. The new project/Gallery browser cases failed and
+their original logs, receipts and archives are retained. Exact comparisons
+exposed observer JSON rounding: a project position was
+`239.92532348632812` in the full-precision archive versus `239.925323486328`
+in the observer; a Gallery pose showed the same transport discrepancy. The
+shared read-only observer now emits full-precision JSON, matching project and
+evidence serialization without weakening equality assertions. The zero-body
+workload progressed through real import, external JSON editing, frozen Save,
+rejection and interventions, then exposed a missing expected-command argument
+in its paint-intervention assertion. The harness now explicitly requires
+`pencil_stroke` and retains its exact one-cell check. Both fixes require another
+actual-browser run from the corrected commit.
 
 ## Exact-head publication and independent review protocol
 

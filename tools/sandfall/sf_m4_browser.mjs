@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync, existsSync, renameSync } from "node:fs";
-import { dirname, resolve, join } from "node:path";
+import { basename, dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { analyzePng, pngDimensions } from "./sf_m0_png_stats.mjs";
 import { mapGodotRect, cssRectToScreenshotROI } from "./sf_m0_geometry.mjs";
@@ -16,11 +16,12 @@ import {assertRegistry,assertObjectEdit,assertObjectRefusal,authoredState,assert
   sampleControlLayout,sameControlLayout,controlLayoutSettled} from "./sf_m3_browser_assertions.mjs";
 import {mapWorldCell} from "./sf_m2_geometry.mjs";
 import {assertRejectedImport,assertProjectInstalled,assertSameLogicalProject,assertFrozenSave,
-  assertProjectSource,assertPromotionBoundary,unexpectedConsoleErrors} from "./sf_m4_browser_assertions.mjs";
+  assertProjectSource,assertPromotionBoundary,assertBrowserFileDelivery,unexpectedConsoleErrors} from "./sf_m4_browser_assertions.mjs";
 import {
   assertOrdinaryState, assertEdit, assertInputClear, physicalCheckpoint,
   assertPausedStable, assertStep, assertReset, assertGallery600, assertTrustedDelivery,
   assertEditMutation, assertHistoryLocked, assertRunIntervention, gestureAcknowledged,
+  samePhysicalValue,
 } from "./sf_m2_browser_assertions.mjs";
 
 const argv = new Map();
@@ -37,6 +38,12 @@ const bodyCount = Number(argv.get("--bodies") ?? process.env.SF_M4_BODY_COUNT ??
 if (![0,1,3,8,16].includes(bodyCount)) throw Error("SF-M4 workload must be one of 0,1,3,8,16");
 const scenario = argv.get("--scenario") || "projects";
 if(!["projects","gallery"].includes(scenario))throw Error("Unknown SF-M4 scenario");
+const galleryEntries=[['gravity_cascade','Gravity Cascade',3],['fluid_messenger','Fluid Messenger',1],
+  ['passive_subject_ride','Passive Subject Ride',3],['endless_kinetic_loop','Endless Kinetic Loop',3],
+  ['intervention','Intervention Workshop',3],['time_controls','Time Controls',3],['sixteen_body','Sandfall 16-Body',16]];
+const galleryEntry=argv.get('--gallery-entry')??null;
+if(galleryEntry&&(scenario!=='gallery'||!galleryEntries.some(row=>row[0]===galleryEntry)))
+  throw Error('An isolated Gallery capture requires a registered exhibition entry');
 const downloadDir=resolve(argv.get("--download-dir")||join(dirname(output),"downloads"));
 mkdirSync(downloadDir,{recursive:true});
 const verificationPath = argv.get("--verification");
@@ -660,15 +667,16 @@ async function upload(path,{accept=true,label='project-import',expectedCRC=false
     chooser:copy(chooser),method:'DOM.setFileInputFiles',elapsed_ms:Date.now()-started};
   fileTransfers.push(transfer);
   const consoleStart=consoleEvents.length;
+  await observe();
+  transfer.dom_delivery={start_index:domInputEvents.length,name:basename(path),bytes:bytes.length};
   await cmd('DOM.setFileInputFiles',{files:[resolve(path)],backendNodeId:chooser.backendNodeId});
   transfer.acknowledged=true;
   await cmd('Page.bringToFront');
   await waitFor(label+'-staged-or-refused',s=>s.project_file.operation_serial>serial&&
     (s.project_file.staged||s.project_file.status==='refused'),90000);
+  transfer.dom_delivery.end_index=domInputEvents.length;
   check(label+'-trusted-browser-file-delivery',()=>{
-    const events=domInputEvents.filter(e=>e.type==='change'&&e.targetId==='sandfall-project-file');
-    assert.ok(events.some(e=>e.isTrusted&&e.files?.length===1&&e.files[0].size===bytes.length),
-      'No genuine browser file-input change delivered the archive bytes');
+    transfer.dom_delivery.event=assertBrowserFileDelivery(domInputEvents,transfer.dom_delivery);
   });
   if(!accept) {
     check(label+'-refused-before-replacement',()=>{
@@ -840,6 +848,17 @@ async function projectScenario() {
     await waitFor('project-box-'+i+'-accepted',s=>s.mutation_count>before.mutation_count);
     check('project-box-'+i+'-stable-ID',()=>assertObjectEdit(before,state,i+1));
   }
+  if(bodyCount>0) {
+    await selectObject(ids(state)[0]);
+    await inspector('motion',{vx:12,vy:-7,angular_velocity:60});
+    await applyInspector(bodyCount,{label:'authored-nonzero-initial-velocities'});
+    check('nonzero-initial-velocities-exist-in-logical-and-live-physics',()=>{
+      assert.deepEqual(objects(state)[0].linear_velocity,[12,-7]);
+      assert.ok(Math.abs(objects(state)[0].angular_velocity-Math.PI/3)<1e-6);
+      samePhysicalValue(state.native.body_states[0].slice(3,6),[12,-7,Math.PI/3],
+        'Authored initial linear/angular velocity in actual physics');
+    });
+  }
   await addPresentationLabel({history:true});
   const initial=authoredState(state),original=await download('original-'+bodyCount);
   check('ordinary-ZIP-contains-exact-initial-object-graph',()=>{
@@ -858,11 +877,9 @@ async function projectScenario() {
   const externalPath=join(downloadDir,'external-edited-'+bodyCount+'.sandfall');
   externalFixture('mutate',original.path,{destination:externalPath,kind:'editable-folder',label:'external-edit-'+bodyCount});
   const externalInspect=externalFixture('inspect',externalPath,{label:'external-inspection-'+bodyCount});
-  await upload(externalPath,{label:'ordinary-tools-edited-project'});
+  const beforeExternal=await upload(externalPath,{label:'ordinary-tools-edited-project'});
   check('ordinary-extracted-JSON-edit-is-observed',()=>{
-    assertRegistry(state,bodyCount);assert.equal(state.current_hash,initial.cells);
-    assert.deepEqual(objects(state),externalInspect.objects.objects);
-    assert.equal(state.document.undo_depth,0);assert.equal(state.tick,0);assert.equal(state.rapier_steps,0);
+    assertProjectInstalled(beforeExternal,state,{...initial,definitions:externalInspect.objects.objects});
   });
   const canonical=await download('canonical-external-'+bodyCount),baseline=authoredState(state);
   await group('objects');await click('object_clear');await waitFor('project-clear-selection',s=>!s.editor.selected_object_id);
@@ -893,7 +910,7 @@ async function projectScenario() {
   await group('materials');await material('wall',1);await tool('pencil');
   const paintBefore=await stroke([35,28],[35,28],{label:'promotable-declarative-paint'});
   await waitFor('promotable-paint-accepted',s=>s.mutation_count>paintBefore.mutation_count);
-  check('Run-paint-journalled-and-Modified',()=>{assertRunIntervention(paintBefore,state);assert.equal(state.last_edit.cells,1);});
+  check('Run-paint-journalled-and-Modified',()=>{assertRunIntervention(paintBefore,state,'pencil_stroke');assert.equal(state.last_edit.cells,1);});
   const modifiedSave=await download('Modified-Run-frozen-'+bodyCount);
   check('Modified-Run-save-excludes-all-interventions-and-evolution',()=>assertFrozenSave(canonical.inspection,modifiedSave.inspection));
   const evidence=await download('Modified-Run-evidence-'+bodyCount,'run_evidence');
@@ -910,6 +927,9 @@ async function projectScenario() {
   await click('promotion_confirm');await waitFor('new-promoted-Edit-draft',s=>s.generation>beforePreview.generation&&s.mode==='edit'&&s.tick===0&&s.ready&&!s.menu);
   check('explicit-confirmation-creates-a-fresh-tick-zero-draft',()=>{
     assertPromotionBoundary(beforePreview,state);assert.deepEqual(objects(state),expectedDefinitions);
+    samePhysicalValue(state.native.body_states,expectedDefinitions.map(d=>[
+      ...d.position,d.rotation,...d.linear_velocity,d.angular_velocity,false]),
+      'Promoted initial live poses and nonzero velocities');
     for(let i=0;i<baseline.definitions.length;i++)assert.deepEqual(objects(state)[i].position,baseline.definitions[i].position,
       'Promotion copied a fallen live pose instead of the initial authored transform');
   });
@@ -919,16 +939,18 @@ async function projectScenario() {
     assert.equal(cellDiff.changed_cells,1);assert.deepEqual(cellDiff.indices,[28*1024+35]);
     assert.equal(cellDiff.tuples[0].after[0],1);assert.equal(cellDiff.truncated,false);
   });
-  await upload(canonical.path,{label:'restore-original-capacity-for-terminal-physics'});
+  const beforeRestore=await upload(canonical.path,{label:'restore-original-capacity-for-terminal-physics'});
+  check('reimport-restores-initial-live-poses-and-velocities',()=>assertProjectInstalled(beforeRestore,state,baseline));
   await group('objects');await click('object_clear');await waitFor('terminal-import-selection-clear',s=>!s.editor.selected_object_id);
   await runWorkload(baseline,'reimported-'+bodyCount+'-body-physical-workload');
   await terminalWorld({annotation:true});
 }
 
 async function galleryScenario() {
-  const entries=[['gravity_cascade','Gravity Cascade',3],['fluid_messenger','Fluid Messenger',1],
-    ['passive_subject_ride','Passive Subject Ride',3],['endless_kinetic_loop','Endless Kinetic Loop',3],
-    ['intervention','Intervention Workshop',3],['time_controls','Time Controls',3],['sixteen_body','Sandfall 16-Body',16]];
+  // Each optional isolated entry gets its own browser process and terminal
+  // capture. The full navigation workload remains a separate matrix case.
+  // Never resume input in this process after any screenshot has begun.
+  const entries=galleryEntry?galleryEntries.filter(row=>row[0]===galleryEntry):galleryEntries;
   for(const [id,title,count] of entries) {
     await click('gallery_browse');await waitFor('Gallery-browser-open',s=>s.project_modal==='gallery'&&s.menu);
     await textField('gallery_search',title,s=>s.gallery.query===title&&s.gallery.visible_ids.length===1&&s.gallery.visible_ids[0]===id);
@@ -1101,7 +1123,7 @@ try {
       build_source_commit:verification.build_source_commit,harness_source_commit:verification.harness_source_commit,
       source_equivalence:verification.source_equivalence},
     acceptance_mode:"ordinary dedicated Sandfall application; read-only test=1; genuine CDP input only",
-    scope:{compatibility_web:true,threaded_web:false,human_visual_acceptance:false,scenario,
+    scope:{compatibility_web:true,threaded_web:false,human_visual_acceptance:false,scenario,gallery_entry:galleryEntry,
       coupled_body_count:scenario==='projects'?bodyCount:null,capacity_refusal:scenario==='projects'&&bodyCount===16,
       archive_delivery:"real browser chooser/upload and observed Blob download bytes",
       physical_save_restore_and_partial_fault:"Separate Godot backend/session gates; not claimed by this browser receipt"},

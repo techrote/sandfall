@@ -88,8 +88,11 @@ static func build(frozen: Dictionary, journal: Array) -> Dictionary:
 				return _refuse("promotion_object_conflict: " + str(checked.error))
 			objects = checked.definitions
 			eligible += 1
+			# Preview the applied frozen-scene result. The live journal snapshot
+			# can contain view-only metadata outside this command's explicit fields.
+			var replayed_index: int = _find(objects, id)
 			object_changes.append({"sequence": entry.sequence, "kind": kind, "id": id,
-				"initial_properties": Registry.logical_graph([after[after_index]])[0] if after_index >= 0 else {},
+				"initial_properties": Registry.logical_graph([objects[replayed_index]])[0] if replayed_index >= 0 else {},
 				"applied_fields": entry.get("explicit_fields", {}).get(id, [])})
 		else:
 			skipped.append({"sequence": entry.get("sequence", 0), "kind": kind,

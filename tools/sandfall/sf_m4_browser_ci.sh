@@ -22,11 +22,20 @@ trap 'kill "$SERVER_PID" ${CHROME_PID:+"$CHROME_PID"} 2>/dev/null || true' EXIT
   --remote-debugging-port=9231 --user-data-dir="$RUNNER_TEMP/sf-m4-chrome" \
   about:blank > "$evidence/chrome.log" 2>&1 &
 CHROME_PID=$!
-timeout 1860 node tools/sandfall/sf_m4_browser.mjs \
+gallery_args=()
+phase_timeout_ms=1620000
+process_timeout_seconds=1860
+if [[ -n "${GALLERY_ENTRY:-}" ]]; then
+  test "$scenario" = gallery
+  gallery_args=(--gallery-entry "$GALLERY_ENTRY")
+  phase_timeout_ms=540000
+  process_timeout_seconds=780
+fi
+timeout "$process_timeout_seconds" node tools/sandfall/sf_m4_browser.mjs \
   --port 9231 --url 'http://127.0.0.1:8040/?test=1' \
   --verification "$evidence/artifact-verification.json" \
   --width "$VIEW_WIDTH" --height "$VIEW_HEIGHT" --dpr "$VIEW_DPR" \
-  --bodies "${BODY_COUNT:-16}" --scenario "$scenario" \
+  --bodies "${BODY_COUNT:-16}" --scenario "$scenario" "${gallery_args[@]}" \
   --output "$evidence/browser.json" --screenshot "$evidence/browser.png" \
-  --download-dir "$evidence/downloads" --timeout-ms 1620000 \
+  --download-dir "$evidence/downloads" --timeout-ms "$phase_timeout_ms" \
   2>&1 | tee "$evidence/harness.log"

@@ -87,8 +87,12 @@ exact initial material projection verification precede the commit.
 
 `commit_staged_project()` retires the old graph only after those checks. It
 adopts the complete candidate viewport, native owner, Rapier bridge, RIDs,
-colliders, registry and copied publication state. It does not rebuild candidate
-bodies in the old shared space. Failed candidate setup frees only candidate
+colliders, registry and copied publication state. The candidate remains as one
+inert container with its solver references relinquished; its physical subtree
+stays continuously attached. Reparenting that subtree would detach/rebind Rapier
+bodies and lose actual initial velocities in the pinned backend. Shutdown frees
+the owned viewport and then the old container, with bounded depth across repeated
+imports. It does not rebuild candidate bodies in the old shared space. Failed candidate setup frees only candidate
 resources. No claimed rollback hides a partial live mutation; unexpected partial
 effects still enter the existing Fault boundary with actual counters.
 
@@ -182,7 +186,11 @@ tests, independent Python ZIP interchange, both ordinary browser profiles and
 actual project-file workloads for 0/1/3/8/16 plus 17-body refusal. Genuine CDP
 input uses source-bound settled Control geometry, trusted DOM delivery and
 actual viewport pixels. Upload/download bytes and every portable file digest
-are independently checked.
+are independently checked. Each upload's current trusted file-change event is
+bound to a fresh event-index range and exact filename/size. Separate terminal
+capture jobs cover every Gallery entry in both profiles, while the complete
+Gallery navigation workloads remain intact. No further input follows the start
+of a screenshot capture, as required by the inherited browser contract.
 
 Malformed DEFLATE can make Godot's own bounded decompressor emit the precise
 `Decompression failed.` diagnostic before returning refusal. That original

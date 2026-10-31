@@ -42,8 +42,9 @@ fields are provenance claims, not signatures or trusted code.
 Candidate construction owns a separate native World and private manual Rapier
 space. Copied document allocation, initial projection equality, body creation
 and collider readiness precede old-owner retirement. Successful adoption moves
-the complete viewport/owner graph; the discarded candidate relinquishes its
-transferred references before destruction. Rejected setup retires temporary
+the complete viewport/owner graph while its physical subtree stays attached.
+The emptied candidate retains no solver handles and serves as one inert
+container, retired after the owned viewport at the next shutdown. Rejected setup retires temporary
 RIDs/shapes and leaves the active scene operational. Genuine post-mutation
 failure uses the existing Fault path and reports its actual partial outcome.
 
@@ -77,6 +78,11 @@ confirmation installs a fresh paused Edit baseline through the staged path.
 | File bridge size cap diverged from codec | Bridge derives its archive limit from the codec; no separate inconsistent admission limit remains. |
 | Evidence omitted current logical properties and refusal context | Initial definitions, current objects, observed presentation, bounded command context and dropped-event counts are separate fields. Malformed omitted parameters and replay limits are explicit. |
 | Browser tool names and feedback checks were incomplete | Harness uses the application's real pencil command; all admitted stable IDs must equal feedback keys before per-body assertions. |
+| Detailed promotion preview could include Run-only metadata not replayed into the candidate | Serialize the actual post-replay row. A real five-tick session with a cosmetic name/subject change followed by mass editing reproduces the original discrepancy and verifies the corrected preview, candidate and confirmed draft agree. |
+| File-change verification could match an earlier equal-sized upload | Bind one trusted current event to fresh start/end indices and exact filename/size; retained event receipt and stale/wrong/untrusted/duplicate/absent negatives enforce the boundary. |
+| Reparenting a staged viewport reset actual initial body velocities despite correct logical definitions | Keep the complete physical subtree continuously attached in one inert candidate holder. Direct backend parameter/pose/velocity/RID/shape/space probes, first-step analytic motion, fixed/frozen bodies and repeated holder retirement now pass. The cache-only repair attempt failed and is retained. |
+| Browser observer rounded values differently from full-precision project/evidence exports | The shared read-only observer now uses full-precision JSON. Original project/Gallery exact-equality failures are retained; no numeric tolerance was widened. |
+| Zero-body browser paint assertion omitted its expected command kind | The assertion explicitly requires `pencil_stroke` and its exact one-cell result. The original failure after genuine import, frozen Save and live interventions remains retained. |
 
 ## Executed development evidence
 
@@ -89,8 +95,8 @@ godot-cpp `101ae38034304346a46ea9ea84ae156d3e860496` and SCons 4.10.1.
 |---|---|
 | Archive | 184 checks, 93 negative cases; four exact expected malformed-DEFLATE diagnostics |
 | Independent Python ZIP interchange | 83 checks; five capacity fixtures and fourteen hostile archives; exact initial tuple SHA for every positive |
-| Isolated project reconstruction | 464 checks; 0/1/3/8/16 bodies, capacity and malformed refusal, temporary allocation retirement and inactive manual spaces |
-| History and declarative promotion | 98 checks; copied ownership, first-tick fence, capacity, subject transfer, cancellation and fresh-draft confirmation |
+| Isolated project reconstruction | 531 checks; 0/1/3/8/16 bodies, actual nonzero initial velocity and first-step motion, imported autoplay with Run history locked at zero, capacity/malformed refusal, temporary allocation and repeated container retirement, inactive manual spaces |
+| History and declarative promotion | 116 checks; copied ownership, first-tick fence, capacity, subject transfer, cancellation, exact candidate preview and fresh-draft confirmation |
 | Presentation / project Control input | 18 / 39 checks |
 | Repeated Gallery | 189 checks, 15 runs, 9,000 actual native/Rapier coupled ticks, including no-Water causal control |
 | Unchanged Sandfall Physics Pit | 600/600 ticks, 106,717 contacts, 149 displaced cells and physical save/restore passed |
@@ -98,7 +104,9 @@ godot-cpp `101ae38034304346a46ea9ea84ae156d3e860496` and SCons 4.10.1.
 Original negatives remain in the evidence bundle, including oversized exponent,
 empty DEFLATE, CRC diagnostics, an invalid review fixture caught by the engine
 error gate, the original damped-loop outcome and the subsequent unchanged
-Physics Pit failure before explicit recipe migration. A terminal JSON marker
+Physics Pit failure before explicit recipe migration, and the first published
+head's detailed promotion-preview and actual adoption-velocity discrepancies,
+including the failed cache-only velocity repair. A terminal JSON marker
 alone is never sufficient when the same log contains an unexpected engine error.
 
 ## Required exact-head closure
@@ -109,7 +117,10 @@ profiles. The independent final review must inspect actual uploaded/downloaded
 ZIP bytes, browser source/geometry/trusted-input receipts, world pixels, all
 admitted bodies, material feedback and body contacts, repeated Gallery outcomes,
 frozen Save, refusal invariance and promotion. Retained SF-M1/M2/M3 and legacy
-physical oracles remain unchanged requirements.
+physical oracles remain unchanged requirements. Each Gallery scene/profile also
+has an isolated terminal-capture job so every scene's original world PNG can be
+reviewed without violating the no-input-after-capture rule. Full navigation runs
+are retained separately; the expanded lane has 36 jobs.
 
 Run evidence records actual local outcomes and source/runtime identities; it
 does not establish cross-platform bitwise replay, arbitrary continuation or

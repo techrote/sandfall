@@ -50,6 +50,18 @@ export function assertProjectSource(identity,verification) {
     'The PCK identity differs from the exact-head source/native/Rapier manifest');
 }
 
+export function assertBrowserFileDelivery(events,transfer) {
+  const {start_index:start,end_index:end,name,bytes}=transfer;
+  assert.ok(Number.isSafeInteger(start)&&Number.isSafeInteger(end)&&start>=0&&end>start&&end<=events.length,
+    'File delivery has no bounded current DOM event range');
+  assert.ok(typeof name==='string'&&name.length>0&&Number.isSafeInteger(bytes)&&bytes>0);
+  const changes=events.slice(start,end).filter(e=>e.type==='change'&&e.targetId==='sandfall-project-file');
+  assert.equal(changes.length,1,'The current file transfer must deliver exactly one native input change');
+  assert.equal(changes[0].isTrusted,true,'Current file change was not trusted browser input');
+  assert.deepEqual(changes[0].files,[{name,size:bytes}],'Current file change delivered another file');
+  return structuredClone(changes[0]);
+}
+
 export function assertPromotionBoundary(before,after) {
   assertEdit(after);
   assert.ok(after.generation>before.generation,'Promotion did not construct a new authoring generation');

@@ -49,6 +49,7 @@ func _init() -> void:
 func _run() -> void:
 	ProjectSettings.set_setting("cybersand/native_worker_threads", 1)
 	await _capacity_roundtrips()
+	await _adoption_preserves_backend_state()
 	await _atomic_candidate_failures()
 	await _partial_body_candidate_failure()
 	await _frozen_save_and_evidence()
@@ -96,6 +97,18 @@ func _capacity_roundtrips() -> void:
 		_check(host._bodies.size() == count and host._body_root.get_world_2d().space != root.world_2d.space,
 			"Project bodies do not own an isolated physics space")
 		_check(not host.state().owned_physics_space_active, "Project physics space is automatically active, including empty scene")
+		var container_id: int = host._adopted_container.get_instance_id()
+		_check(host.get_child_count() == 1 and host._adopted_container.get_parent() == host
+			and host._physics_viewport.get_parent() == host._adopted_container
+			and host._adopted_container.get_child_count() == 1,
+			"Imported graph does not have exactly one bounded inert ownership container")
+		_check(host.state().body_states == host.state().initial_body_states,
+			"Imported actual backend initial velocities/poses differ from the staged initial graph")
+		for index: int in count:
+			var pose: Array = host.state().body_states[index]
+			_check(Vector2(pose[3], pose[4]) == definition.bodies[index].linear_velocity
+				and is_equal_approx(float(pose[5]), float(definition.bodies[index].angular_velocity)),
+				"Portable initial velocity was only preserved in logical metadata")
 		var ids: Dictionary = {}
 		for body: RigidBody2D in host._bodies:
 			_check(not ids.has(body.get_rid()), "Repeated RID in imported graph")
@@ -112,11 +125,128 @@ func _capacity_roundtrips() -> void:
 		_check(session.state().tick == 0 and session.state().rapier_steps == 0
 			and session.object_definitions() == definition.bodies and session.authored_project().initial_cells == definition.initial_cells,
 			"Imported project reset does not reconstruct exact authored values")
+		_check(not is_instance_id_valid(container_id) and host.get_child_count() == 1,
+			"Reset leaked an adopted container or nested a new physical graph")
 		matrix.append({"bodies": count, "logical_sha256": encoded.logical_sha256, "bytes": encoded.bytes.size(),
 			"native_ticks": 30, "rapier_steps": 30 if count > 0 else 0, "reset_exact": true})
 	_receipts.matrix = matrix
 	host.free()
 	await process_frame
+
+
+func _adoption_preserves_backend_state() -> void:
+	var host: Variant = Host.new()
+	root.add_child(host)
+	var session: Variant = Session.new(host)
+	_command(session, "sandbox")
+	var definition: Dictionary = session.authored_project()
+	definition.bodies = []
+	for index: int in 3:
+		var body: Dictionary = Registry.make_box("adoption-%d" % index, index + 1,
+			Vector2(120 + index * 130, 80), Vector2(18, 23))
+		body.rotation = 0.35
+		body.mass = 2.75
+		body.friction = 0.47
+		body.restitution = 0.62
+		body.gravity_scale = 0.0
+		body.linear_damp = 0.0
+		body.angular_damp = 0.0
+		body.linear_velocity = Vector2(12, -7) if index == 0 else Vector2.ZERO
+		body.angular_velocity = 1.5 if index == 0 else 0.0
+		body.fixed = index == 1
+		body.frozen = index == 2
+		definition.bodies.append(body)
+	var staged: Dictionary = host.stage_project(definition)
+	_check(staged.ok, "Nonzero-velocity candidate did not stage")
+	if not staged.ok:
+		host.free()
+		return
+	var before_states: Array = staged.candidate.state().body_states.duplicate(true)
+	var before_properties: Array = _backend_properties(staged.candidate)
+	var before_samples: Dictionary = _coupling_cache(staged.candidate)
+	var adopted: Dictionary = host.commit_staged_project(staged.candidate)
+	_check(adopted.ok and host.state().native_tick == 0 and host.state().rapier_steps == 0,
+		"Adoption failed or secretly advanced physics")
+	_check(host._adopted_container == staged.candidate and host._physics_viewport.get_parent() == staged.candidate,
+		"Adoption reparented the live physical subtree")
+	_check(host.state().body_states == before_states and host.state().initial_body_states == before_states,
+		"Viewport tree re-entry overwrote actual initial velocities or transforms")
+	var adoption_properties_unchanged: bool = _backend_properties(host) == before_properties
+	_check(adoption_properties_unchanged,
+		"Viewport adoption changed raw backend properties, shape/RID ownership or manual space")
+	_check(_coupling_cache(host) == before_samples,
+		"Adoption changed the initial bounded sampling state or slot mapping")
+	await process_frame
+	_check(host.state().body_states == before_states and not host.state().owned_physics_space_active,
+		"Scene-tree frame or automatic space stepping changed the imported tick-zero graph")
+	var tick: Dictionary = host.tick_once()
+	var advanced: Array = host.state().body_states
+	_check(tick.advanced and host.state().native_tick == 1 and host.state().rapier_steps == 1,
+		"Imported velocity test did not perform exactly one coupled step")
+	_check(absf(float(advanced[0][0]) - (float(before_states[0][0]) + 12.0 / 60.0)) < 0.002
+		and absf(float(advanced[0][1]) - (float(before_states[0][1]) - 7.0 / 60.0)) < 0.002
+		and absf(float(advanced[0][2]) - (float(before_states[0][2]) + 1.5 / 60.0)) < 0.0001,
+		"Actual first-step translation/rotation did not use imported initial velocities")
+	_check(Vector2(advanced[0][3], advanced[0][4]) == Vector2(12, -7)
+		and is_equal_approx(float(advanced[0][5]), 1.5), "Undamped imported velocities were lost after the first step")
+	_check(advanced[1] == before_states[1] and advanced[2] == before_states[2],
+		"Fixed/frozen imported bodies moved on the first step")
+	_receipts.adoption = {"before": before_states, "after_first_tick": advanced,
+		"adoption_properties_unchanged": adoption_properties_unchanged,
+		"first_step_backend_properties": _backend_properties(host),
+		"initial_sampling_unchanged": true, "zero_tick_frame_unchanged": true,
+		"raw_backend_properties": before_properties}
+	for iteration: int in 3:
+		var previous_container: int = host._adopted_container.get_instance_id()
+		var replacement: Dictionary = host.stage_project(definition)
+		_check(replacement.ok and host.commit_staged_project(replacement.candidate).ok,
+			"Repeated nonzero-velocity adoption failed")
+		_check(not is_instance_id_valid(previous_container) and host.get_child_count() == 1
+			and host._adopted_container.get_parent() == host and host._adopted_container.get_child_count() == 1,
+			"Repeated adoption retained an old container or grew its ownership depth")
+		_check(host.state().body_states == before_states,
+			"Repeated adoption changed actual authored initial velocities or transforms")
+	definition["project"] = Codec.project_defaults(definition.bodies)
+	definition.project.startup = "run_autoplay"
+	var encoded: Dictionary = Codec.encode_definition(definition)
+	var decoded: Dictionary = Codec.decode_bytes(encoded.bytes)
+	_check(encoded.ok and decoded.ok, "Autoplay initial-velocity project failed ordinary ZIP roundtrip")
+	var imported: Dictionary = session.import_project(decoded.definition, session.state().generation, session.state().input_epoch)
+	_check(imported.ok and session.state().mode == "run" and not session.state().paused
+		and session.state().tick == 0 and session.state().rapier_steps == 0
+		and session.state().document.locked and host.state().body_states == before_states,
+		"Autoplay archive did not install exact nonzero initial state with Run history locked at zero")
+	_check(session.advance() and session.state().tick == 1 and session.state().rapier_steps == 1
+		and session.state().history_retired and host.state().body_states == advanced,
+		"Autoplay archive did not use the same initial velocities on its first coupled step")
+	host.free()
+	await process_frame
+
+
+func _backend_properties(host: Variant) -> Array:
+	var rows: Array = []
+	for body: RigidBody2D in host._bodies:
+		var rid: RID = body.get_rid()
+		var parameters: Array = []
+		for parameter: int in range(PhysicsServer2D.BODY_PARAM_MAX):
+			var value: Variant = PhysicsServer2D.body_get_param(rid, parameter)
+			parameters.append([value.x, value.y] if value is Vector2 else value)
+		rows.append({"rid": str(rid.get_id()), "shape": str(PhysicsServer2D.body_get_shape(rid, 0).get_id()),
+			"space": str(PhysicsServer2D.body_get_space(rid).get_id()),
+			"mode": PhysicsServer2D.body_get_mode(rid), "parameters": parameters,
+			"ccd": PhysicsServer2D.body_get_continuous_collision_detection_mode(rid),
+			"layers": body.collision_layer, "mask": body.collision_mask, "freeze": body.freeze})
+	return rows
+
+
+func _coupling_cache(host: Variant) -> Dictionary:
+	var bridge: Variant = host._rapier_bridge
+	# Observe without consuming a new sample serial; pack_body_states advances
+	# that bounded serial by design and is not a read-only diagnostic API.
+	return {"transforms": bridge._transforms.duplicate(),
+		"linear_velocities": bridge._linear_velocities.duplicate(),
+		"angular_velocities": bridge._angular_velocities.duplicate(),
+		"sleeping": bridge._sleeping.duplicate(), "slots": bridge.slot_mapping()}
 
 
 func _atomic_candidate_failures() -> void:

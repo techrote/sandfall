@@ -582,7 +582,9 @@ func _publish_observation(force: bool = false) -> void:
 	_last_observation_ms = now
 	# Read-only values in the ordinary application. No acceptance URL selects
 	# a different scene or allows JavaScript to mutate the host or its counters.
-	var encoded: String = JSON.stringify(JSON.stringify(observation()))
+	# Preserve the same exact numeric values as project/evidence exports. The
+	# outer stringify only quotes the JSON text safely for JavaScript delivery.
+	var encoded: String = JSON.stringify(JSON.stringify(observation(), "", true, true))
 	JavaScriptBridge.eval("(() => { let e = document.getElementById('sandfall-test-state'); if (!e) { e = document.createElement('pre'); e.id = 'sandfall-test-state'; e.hidden = true; document.body.appendChild(e); } e.textContent = " + encoded + "; })()", true)
 
 

@@ -36,6 +36,7 @@ var _body_body_pairs: Dictionary = {}
 var _object_mutating: bool = false
 var _physics_viewport: SubViewport
 var _body_root: Node2D
+var _adopted_container: SandfallSimulationHost
 
 
 func configure(definition: Dictionary) -> Dictionary:
@@ -186,11 +187,12 @@ func commit_staged_project(candidate: SandfallSimulationHost) -> Dictionary:
 			or not candidate._ready or candidate._fault or candidate._native_tick() != 0 \
 			or candidate._rapier_steps() != 0 or not is_instance_valid(candidate._physics_viewport):
 		return {"ok": false, "error": "invalid_staged_owner", "partial": false}
-	# The candidate already owns its World2D, body RIDs, terrain and native
-	# state. Moving the containing viewport does not rebuild or rebind a body.
-	# No allocation/fallible solver operation follows retirement of the old graph.
+	# Keep the candidate's physical subtree continuously attached. Reparenting
+	# a viewport makes CollisionObject2D exit/re-enter and detaches Rapier bodies
+	# from their space, losing actual velocities. The emptied candidate remains
+	# one inert container; this host alone owns the transferred solver handles.
+	# No fallible solver operation follows retirement of the old graph.
 	shutdown()
-	candidate._physics_viewport.reparent(self, false)
 	_native_world = candidate._native_world
 	_edit_bridge = candidate._edit_bridge
 	_demo_bridge = candidate._demo_bridge
@@ -215,7 +217,10 @@ func commit_staged_project(candidate: SandfallSimulationHost) -> Dictionary:
 	_body_body_pairs = candidate._body_body_pairs
 	_physics_viewport = candidate._physics_viewport
 	_body_root = candidate._body_root
+	_adopted_container = candidate
+	candidate._ready = false
 	candidate._bodies = []
+	candidate._body_sizes = PackedVector2Array()
 	candidate._initial_body_states = []
 	candidate._rapier_bridge = null
 	candidate._physics_viewport = null
@@ -223,7 +228,10 @@ func commit_staged_project(candidate: SandfallSimulationHost) -> Dictionary:
 	candidate._native_world = null
 	candidate._edit_bridge = null
 	candidate._demo_bridge = null
-	candidate.free()
+	candidate._definition = {}
+	candidate._object_registry = Registry.new()
+	candidate._object_feedback = {}
+	candidate._body_body_pairs = {}
 	return {"ok": true, "state": state()}
 
 
@@ -618,6 +626,9 @@ func shutdown() -> void:
 		_physics_viewport.free()
 	_physics_viewport = null
 	_body_root = null
+	if is_instance_valid(_adopted_container):
+		_adopted_container.free()
+	_adopted_container = null
 
 
 func _exit_tree() -> void:

@@ -1,6 +1,6 @@
 // Negative evidence controls, not substitutes for the real browser matrix.
 import assert from 'node:assert/strict';
-import {assertRejectedImport,assertSameLogicalProject,assertFrozenSave,assertProjectSource,unexpectedConsoleErrors} from './sf_m4_browser_assertions.mjs';
+import {assertRejectedImport,assertSameLogicalProject,assertFrozenSave,assertProjectSource,assertBrowserFileDelivery,unexpectedConsoleErrors} from './sf_m4_browser_assertions.mjs';
 
 const clone=x=>structuredClone(x);
 const before={generation:7,mode:'run',paused:true,tick:190,rapier_steps:190,current_hash:'live',definition_hash:'initial',
@@ -26,6 +26,17 @@ for(const key of ['scene','objects','style','annotations','world_sha256','world_
 const identity={source_commit:'a'.repeat(40),native_runtime_sha256:'b'.repeat(64)};
 assertProjectSource(identity,{project_source_identity:clone(identity)});
 assert.throws(()=>assertProjectSource({...identity,native_runtime_sha256:'c'.repeat(64)},{project_source_identity:identity}));
+const delivered={type:'change',targetId:'sandfall-project-file',isTrusted:true,files:[{name:'current.sandfall',size:100}]};
+const transfer={start_index:1,end_index:2,name:'current.sandfall',bytes:100};
+assert.deepEqual(assertBrowserFileDelivery([clone(delivered),clone(delivered)],transfer),delivered);
+// An earlier equal-name/equal-size upload cannot qualify the current attempt.
+assert.throws(()=>assertBrowserFileDelivery([clone(delivered),{type:'mousemove'}],transfer));
+for(const current of [{...delivered,isTrusted:false},{...delivered,files:[{name:'previous.sandfall',size:100}]},
+  {...delivered,files:[{name:'current.sandfall',size:101}]},{...delivered,files:[]}])
+  assert.throws(()=>assertBrowserFileDelivery([clone(delivered),current],transfer));
+assert.throws(()=>assertBrowserFileDelivery([clone(delivered),clone(delivered),clone(delivered)],{...transfer,end_index:3}));
+for(const altered of [{...transfer,end_index:1},{...transfer,start_index:-1},{...transfer,end_index:3}])
+  assert.throws(()=>assertBrowserFileDelivery([clone(delivered),clone(delivered)],altered));
 const diagnostic=[{type:'log',text:'normal'},{type:'error',text:'ERROR: Decompression failed.\n   at: func_PackedByteArray_decompress_dynamic (core/variant/variant_call.cpp:844)'}];
 const witness={case:'external_crc',fixture_sha256:'a'.repeat(64),refusal:'zip_decompression_size_or_crc',old_world_preserved:true,start_index:1,end_index:2};
 assert.deepEqual(unexpectedConsoleErrors(diagnostic,[witness]),[]);
@@ -34,4 +45,4 @@ for(const altered of [{...witness,old_world_preserved:false},{...witness,refusal
   assert.throws(()=>unexpectedConsoleErrors(diagnostic,[altered]));
 assert.throws(()=>unexpectedConsoleErrors([{type:'log',text:'normal'},{type:'error',text:'ERROR: Another failure'}],[witness]));
 assert.equal(unexpectedConsoleErrors([...diagnostic,{type:'error',text:'ERROR: Decompression failed.'}],[witness]).length,1);
-console.log('SF_M4_BROWSER_ASSERTIONS passed: exact refusal, canonical round-trip, frozen save and source identity negatives');
+console.log('SF_M4_BROWSER_ASSERTIONS passed: exact refusal, canonical round-trip, frozen save, source identity and current trusted file delivery negatives');
