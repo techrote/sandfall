@@ -1,0 +1,161 @@
+name: Sandfall SF-M2 authoring and actual Web qualification
+
+on:
+  push:
+    branches: ['sf-m2/**']
+    paths:
+      - 'godot/**'
+      - 'native/**'
+      - 'tools/**'
+      - 'docs/SF-M2*'
+      - 'docs/audits/2026-10-31-sf-m2*'
+      - 'README.md'
+      - 'AGENTS.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sandfall-sf-m2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-native:
+    name: Source, native regressions and fail-closed editor oracles
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - run: bash tools/sandfall/sf_m2_ci.sh source
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m2-source-native
+          path: sf-m2-evidence/
+          retention-days: 30
+          if-no-files-found: warn
+
+  web-export:
+    name: Fresh native and Web adapters, full dedicated Godot tests, both exports
+    runs-on: ubuntu-24.04
+    timeout-minutes: 85
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+      SCONS_JOBS: '2'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - run: bash tools/sandfall/sf_m2_ci.sh build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m2-fresh-web
+          path: build/web-sandfall/
+          retention-days: 30
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m2-legacy-web
+          path: build/web/
+          retention-days: 30
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m2-build-evidence
+          path: sf-m2-build/
+          retention-days: 30
+          if-no-files-found: warn
+
+  ordinary-web:
+    name: ${{ matrix.harness }} ordinary UI ${{ matrix.width }}x${{ matrix.height }} DPR${{ matrix.dpr }}
+    needs: web-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        harness: [sf_m1_browser, sf_m2_browser]
+        profile:
+          - {width: 800, height: 450, dpr: 1}
+          - {width: 640, height: 400, dpr: 2}
+        include:
+          - harness: sf_m1_browser
+            profile: {width: 800, height: 450, dpr: 1}
+            width: 800
+            height: 450
+            dpr: 1
+          - harness: sf_m1_browser
+            profile: {width: 640, height: 400, dpr: 2}
+            width: 640
+            height: 400
+            dpr: 2
+          - harness: sf_m2_browser
+            profile: {width: 800, height: 450, dpr: 1}
+            width: 800
+            height: 450
+            dpr: 1
+          - harness: sf_m2_browser
+            profile: {width: 640, height: 400, dpr: 2}
+            width: 640
+            height: 400
+            dpr: 2
+    env:
+      VIEW_WIDTH: ${{ matrix.width }}
+      VIEW_HEIGHT: ${{ matrix.height }}
+      VIEW_DPR: ${{ matrix.dpr }}
+      BROWSER_HARNESS: ${{ matrix.harness }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m2-fresh-web
+          path: build/web-sandfall
+      - run: bash tools/sandfall/sf_m2_ci.sh browser
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m2-${{ matrix.harness }}-${{ matrix.width }}x${{ matrix.height }}-dpr${{ matrix.dpr }}
+          path: sf-m2-browser/
+          retention-days: 30
+          if-no-files-found: warn
+
+  legacy-contract:
+    name: Unchanged legacy 600-tick physical save/restore and reset oracle
+    needs: web-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m2-legacy-web
+          path: build/web
+      - run: bash tools/sandfall/sf_m2_ci.sh legacy
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m2-legacy-600-contract
+          path: sf-m2-legacy/
+          retention-days: 30
+          if-no-files-found: warn

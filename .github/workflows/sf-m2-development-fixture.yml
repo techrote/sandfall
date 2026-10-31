@@ -1,0 +1,57 @@
+name: Sandfall SF-M2 pinned development fixture
+
+on:
+  push:
+    branches: ['sf-m2/authoring-history-20261031']
+    paths: ['.github/workflows/sf-m2-development-fixture.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fixture:
+    name: Source and pinned local validation inputs (not an acceptance gate)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+          persist-credentials: false
+      - name: Package original source and pinned development dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/sf-m2-fixture"
+          mkdir -p "$out/wheels"
+          git merge-base --is-ancestor ba7add4de9fe8027aaedeff0fa703c1a55fee21e HEAD
+          git merge-base --is-ancestor 1d376fb38ff5df83691e468baa0639270a5f40e6 HEAD
+          git rev-parse HEAD > "$out/source-sha.txt"
+          git bundle create "$out/source.bundle" HEAD
+          git lfs fetch origin "$(git rev-parse HEAD)"
+          git lfs checkout
+          python3 tools/sandfall/sf_m0_reconcile.py --output "$out/reconciliation.json"
+          git lfs ls-files -n > "$out/lfs-paths.txt"
+          tar -czf "$out/lfs-payloads.tar.gz" -T "$out/lfs-paths.txt"
+          git init "$RUNNER_TEMP/godot-cpp"
+          git -C "$RUNNER_TEMP/godot-cpp" remote add origin https://github.com/godotengine/godot-cpp.git
+          git -C "$RUNNER_TEMP/godot-cpp" fetch --depth=1 origin 101ae38034304346a46ea9ea84ae156d3e860496
+          git -C "$RUNNER_TEMP/godot-cpp" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/godot-cpp" rev-parse HEAD)" = 101ae38034304346a46ea9ea84ae156d3e860496
+          tar -czf "$out/godot-cpp.tar.gz" -C "$RUNNER_TEMP" godot-cpp
+          curl -fL --retry 3 'https://downloads.godotengine.org/?flavor=stable&platform=linux.64&slug=linux.x86_64.zip&version=4.7' -o "$out/godot.zip"
+          echo "0b1a6c54c2c619c12e169fe9241edda4b81080b519451cec2984bf0d2c6cb73c  $out/godot.zip" | sha256sum -c -
+          python3 -m pip download --require-hashes -r tools/requirements-build.txt -d "$out/wheels"
+          (cd "$out"; find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+          python3 tools/ci/check_ci_provider_policy.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sandfall-sf-m2-development-fixture
+          path: ${{ runner.temp }}/sf-m2-fixture/
+          retention-days: 7
+          if-no-files-found: error

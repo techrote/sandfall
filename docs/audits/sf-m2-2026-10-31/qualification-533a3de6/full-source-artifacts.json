@@ -1,0 +1,185 @@
+{
+  "artifacts": [
+    {
+      "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029160089/zip",
+      "created_at": "2026-10-31T03:25:52Z",
+      "digest": "sha256:1b29c6010b3f5080eed3100335dd5fa5a0c1b1f81daa4a5ae4e45d2713a4cadb",
+      "expired": false,
+      "expires_at": "2026-11-30T03:25:51Z",
+      "id": 13029160089,
+      "name": "sandfall-sf-m2-sf_m2_browser-800x450-dpr1",
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTE2MDA4OQ==",
+      "size_in_bytes": 107395,
+      "updated_at": "2026-10-31T03:25:52Z",
+      "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029160089",
+      "workflow_run": {
+        "head_branch": "sf-m2/authoring-history-20261031",
+        "head_repository_id": 1439853326,
+        "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+        "id": 41163426571,
+        "repository_id": 1439853326
+      }
+    },
+    {
+      "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029090742/zip",
+      "created_at": "2026-10-31T03:30:05Z",
+      "digest": "sha256:ac643231fe62fbb187462e3939294f0fa6f54afa51dc8cfe2bc126cda2dfcce7",
+      "expired": false,
+      "expires_at": "2026-11-30T03:30:04Z",
+      "id": 13029090742,
+      "name": "sandfall-sf-m2-legacy-600-contract",
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTA5MDc0Mg==",
+      "size_in_bytes": 7225,
+      "updated_at": "2026-10-31T03:30:05Z",
+      "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029090742",
+      "workflow_run": {
+        "head_branch": "sf-m2/authoring-history-20261031",
+        "head_repository_id": 1439853326,
+        "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+        "id": 41163426571,
+        "repository_id": 1439853326
+      }
+    },
+    {
+      "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029075227/zip",
+      "created_at": "2026-10-31T03:25:28Z",
+      "digest": "sha256:cae597ecaa8c845046c5eb4a585733dcd9b6e76c82ec0936c550191b936743d5",
+      "expired": false,
+      "expires_at": "2026-11-30T03:25:27Z",
+      "id": 13029075227,
+      "name": "sandfall-sf-m2-sf_m1_browser-640x400-dpr2",
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTA3NTIyNw==",
+      "size_in_bytes": 85239,
+      "updated_at": "2026-10-31T03:25:28Z",
+      "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029075227",
+      "workflow_run": {
+        "head_branch": "sf-m2/authoring-history-20261031",
+        "head_repository_id": 1439853326,
+        "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+        "id": 41163426571,
+        "repository_id": 1439853326
+      }
+    },
+    {
+      "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028930422/zip",
+      "created_at": "2026-10-31T03:25:25Z",
+      "digest": "sha256:bb46f237106332d106817aef80a55fd829490d3fdfe636cff2d7a97cd07dc2eb",
+      "expired": false,
+      "expires_at": "2026-11-30T03:25:25Z",
+      "id": 13028930422,
+      "name": "sandfall-sf-m2-sf_m1_browser-800x450-dpr1",
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyODkzMDQyMg==",
+      "size_in_bytes": 71008,
+      "updated_at": "2026-10-31T03:25:25Z",
+      "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028930422",
+      "workflow_run": {
+        "head_branch": "sf-m2/authoring-history-20261031",
+        "head_repository_id": 1439853326,
+        "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+        "id": 41163426571,
+        "repository_id": 1439853326
+      }
+    },
+    {
+      "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028750050/zip",
+      "created_at": "2026-10-31T03:24:18Z",
+      "digest": "sha256:77fa708ec92cce05160e1b5435c322557009894288ac9a82ad2d97520a6668b2",
+      "expired": false,
+      "expires_at": "2026-11-30T03:24:18Z",
+      "id": 13028750050,
+      "name": "sandfall-sf-m2-build-evidence",
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyODc1MDA1MA==",
+      "size_in_bytes": 45966,
+      "updated_at": "2026-10-31T03:24:18Z",
+      "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028750050",
+      "workflow_run": {
+        "head_branch": "sf-m2/authoring-history-20261031",
+        "head_repository_id": 1439853326,
+        "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+        "id": 41163426571,
+        "repository_id": 1439853326
+      }
+    },
+    {
+      "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028515250/zip",
+      "created_at": "2026-10-31T03:24:17Z",
+      "digest": "sha256:d306d7d3cbb2b3c34bd0f54910ae282beca920fc413c0b3ec4121fa293d92700",
+      "expired": false,
+      "expires_at": "2026-11-30T03:24:15Z",
+      "id": 13028515250,
+      "name": "sandfall-sf-m2-legacy-web",
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyODUxNTI1MA==",
+      "size_in_bytes": 17189484,
+      "updated_at": "2026-10-31T03:24:17Z",
+      "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028515250",
+      "workflow_run": {
+        "head_branch": "sf-m2/authoring-history-20261031",
+        "head_repository_id": 1439853326,
+        "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+        "id": 41163426571,
+        "repository_id": 1439853326
+      }
+    },
+    {
+      "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028440375/zip",
+      "created_at": "2026-10-31T03:24:14Z",
+      "digest": "sha256:a9907c022924c923849c3443d795c84a72437c7fbd7605527f8914247a6bc9c0",
+      "expired": false,
+      "expires_at": "2026-11-30T03:24:12Z",
+      "id": 13028440375,
+      "name": "sandfall-sf-m2-fresh-web",
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyODQ0MDM3NQ==",
+      "size_in_bytes": 17189500,
+      "updated_at": "2026-10-31T03:24:14Z",
+      "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028440375",
+      "workflow_run": {
+        "head_branch": "sf-m2/authoring-history-20261031",
+        "head_repository_id": 1439853326,
+        "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+        "id": 41163426571,
+        "repository_id": 1439853326
+      }
+    },
+    {
+      "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028306470/zip",
+      "created_at": "2026-10-31T03:25:54Z",
+      "digest": "sha256:bd9b8e2bdf94f96a8ab03b8e97b527898f774c11a836670ea98e7e898515718e",
+      "expired": false,
+      "expires_at": "2026-11-30T03:25:53Z",
+      "id": 13028306470,
+      "name": "sandfall-sf-m2-sf_m2_browser-640x400-dpr2",
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyODMwNjQ3MA==",
+      "size_in_bytes": 121086,
+      "updated_at": "2026-10-31T03:25:54Z",
+      "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028306470",
+      "workflow_run": {
+        "head_branch": "sf-m2/authoring-history-20261031",
+        "head_repository_id": 1439853326,
+        "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+        "id": 41163426571,
+        "repository_id": 1439853326
+      }
+    },
+    {
+      "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028028579/zip",
+      "created_at": "2026-10-31T03:15:05Z",
+      "digest": "sha256:a1a64af6cfcfd45d6cda76d9643cd70965ab2208c7910da936054b3ff70cae5f",
+      "expired": false,
+      "expires_at": "2026-11-30T03:15:04Z",
+      "id": 13028028579,
+      "name": "sandfall-sf-m2-source-native",
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyODAyODU3OQ==",
+      "size_in_bytes": 18723,
+      "updated_at": "2026-10-31T03:15:05Z",
+      "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028028579",
+      "workflow_run": {
+        "head_branch": "sf-m2/authoring-history-20261031",
+        "head_repository_id": 1439853326,
+        "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+        "id": 41163426571,
+        "repository_id": 1439853326
+      }
+    }
+  ],
+  "total_count": 9
+}

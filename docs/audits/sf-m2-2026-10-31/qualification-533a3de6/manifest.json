@@ -1,0 +1,1524 @@
+{
+  "artifacts": [
+    {
+      "id": 13026546788,
+      "label": "original-800-fail",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13026546788/zip",
+        "created_at": "2026-10-31T02:21:34Z",
+        "digest": "sha256:1e2a5c045083bbc22fbd006286f08ccaeb8822ba4be8c0e7c9a1bcf14319a664",
+        "expired": false,
+        "expires_at": "2026-11-30T02:21:33Z",
+        "id": 13026546788,
+        "name": "sandfall-sf-m2-sf_m2_browser-800x450-dpr1",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyNjU0Njc4OA==",
+        "size_in_bytes": 49133,
+        "updated_at": "2026-10-31T02:21:34Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13026546788",
+        "workflow_run": {
+          "head_branch": "sf-m2/authoring-history-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "3a008a55d62958d74b33889d90088e0d2898321a",
+          "id": 41158379128,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41158379128,
+      "workflow_head": "3a008a55d62958d74b33889d90088e0d2898321a",
+      "zip_bytes": 49133,
+      "zip_sha256": "1e2a5c045083bbc22fbd006286f08ccaeb8822ba4be8c0e7c9a1bcf14319a664"
+    },
+    {
+      "id": 13026681081,
+      "label": "original-640-fail",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13026681081/zip",
+        "created_at": "2026-10-31T02:18:21Z",
+        "digest": "sha256:bfd890f0983154aaecea6038f84208c95ee3ce87292203322e1230655b02d9e8",
+        "expired": false,
+        "expires_at": "2026-11-30T02:18:20Z",
+        "id": 13026681081,
+        "name": "sandfall-sf-m2-sf_m2_browser-640x400-dpr2",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyNjY4MTA4MQ==",
+        "size_in_bytes": 47888,
+        "updated_at": "2026-10-31T02:18:21Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13026681081",
+        "workflow_run": {
+          "head_branch": "sf-m2/authoring-history-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "3a008a55d62958d74b33889d90088e0d2898321a",
+          "id": 41158379128,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41158379128,
+      "workflow_head": "3a008a55d62958d74b33889d90088e0d2898321a",
+      "zip_bytes": 47888,
+      "zip_sha256": "bfd890f0983154aaecea6038f84208c95ee3ce87292203322e1230655b02d9e8"
+    },
+    {
+      "id": 13027812297,
+      "label": "repair1-800-fail",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13027812297/zip",
+        "created_at": "2026-10-31T03:02:26Z",
+        "digest": "sha256:e9ab27addd6ce4be0b1e767ddb8825bc0fc6fe88455929dd6776be82e1cc6017",
+        "expired": false,
+        "expires_at": "2026-11-30T03:02:25Z",
+        "id": 13027812297,
+        "name": "sf-m2-browser-repair-800x450-dpr1",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyNzgxMjI5Nw==",
+        "size_in_bytes": 112349,
+        "updated_at": "2026-10-31T03:02:26Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13027812297",
+        "workflow_run": {
+          "head_branch": "transport/sf-m2-browser-repair-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "51a4ea598bb5b4e62cfd0ef2814374af23f9d903",
+          "id": 41162500529,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41162500529,
+      "workflow_head": "51a4ea598bb5b4e62cfd0ef2814374af23f9d903",
+      "zip_bytes": 112349,
+      "zip_sha256": "e9ab27addd6ce4be0b1e767ddb8825bc0fc6fe88455929dd6776be82e1cc6017"
+    },
+    {
+      "id": 13027917238,
+      "label": "repair1-640-fail",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13027917238/zip",
+        "created_at": "2026-10-31T03:03:06Z",
+        "digest": "sha256:a3d08e4eb4d0700446b8bc18ddcbe0d6544fd42c6152fc179f35cc95712550f9",
+        "expired": false,
+        "expires_at": "2026-11-30T03:03:05Z",
+        "id": 13027917238,
+        "name": "sf-m2-browser-repair-640x400-dpr2",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyNzkxNzIzOA==",
+        "size_in_bytes": 120837,
+        "updated_at": "2026-10-31T03:03:06Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13027917238",
+        "workflow_run": {
+          "head_branch": "transport/sf-m2-browser-repair-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "51a4ea598bb5b4e62cfd0ef2814374af23f9d903",
+          "id": 41162500529,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41162500529,
+      "workflow_head": "51a4ea598bb5b4e62cfd0ef2814374af23f9d903",
+      "zip_bytes": 120837,
+      "zip_sha256": "a3d08e4eb4d0700446b8bc18ddcbe0d6544fd42c6152fc179f35cc95712550f9"
+    },
+    {
+      "id": 13027163779,
+      "label": "verified-reuse-800-pass",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13027163779/zip",
+        "created_at": "2026-10-31T03:08:28Z",
+        "digest": "sha256:83bd5771b8b3bda4beb6dd9eb8c4e113f6cfe3e44f7d1779cb1c90abfa43bd06",
+        "expired": false,
+        "expires_at": "2026-11-30T03:08:27Z",
+        "id": 13027163779,
+        "name": "sf-m2-browser-repair-800x450-dpr1",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyNzE2Mzc3OQ==",
+        "size_in_bytes": 107354,
+        "updated_at": "2026-10-31T03:08:28Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13027163779",
+        "workflow_run": {
+          "head_branch": "transport/sf-m2-browser-repair-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "5dd4939907b4b78bcff7dab0880a8ed32a60da4c",
+          "id": 41162933990,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41162933990,
+      "workflow_head": "5dd4939907b4b78bcff7dab0880a8ed32a60da4c",
+      "zip_bytes": 107354,
+      "zip_sha256": "83bd5771b8b3bda4beb6dd9eb8c4e113f6cfe3e44f7d1779cb1c90abfa43bd06"
+    },
+    {
+      "id": 13028231557,
+      "label": "verified-reuse-640-pass",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028231557/zip",
+        "created_at": "2026-10-31T03:09:01Z",
+        "digest": "sha256:e20af3fff24dfcb7a2341dedd5622ee5f2224d1fdd32d725e62ba810c2f7dc58",
+        "expired": false,
+        "expires_at": "2026-11-30T03:09:00Z",
+        "id": 13028231557,
+        "name": "sf-m2-browser-repair-640x400-dpr2",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyODIzMTU1Nw==",
+        "size_in_bytes": 121152,
+        "updated_at": "2026-10-31T03:09:01Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028231557",
+        "workflow_run": {
+          "head_branch": "transport/sf-m2-browser-repair-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "5dd4939907b4b78bcff7dab0880a8ed32a60da4c",
+          "id": 41162933990,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41162933990,
+      "workflow_head": "5dd4939907b4b78bcff7dab0880a8ed32a60da4c",
+      "zip_bytes": 121152,
+      "zip_sha256": "e20af3fff24dfcb7a2341dedd5622ee5f2224d1fdd32d725e62ba810c2f7dc58"
+    },
+    {
+      "id": 13029160089,
+      "label": "full-sandfall-sf-m2-sf_m2_browser-800x450-dpr1",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029160089/zip",
+        "created_at": "2026-10-31T03:25:52Z",
+        "digest": "sha256:1b29c6010b3f5080eed3100335dd5fa5a0c1b1f81daa4a5ae4e45d2713a4cadb",
+        "expired": false,
+        "expires_at": "2026-11-30T03:25:51Z",
+        "id": 13029160089,
+        "name": "sandfall-sf-m2-sf_m2_browser-800x450-dpr1",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyOTE2MDA4OQ==",
+        "size_in_bytes": 107395,
+        "updated_at": "2026-10-31T03:25:52Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029160089",
+        "workflow_run": {
+          "head_branch": "sf-m2/authoring-history-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+          "id": 41163426571,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41163426571,
+      "workflow_head": "533a3de6352074f0cd68faca94417e80f041080e",
+      "zip_bytes": 107395,
+      "zip_sha256": "1b29c6010b3f5080eed3100335dd5fa5a0c1b1f81daa4a5ae4e45d2713a4cadb"
+    },
+    {
+      "id": 13029090742,
+      "label": "full-sandfall-sf-m2-legacy-600-contract",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029090742/zip",
+        "created_at": "2026-10-31T03:30:05Z",
+        "digest": "sha256:ac643231fe62fbb187462e3939294f0fa6f54afa51dc8cfe2bc126cda2dfcce7",
+        "expired": false,
+        "expires_at": "2026-11-30T03:30:04Z",
+        "id": 13029090742,
+        "name": "sandfall-sf-m2-legacy-600-contract",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyOTA5MDc0Mg==",
+        "size_in_bytes": 7225,
+        "updated_at": "2026-10-31T03:30:05Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029090742",
+        "workflow_run": {
+          "head_branch": "sf-m2/authoring-history-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+          "id": 41163426571,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41163426571,
+      "workflow_head": "533a3de6352074f0cd68faca94417e80f041080e",
+      "zip_bytes": 7225,
+      "zip_sha256": "ac643231fe62fbb187462e3939294f0fa6f54afa51dc8cfe2bc126cda2dfcce7"
+    },
+    {
+      "id": 13029075227,
+      "label": "full-sandfall-sf-m2-sf_m1_browser-640x400-dpr2",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029075227/zip",
+        "created_at": "2026-10-31T03:25:28Z",
+        "digest": "sha256:cae597ecaa8c845046c5eb4a585733dcd9b6e76c82ec0936c550191b936743d5",
+        "expired": false,
+        "expires_at": "2026-11-30T03:25:27Z",
+        "id": 13029075227,
+        "name": "sandfall-sf-m2-sf_m1_browser-640x400-dpr2",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyOTA3NTIyNw==",
+        "size_in_bytes": 85239,
+        "updated_at": "2026-10-31T03:25:28Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13029075227",
+        "workflow_run": {
+          "head_branch": "sf-m2/authoring-history-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+          "id": 41163426571,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41163426571,
+      "workflow_head": "533a3de6352074f0cd68faca94417e80f041080e",
+      "zip_bytes": 85239,
+      "zip_sha256": "cae597ecaa8c845046c5eb4a585733dcd9b6e76c82ec0936c550191b936743d5"
+    },
+    {
+      "id": 13028930422,
+      "label": "full-sandfall-sf-m2-sf_m1_browser-800x450-dpr1",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028930422/zip",
+        "created_at": "2026-10-31T03:25:25Z",
+        "digest": "sha256:bb46f237106332d106817aef80a55fd829490d3fdfe636cff2d7a97cd07dc2eb",
+        "expired": false,
+        "expires_at": "2026-11-30T03:25:25Z",
+        "id": 13028930422,
+        "name": "sandfall-sf-m2-sf_m1_browser-800x450-dpr1",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyODkzMDQyMg==",
+        "size_in_bytes": 71008,
+        "updated_at": "2026-10-31T03:25:25Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028930422",
+        "workflow_run": {
+          "head_branch": "sf-m2/authoring-history-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+          "id": 41163426571,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41163426571,
+      "workflow_head": "533a3de6352074f0cd68faca94417e80f041080e",
+      "zip_bytes": 71008,
+      "zip_sha256": "bb46f237106332d106817aef80a55fd829490d3fdfe636cff2d7a97cd07dc2eb"
+    },
+    {
+      "id": 13028750050,
+      "label": "full-sandfall-sf-m2-build-evidence",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028750050/zip",
+        "created_at": "2026-10-31T03:24:18Z",
+        "digest": "sha256:77fa708ec92cce05160e1b5435c322557009894288ac9a82ad2d97520a6668b2",
+        "expired": false,
+        "expires_at": "2026-11-30T03:24:18Z",
+        "id": 13028750050,
+        "name": "sandfall-sf-m2-build-evidence",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyODc1MDA1MA==",
+        "size_in_bytes": 45966,
+        "updated_at": "2026-10-31T03:24:18Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028750050",
+        "workflow_run": {
+          "head_branch": "sf-m2/authoring-history-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+          "id": 41163426571,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41163426571,
+      "workflow_head": "533a3de6352074f0cd68faca94417e80f041080e",
+      "zip_bytes": 45966,
+      "zip_sha256": "77fa708ec92cce05160e1b5435c322557009894288ac9a82ad2d97520a6668b2"
+    },
+    {
+      "id": 13028306470,
+      "label": "full-sandfall-sf-m2-sf_m2_browser-640x400-dpr2",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028306470/zip",
+        "created_at": "2026-10-31T03:25:54Z",
+        "digest": "sha256:bd9b8e2bdf94f96a8ab03b8e97b527898f774c11a836670ea98e7e898515718e",
+        "expired": false,
+        "expires_at": "2026-11-30T03:25:53Z",
+        "id": 13028306470,
+        "name": "sandfall-sf-m2-sf_m2_browser-640x400-dpr2",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyODMwNjQ3MA==",
+        "size_in_bytes": 121086,
+        "updated_at": "2026-10-31T03:25:54Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028306470",
+        "workflow_run": {
+          "head_branch": "sf-m2/authoring-history-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+          "id": 41163426571,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41163426571,
+      "workflow_head": "533a3de6352074f0cd68faca94417e80f041080e",
+      "zip_bytes": 121086,
+      "zip_sha256": "bd9b8e2bdf94f96a8ab03b8e97b527898f774c11a836670ea98e7e898515718e"
+    },
+    {
+      "id": 13028028579,
+      "label": "full-sandfall-sf-m2-source-native",
+      "metadata": {
+        "archive_download_url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028028579/zip",
+        "created_at": "2026-10-31T03:15:05Z",
+        "digest": "sha256:a1a64af6cfcfd45d6cda76d9643cd70965ab2208c7910da936054b3ff70cae5f",
+        "expired": false,
+        "expires_at": "2026-11-30T03:15:04Z",
+        "id": 13028028579,
+        "name": "sandfall-sf-m2-source-native",
+        "node_id": "MDg6QXJ0aWZhY3QxMzAyODAyODU3OQ==",
+        "size_in_bytes": 18723,
+        "updated_at": "2026-10-31T03:15:05Z",
+        "url": "https://api.github.com/repos/techrote/sandfall/actions/artifacts/13028028579",
+        "workflow_run": {
+          "head_branch": "sf-m2/authoring-history-20261031",
+          "head_repository_id": 1439853326,
+          "head_sha": "533a3de6352074f0cd68faca94417e80f041080e",
+          "id": 41163426571,
+          "repository_id": 1439853326
+        }
+      },
+      "run_id": 41163426571,
+      "workflow_head": "533a3de6352074f0cd68faca94417e80f041080e",
+      "zip_bytes": 18723,
+      "zip_sha256": "a1a64af6cfcfd45d6cda76d9643cd70965ab2208c7910da936054b3ff70cae5f"
+    }
+  ],
+  "payloads": [
+    {
+      "artifact_id": 13026546788,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5173,
+      "original_sha256": "ba5b6467cda9e4a3c2f91aedc85f0657297bde2efa1f22ef372136a89e0153d8",
+      "storage": "gzip",
+      "stored_bytes": 2105,
+      "stored_path": "original-800-fail/artifact-verification.json.gz",
+      "stored_sha256": "b4004aa1f7e001ce728e5c71a85b7abeeb73f1cfefee6df65837e3bc43a11121"
+    },
+    {
+      "artifact_id": 13026546788,
+      "artifact_member": "browser-failure.png",
+      "original_bytes": 30663,
+      "original_sha256": "626dbf0cbb300cbaeb7ac401d9af2790e9d7149d28c27e6dd80a90b3a6cc6f3c",
+      "storage": "original",
+      "stored_bytes": 30663,
+      "stored_path": "original-800-fail/browser-failure.png",
+      "stored_sha256": "626dbf0cbb300cbaeb7ac401d9af2790e9d7149d28c27e6dd80a90b3a6cc6f3c"
+    },
+    {
+      "artifact_id": 13026546788,
+      "artifact_member": "browser.json",
+      "original_bytes": 151315,
+      "original_sha256": "018af911e1a8156500067744051075ca840af72b74ca34bdd5ca906d54b82a8a",
+      "storage": "gzip",
+      "stored_bytes": 14073,
+      "stored_path": "original-800-fail/browser.json.gz",
+      "stored_sha256": "e9d409dfe374f68860caeaeadfe2aea615de86755930df0defe01df91d887f0b"
+    },
+    {
+      "artifact_id": 13026546788,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "original-800-fail/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13026546788,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4267,
+      "original_sha256": "3bead97d04a07e1e3c7954b4cd52a77804487077a85988f438fbe6d983b4584d",
+      "storage": "gzip",
+      "stored_bytes": 572,
+      "stored_path": "original-800-fail/chrome.log.gz",
+      "stored_sha256": "2d8e086012770c75fc2e268173b3f25a837bc657fe198db523f70fdf646dffbb"
+    },
+    {
+      "artifact_id": 13026546788,
+      "artifact_member": "harness.log",
+      "original_bytes": 14070,
+      "original_sha256": "140c23051bee9385b7fc4e78d98fbf4c54c6274ac2cc74c90e8d046db0dcf835",
+      "storage": "gzip",
+      "stored_bytes": 1523,
+      "stored_path": "original-800-fail/harness.log.gz",
+      "stored_sha256": "dd4a53e5318fdddb6499dae1784070060585fad65beb62d475fb3ba2d0e06e60"
+    },
+    {
+      "artifact_id": 13026546788,
+      "artifact_member": "http.log",
+      "original_bytes": 2492,
+      "original_sha256": "ab441aea92c5bc2aed9a51f2a92c9eadadb464c533b4482ccede7b4d7c720b55",
+      "storage": "gzip",
+      "stored_bytes": 421,
+      "stored_path": "original-800-fail/http.log.gz",
+      "stored_sha256": "151fa74337c207c2c4cf3e79403c1c941f1f65be67ad8d1c687fcf154d08c761"
+    },
+    {
+      "artifact_id": 13026546788,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "original-800-fail/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13026681081,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5173,
+      "original_sha256": "ba5b6467cda9e4a3c2f91aedc85f0657297bde2efa1f22ef372136a89e0153d8",
+      "storage": "gzip",
+      "stored_bytes": 2105,
+      "stored_path": "original-640-fail/artifact-verification.json.gz",
+      "stored_sha256": "b4004aa1f7e001ce728e5c71a85b7abeeb73f1cfefee6df65837e3bc43a11121"
+    },
+    {
+      "artifact_id": 13026681081,
+      "artifact_member": "browser-failure.png",
+      "original_bytes": 28973,
+      "original_sha256": "d1d7503ae523295f25e01612674f2cf3f64bf40c6491653c5cd1466a373daed3",
+      "storage": "original",
+      "stored_bytes": 28973,
+      "stored_path": "original-640-fail/browser-failure.png",
+      "stored_sha256": "d1d7503ae523295f25e01612674f2cf3f64bf40c6491653c5cd1466a373daed3"
+    },
+    {
+      "artifact_id": 13026681081,
+      "artifact_member": "browser.json",
+      "original_bytes": 148998,
+      "original_sha256": "8da7f19138c3d17577da304d268266138cb3bcc263650779de924ca3e6efa517",
+      "storage": "gzip",
+      "stored_bytes": 14104,
+      "stored_path": "original-640-fail/browser.json.gz",
+      "stored_sha256": "3ffcfcc7f4edc062e2c6dade2a64b2951612b71f077fff5ab09897448ac29fd3"
+    },
+    {
+      "artifact_id": 13026681081,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "original-640-fail/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13026681081,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4267,
+      "original_sha256": "889c2f1ea73e87ce817ad5dbf47853407289dcc58c5604170f274c35a9bb8d0e",
+      "storage": "gzip",
+      "stored_bytes": 567,
+      "stored_path": "original-640-fail/chrome.log.gz",
+      "stored_sha256": "d1e4abc5c11512ac9e61c74ec0526364536e6a4b9bd06a6add1ba5f7c4b1a3c2"
+    },
+    {
+      "artifact_id": 13026681081,
+      "artifact_member": "harness.log",
+      "original_bytes": 14029,
+      "original_sha256": "e774a56431b3c492b7d0aeb76dd4d2668bf5e95abd9e5ce87230689c72d389eb",
+      "storage": "gzip",
+      "stored_bytes": 1510,
+      "stored_path": "original-640-fail/harness.log.gz",
+      "stored_sha256": "1c6509fab3db0dac907c141556785657c7ae288a9ab9eea12a67756388df3ceb"
+    },
+    {
+      "artifact_id": 13026681081,
+      "artifact_member": "http.log",
+      "original_bytes": 2492,
+      "original_sha256": "302e98402d42007f5f979ed9a215d255bf7cc53716bbf30e07eb57353a7f560f",
+      "storage": "gzip",
+      "stored_bytes": 412,
+      "stored_path": "original-640-fail/http.log.gz",
+      "stored_sha256": "7145346374c4b6b1fbb93ca74679da1aae6e98b8ead6c732cdd00081db6ec566"
+    },
+    {
+      "artifact_id": 13026681081,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "original-640-fail/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13027812297,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5421,
+      "original_sha256": "d84b22545cb95ecfdb44fdb8d1689c5d1f68fc67106a972501c36b76a869e8f7",
+      "storage": "gzip",
+      "stored_bytes": 2185,
+      "stored_path": "repair1-800-fail/artifact-verification.json.gz",
+      "stored_sha256": "1d8f7289d5b96cec8e474b2b7aa6258adbde4014ffcafb8321819238640c7c75"
+    },
+    {
+      "artifact_id": 13027812297,
+      "artifact_member": "browser-failure.png",
+      "original_bytes": 44499,
+      "original_sha256": "c916d7bf7e88b8ca10f5ea46413cd027c4d8a004ed5386f434edffba3a6762e4",
+      "storage": "original",
+      "stored_bytes": 44499,
+      "stored_path": "repair1-800-fail/browser-failure.png",
+      "stored_sha256": "c916d7bf7e88b8ca10f5ea46413cd027c4d8a004ed5386f434edffba3a6762e4"
+    },
+    {
+      "artifact_id": 13027812297,
+      "artifact_member": "browser.json",
+      "original_bytes": 1968345,
+      "original_sha256": "c58ee7e269063a5ba91517b55534c3ab93c80316d8d243c64960b5d5e976b9c5",
+      "storage": "gzip",
+      "stored_bytes": 52957,
+      "stored_path": "repair1-800-fail/browser.json.gz",
+      "stored_sha256": "67277bc93b6d9d552cb50f4d8615d128aa8527f07ed64c14ea8b6824c8406c64"
+    },
+    {
+      "artifact_id": 13027812297,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "repair1-800-fail/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13027812297,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4317,
+      "original_sha256": "f3f23c8d25ab97e1da50f2885a8d6767dea17ea21c0345c64b9057e01bbb2029",
+      "storage": "gzip",
+      "stored_bytes": 608,
+      "stored_path": "repair1-800-fail/chrome.log.gz",
+      "stored_sha256": "6a7ce04b599aa1f0ca13587440cab44669f45d1e843bf774d94ef8d680868913"
+    },
+    {
+      "artifact_id": 13027812297,
+      "artifact_member": "harness.log",
+      "original_bytes": 172984,
+      "original_sha256": "694433cb959ce191ec48b55bc1eea5107e8cd688ef2f15129c2460dc60a797be",
+      "storage": "gzip",
+      "stored_bytes": 7107,
+      "stored_path": "repair1-800-fail/harness.log.gz",
+      "stored_sha256": "11071a19316506be806baa841f11eeaa07e9ceef2b55867b820a07d703e58a27"
+    },
+    {
+      "artifact_id": 13027812297,
+      "artifact_member": "http.log",
+      "original_bytes": 2492,
+      "original_sha256": "8a49e4e7aa585d95bdb56466470318d3093afda90467b4f6194b99cbcbeaf77d",
+      "storage": "gzip",
+      "stored_bytes": 413,
+      "stored_path": "repair1-800-fail/http.log.gz",
+      "stored_sha256": "21a2be1cdffb4ae7839b1d3b038a78dd03825eef44d4a2de650bf6f5f1c78e56"
+    },
+    {
+      "artifact_id": 13027812297,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "repair1-800-fail/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13027917238,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5421,
+      "original_sha256": "d84b22545cb95ecfdb44fdb8d1689c5d1f68fc67106a972501c36b76a869e8f7",
+      "storage": "gzip",
+      "stored_bytes": 2185,
+      "stored_path": "repair1-640-fail/artifact-verification.json.gz",
+      "stored_sha256": "1d8f7289d5b96cec8e474b2b7aa6258adbde4014ffcafb8321819238640c7c75"
+    },
+    {
+      "artifact_id": 13027917238,
+      "artifact_member": "browser-failure.png",
+      "original_bytes": 43297,
+      "original_sha256": "9c9a85c61c71c3735f69c3f409555a241556e3f5d484ba871336b99a2f545436",
+      "storage": "original",
+      "stored_bytes": 43297,
+      "stored_path": "repair1-640-fail/browser-failure.png",
+      "stored_sha256": "9c9a85c61c71c3735f69c3f409555a241556e3f5d484ba871336b99a2f545436"
+    },
+    {
+      "artifact_id": 13027917238,
+      "artifact_member": "browser.json",
+      "original_bytes": 2272084,
+      "original_sha256": "5bd761d562379bd9d0b8f651763dd2fd7e0076c8927157e77ccc59964b4f6836",
+      "storage": "gzip",
+      "stored_bytes": 60358,
+      "stored_path": "repair1-640-fail/browser.json.gz",
+      "stored_sha256": "8ce3e76cdb993657b130ec04f73d6211130e5c581e7f837a040bb1819abb95d2"
+    },
+    {
+      "artifact_id": 13027917238,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "repair1-640-fail/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13027917238,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4317,
+      "original_sha256": "bd79740da89b3b9c771c7ea416624bb4d92ef173b39128753c75d3a1c4c2c0c4",
+      "storage": "gzip",
+      "stored_bytes": 602,
+      "stored_path": "repair1-640-fail/chrome.log.gz",
+      "stored_sha256": "b9451cb045b8445074db0748caf755e0183c162e83a400641a58f931c9fd484b"
+    },
+    {
+      "artifact_id": 13027917238,
+      "artifact_member": "harness.log",
+      "original_bytes": 203771,
+      "original_sha256": "5c9850897bf9b71dcc91554007736574d8b664571057798406e92fcd5337ab47",
+      "storage": "gzip",
+      "stored_bytes": 8018,
+      "stored_path": "repair1-640-fail/harness.log.gz",
+      "stored_sha256": "c26004c08fc43cd45a86f12d0787ca640ac4fc878e63a083765392e32aa042aa"
+    },
+    {
+      "artifact_id": 13027917238,
+      "artifact_member": "http.log",
+      "original_bytes": 2492,
+      "original_sha256": "7b707817d3e94665af65bb9b860ed9c1ceab8602c006e7b2c39a70f7522d6729",
+      "storage": "gzip",
+      "stored_bytes": 416,
+      "stored_path": "repair1-640-fail/http.log.gz",
+      "stored_sha256": "93dcf7fa32dac044623774c4569074887f02c73a75ef4bba274f0d38a23a5049"
+    },
+    {
+      "artifact_id": 13027917238,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "repair1-640-fail/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13027163779,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5421,
+      "original_sha256": "61edf01a4ff1ec56024ddad23a04d6e29a2a9b72af103e27b21cf38c2f7216b7",
+      "storage": "gzip",
+      "stored_bytes": 2185,
+      "stored_path": "verified-reuse-800-pass/artifact-verification.json.gz",
+      "stored_sha256": "27101c99cdc91c2215e5e109f3a31dd76e37369c0e60a75dc320fd022b2ace0b"
+    },
+    {
+      "artifact_id": 13027163779,
+      "artifact_member": "browser.png",
+      "original_bytes": 30108,
+      "original_sha256": "4ed7fdcd269493b1cb32fbd34c2151c86a0aece0250dd1e85bf88824bad63943",
+      "storage": "original",
+      "stored_bytes": 30108,
+      "stored_path": "verified-reuse-800-pass/browser.png",
+      "stored_sha256": "4ed7fdcd269493b1cb32fbd34c2151c86a0aece0250dd1e85bf88824bad63943"
+    },
+    {
+      "artifact_id": 13027163779,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "verified-reuse-800-pass/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13027163779,
+      "artifact_member": "browser.json",
+      "original_bytes": 2374822,
+      "original_sha256": "39bcf66c4a7a2956ca55f8506f658683bc04f75306560b23c762eb8347a4062c",
+      "storage": "gzip",
+      "stored_bytes": 61361,
+      "stored_path": "verified-reuse-800-pass/browser.json.gz",
+      "stored_sha256": "4b21a621b3272b25401cf0f63d8a609701bce8a13fae47c4831db6a19b78a43f"
+    },
+    {
+      "artifact_id": 13027163779,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4317,
+      "original_sha256": "acf45f906929097b9fb4c50b2586a2ccdf9f2a64b007156bc2f49d5b274bd26f",
+      "storage": "gzip",
+      "stored_bytes": 610,
+      "stored_path": "verified-reuse-800-pass/chrome.log.gz",
+      "stored_sha256": "5f1bca2420e3f12c43d49a9110985eeaa04216488854f5ae15a4bec988d66374"
+    },
+    {
+      "artifact_id": 13027163779,
+      "artifact_member": "harness.log",
+      "original_bytes": 202647,
+      "original_sha256": "9e60320d0a1a001f53242a92aac9a217ad30e122d26f87b828bdc2d806adc670",
+      "storage": "gzip",
+      "stored_bytes": 8134,
+      "stored_path": "verified-reuse-800-pass/harness.log.gz",
+      "stored_sha256": "17fc88f70b5be29c8ae6cb00ed4c5bf1472aece2bc43b5d969412195a440398f"
+    },
+    {
+      "artifact_id": 13027163779,
+      "artifact_member": "http.log",
+      "original_bytes": 2492,
+      "original_sha256": "22bb16e7b4c30e2b39edd6efaba29e1c4d57d167793aa4a92d651a5bd500e22b",
+      "storage": "gzip",
+      "stored_bytes": 418,
+      "stored_path": "verified-reuse-800-pass/http.log.gz",
+      "stored_sha256": "6632b75b20e1a523d0803d98b60e831c0ac4e26b4c5479446651d1f1ce78ef5a"
+    },
+    {
+      "artifact_id": 13027163779,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "verified-reuse-800-pass/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13028231557,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5421,
+      "original_sha256": "61edf01a4ff1ec56024ddad23a04d6e29a2a9b72af103e27b21cf38c2f7216b7",
+      "storage": "gzip",
+      "stored_bytes": 2185,
+      "stored_path": "verified-reuse-640-pass/artifact-verification.json.gz",
+      "stored_sha256": "27101c99cdc91c2215e5e109f3a31dd76e37369c0e60a75dc320fd022b2ace0b"
+    },
+    {
+      "artifact_id": 13028231557,
+      "artifact_member": "browser.json",
+      "original_bytes": 2308307,
+      "original_sha256": "abbdfb44218368d4a956234ea1896611674d1bc79b9d2bec21f04a6e762f8945",
+      "storage": "gzip",
+      "stored_bytes": 60717,
+      "stored_path": "verified-reuse-640-pass/browser.json.gz",
+      "stored_sha256": "2c9a80c6a557179f0fd92fccae1f027c3804ebe15b9012d78509c5cc663cd404"
+    },
+    {
+      "artifact_id": 13028231557,
+      "artifact_member": "browser.png",
+      "original_bytes": 43194,
+      "original_sha256": "a1dd96f240dac913bed468a49e73822381acc01156cb9d05649504b96915f75e",
+      "storage": "original",
+      "stored_bytes": 43194,
+      "stored_path": "verified-reuse-640-pass/browser.png",
+      "stored_sha256": "a1dd96f240dac913bed468a49e73822381acc01156cb9d05649504b96915f75e"
+    },
+    {
+      "artifact_id": 13028231557,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "verified-reuse-640-pass/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13028231557,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4317,
+      "original_sha256": "bc10e556d69b965ff0639072d37695ae894dd3b0e5bf1b68e8dfa67ad6d9ce96",
+      "storage": "gzip",
+      "stored_bytes": 613,
+      "stored_path": "verified-reuse-640-pass/chrome.log.gz",
+      "stored_sha256": "0ac65872f041e848dc3af4ab079e120dca3b495098a11072140c3db43611fc90"
+    },
+    {
+      "artifact_id": 13028231557,
+      "artifact_member": "harness.log",
+      "original_bytes": 205660,
+      "original_sha256": "c0b8906580a3ea510ddd07e515d391ff8289b06ae7d90d4b9db1cdb4479ffea0",
+      "storage": "gzip",
+      "stored_bytes": 8176,
+      "stored_path": "verified-reuse-640-pass/harness.log.gz",
+      "stored_sha256": "d1dcfe3e9ba5d6d0ddd181d36fb81a6f64c0e538aec20119625587a502697c5b"
+    },
+    {
+      "artifact_id": 13028231557,
+      "artifact_member": "http.log",
+      "original_bytes": 2492,
+      "original_sha256": "5729963707d7f934792dbb0cf78cf938d8123d3799a17ab17c8f57465a64f400",
+      "storage": "gzip",
+      "stored_bytes": 426,
+      "stored_path": "verified-reuse-640-pass/http.log.gz",
+      "stored_sha256": "6897b9faa58b7788ff85db50ccf913f897535590bc7737a894dd55348c7777d9"
+    },
+    {
+      "artifact_id": 13028231557,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "verified-reuse-640-pass/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13029160089,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5173,
+      "original_sha256": "e82fa3898e9f56b23c32b31412a96d264dac394c0c32af63bf88db15420c25d1",
+      "storage": "gzip",
+      "stored_bytes": 2106,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-800x450-dpr1/artifact-verification.json.gz",
+      "stored_sha256": "a58e66232ca86f0871be1dd3fdc88e9d311e8f611320669dc55bee633db21283"
+    },
+    {
+      "artifact_id": 13029160089,
+      "artifact_member": "browser.json",
+      "original_bytes": 2372403,
+      "original_sha256": "53faff5b3340d7235d25df5d1c57f3d48f82ea248522f88703432f06ed3f3824",
+      "storage": "gzip",
+      "stored_bytes": 61425,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-800x450-dpr1/browser.json.gz",
+      "stored_sha256": "bc21c50a56e8d945cd1b971796831279deb6e61d8b5eb50acca47d25944e40e0"
+    },
+    {
+      "artifact_id": 13029160089,
+      "artifact_member": "browser.png",
+      "original_bytes": 30162,
+      "original_sha256": "4cf63e02812796d17e17931d02795393a727e06154a40741eaf4ccaec0f5cb3a",
+      "storage": "original",
+      "stored_bytes": 30162,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-800x450-dpr1/browser.png",
+      "stored_sha256": "4cf63e02812796d17e17931d02795393a727e06154a40741eaf4ccaec0f5cb3a"
+    },
+    {
+      "artifact_id": 13029160089,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-800x450-dpr1/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13029160089,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4317,
+      "original_sha256": "ac45c1edd343ad4ae28ef4e62d9995430cb7f9e94d995626256e69113b7eb23e",
+      "storage": "gzip",
+      "stored_bytes": 614,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-800x450-dpr1/chrome.log.gz",
+      "stored_sha256": "0eed8a84df7a71c37759f85a84c5e2f9b2f344ae52cc0a75ad0e5d34aca5c7a4"
+    },
+    {
+      "artifact_id": 13029160089,
+      "artifact_member": "harness.log",
+      "original_bytes": 204127,
+      "original_sha256": "f7ab2004dcff4727a367aa9f62d0607844abe8b644e33790f1181f0a3db22173",
+      "storage": "gzip",
+      "stored_bytes": 8180,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-800x450-dpr1/harness.log.gz",
+      "stored_sha256": "5600e0b79c3c65ef80997435ce68637bbf6810ac4718dacf6446add78d0084b3"
+    },
+    {
+      "artifact_id": 13029160089,
+      "artifact_member": "http.log",
+      "original_bytes": 2492,
+      "original_sha256": "ab4d2966b6f99af7f5c941614a4c3797e981ef98a4b05d418749f4ba91fa1fc7",
+      "storage": "gzip",
+      "stored_bytes": 430,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-800x450-dpr1/http.log.gz",
+      "stored_sha256": "fb6edea2aaea5e8e8bff3074c4f04ef36bfd981746cd5148f12e98bd9d25a9c8"
+    },
+    {
+      "artifact_id": 13029160089,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-800x450-dpr1/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13029090742,
+      "artifact_member": "browser.json",
+      "original_bytes": 35992,
+      "original_sha256": "2d3e6715b0aad3e6f75280fdeaa3655ead4cf445e828fbd603cc6dfdd1bf1c53",
+      "storage": "gzip",
+      "stored_bytes": 3819,
+      "stored_path": "full-sandfall-sf-m2-legacy-600-contract/browser.json.gz",
+      "stored_sha256": "7cd121594cdac82287dae0af037638f843d488fcfed3bca1ca943cca6f1f21a0"
+    },
+    {
+      "artifact_id": 13029090742,
+      "artifact_member": "build-identity.json",
+      "original_bytes": 1376,
+      "original_sha256": "56b236520f4da5e5d8f2c7e2be53058f3b386ac97dd68a521d241ad01c08528d",
+      "storage": "gzip",
+      "stored_bytes": 642,
+      "stored_path": "full-sandfall-sf-m2-legacy-600-contract/build-identity.json.gz",
+      "stored_sha256": "672fb30a1dfdc13f8eb77478335f173c223e72c7504f963af9d6309463f8ff9a"
+    },
+    {
+      "artifact_id": 13029090742,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "full-sandfall-sf-m2-legacy-600-contract/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13029090742,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4317,
+      "original_sha256": "4d6b363c6c8a6f2768561d2f66e68826e122ba3af99492a0bd7d3346e2314f48",
+      "storage": "gzip",
+      "stored_bytes": 606,
+      "stored_path": "full-sandfall-sf-m2-legacy-600-contract/chrome.log.gz",
+      "stored_sha256": "738694ff98a4c9f63967144547041a54ac7f0b42227d5117d543c2d8aebea7c2"
+    },
+    {
+      "artifact_id": 13029090742,
+      "artifact_member": "harness.log",
+      "original_bytes": 6488,
+      "original_sha256": "0ca44605e8582c52814a2c2492cfd8006a9407328226715b728dc4ac0ca67974",
+      "storage": "gzip",
+      "stored_bytes": 1042,
+      "stored_path": "full-sandfall-sf-m2-legacy-600-contract/harness.log.gz",
+      "stored_sha256": "e0078564a4c0e6919b7d295a05446bb15b9f2732f14a290683be1566a310d913"
+    },
+    {
+      "artifact_id": 13029090742,
+      "artifact_member": "http.log",
+      "original_bytes": 948,
+      "original_sha256": "0c91541055fafc2efb86447b9b46b77cc5766604d597eae6892ae2ab35b46d8d",
+      "storage": "gzip",
+      "stored_bytes": 279,
+      "stored_path": "full-sandfall-sf-m2-legacy-600-contract/http.log.gz",
+      "stored_sha256": "d17166759ae0b51c35f9b4752b1e2db9357480f3e13171c727e2e537f859fe69"
+    },
+    {
+      "artifact_id": 13029090742,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "full-sandfall-sf-m2-legacy-600-contract/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13029075227,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5173,
+      "original_sha256": "e82fa3898e9f56b23c32b31412a96d264dac394c0c32af63bf88db15420c25d1",
+      "storage": "gzip",
+      "stored_bytes": 2106,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-640x400-dpr2/artifact-verification.json.gz",
+      "stored_sha256": "a58e66232ca86f0871be1dd3fdc88e9d311e8f611320669dc55bee633db21283"
+    },
+    {
+      "artifact_id": 13029075227,
+      "artifact_member": "browser.png",
+      "original_bytes": 43184,
+      "original_sha256": "a9346d75ad5f71b564f8b7951e0dd682e4ceae9ab77417021fcea6251e35e834",
+      "storage": "original",
+      "stored_bytes": 43184,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-640x400-dpr2/browser.png",
+      "stored_sha256": "a9346d75ad5f71b564f8b7951e0dd682e4ceae9ab77417021fcea6251e35e834"
+    },
+    {
+      "artifact_id": 13029075227,
+      "artifact_member": "browser.json",
+      "original_bytes": 874278,
+      "original_sha256": "79b9219c5296fa6b5bb3f66efe7a3e943ede1e2dceaf8cfa355d9a5064193b8d",
+      "storage": "gzip",
+      "stored_bytes": 33353,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-640x400-dpr2/browser.json.gz",
+      "stored_sha256": "3c55785a5d05a74a241b2ac6ef18d474eecbfd222db5d2d31216b3cf783f55e1"
+    },
+    {
+      "artifact_id": 13029075227,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-640x400-dpr2/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13029075227,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4317,
+      "original_sha256": "8a95aed1ef0d9ca48081cb5bdee5a3622335384e22e6e5e33b361b76b43b4261",
+      "storage": "gzip",
+      "stored_bytes": 615,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-640x400-dpr2/chrome.log.gz",
+      "stored_sha256": "6fb9717e7cb10406be6e7d880db3353ea8738ff1275a71d9ba9973afa5fd3e42"
+    },
+    {
+      "artifact_id": 13029075227,
+      "artifact_member": "harness.log",
+      "original_bytes": 54196,
+      "original_sha256": "73550fbcb2e6762e712db99a4db1b2039e6e7c77c5cbc5594fcfc2c6b83f7a90",
+      "storage": "gzip",
+      "stored_bytes": 3492,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-640x400-dpr2/harness.log.gz",
+      "stored_sha256": "886314ea8983e67901aae254ff1522bd7a8a27e04d8ef8daf95899094610cf89"
+    },
+    {
+      "artifact_id": 13029075227,
+      "artifact_member": "http.log",
+      "original_bytes": 2492,
+      "original_sha256": "d26184280e339950beaf4cb36a8f53d1551123742aae5ab1467993367633248b",
+      "storage": "gzip",
+      "stored_bytes": 430,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-640x400-dpr2/http.log.gz",
+      "stored_sha256": "cc03c035f3c892781552113a9a71ee5bc4dea1c8c8ec08df179a7e0ca99552ee"
+    },
+    {
+      "artifact_id": 13029075227,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-640x400-dpr2/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13028930422,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5173,
+      "original_sha256": "e82fa3898e9f56b23c32b31412a96d264dac394c0c32af63bf88db15420c25d1",
+      "storage": "gzip",
+      "stored_bytes": 2106,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-800x450-dpr1/artifact-verification.json.gz",
+      "stored_sha256": "a58e66232ca86f0871be1dd3fdc88e9d311e8f611320669dc55bee633db21283"
+    },
+    {
+      "artifact_id": 13028930422,
+      "artifact_member": "browser.png",
+      "original_bytes": 30065,
+      "original_sha256": "bf0108721590699590619aa51d6e9e7ad1725d14eb7298f8dfb086440918a8cc",
+      "storage": "original",
+      "stored_bytes": 30065,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-800x450-dpr1/browser.png",
+      "stored_sha256": "bf0108721590699590619aa51d6e9e7ad1725d14eb7298f8dfb086440918a8cc"
+    },
+    {
+      "artifact_id": 13028930422,
+      "artifact_member": "browser.json",
+      "original_bytes": 879849,
+      "original_sha256": "6cf916d94ab93198e53f459dc3622463512fa2c8798fe74c974fff8de86cced7",
+      "storage": "gzip",
+      "stored_bytes": 33510,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-800x450-dpr1/browser.json.gz",
+      "stored_sha256": "9b5a18d23db28970701a149afb40d7f47bd1e58946bf62b6e1bd7707b6d487b9"
+    },
+    {
+      "artifact_id": 13028930422,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-800x450-dpr1/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13028930422,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4317,
+      "original_sha256": "ac7824ec2453a9bcf8221e33b622f654b74114a32f78c2f623aebaa0f4db4f90",
+      "storage": "gzip",
+      "stored_bytes": 618,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-800x450-dpr1/chrome.log.gz",
+      "stored_sha256": "05a6c05ce4ccf0c824ec5c4065f007d2a15ac4fd3066e57275e0c9c7433009de"
+    },
+    {
+      "artifact_id": 13028930422,
+      "artifact_member": "harness.log",
+      "original_bytes": 53698,
+      "original_sha256": "af7064af4df2988bb11e5432b91ac9c0003602c88ed8ff005ed0ab4fcc054cc8",
+      "storage": "gzip",
+      "stored_bytes": 3476,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-800x450-dpr1/harness.log.gz",
+      "stored_sha256": "957d481c87c6f46d2bd09d5666ba6d1dba9047018fb02fdae4372976e3eb65a7"
+    },
+    {
+      "artifact_id": 13028930422,
+      "artifact_member": "http.log",
+      "original_bytes": 2492,
+      "original_sha256": "9292d0616d528dff14a28821953357d779a0def587bf95dea81b3c7b4dcf939d",
+      "storage": "gzip",
+      "stored_bytes": 429,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-800x450-dpr1/http.log.gz",
+      "stored_sha256": "ea122e6ae37d6c56134073879472ca92f5edad66f74ec5571a5c40d3c3834b08"
+    },
+    {
+      "artifact_id": 13028930422,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "full-sandfall-sf-m2-sf_m1_browser-800x450-dpr1/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13028750050,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5450,
+      "original_sha256": "d7990926c0a3abf9cee54bc0616619a3e3d9c0317a7d9342d5f06a05530fd757",
+      "storage": "gzip",
+      "stored_bytes": 2195,
+      "stored_path": "full-sandfall-sf-m2-build-evidence/artifact-verification.json.gz",
+      "stored_sha256": "d7a9b90129109ea410a37133c28cb94f65e5bedf3f4ede73be79d910e3bf7a84"
+    },
+    {
+      "artifact_id": 13028750050,
+      "artifact_member": "emscripten-version.txt",
+      "original_bytes": 331,
+      "original_sha256": "c6659bd212ba8601eb6fa22171ef4c90e0b633cb5acda4f582e2ee2a3b9652f8",
+      "storage": "gzip",
+      "stored_bytes": 281,
+      "stored_path": "full-sandfall-sf-m2-build-evidence/emscripten-version.txt.gz",
+      "stored_sha256": "17e699234b2847b2a5a1247e487ce40ef33bd77b49356c19c1f3843c2de38b99"
+    },
+    {
+      "artifact_id": 13028750050,
+      "artifact_member": "compiler-version.txt",
+      "original_bytes": 246,
+      "original_sha256": "59d1cbef41d4ae78d5063d525b7aa13d18dc0493ea00537efc19b2ee398cb5a8",
+      "storage": "gzip",
+      "stored_bytes": 214,
+      "stored_path": "full-sandfall-sf-m2-build-evidence/compiler-version.txt.gz",
+      "stored_sha256": "7ccdfafd400177458c3250f16bbd222a7b86d3a0f7b7e4c048119813a5b170f5"
+    },
+    {
+      "artifact_id": 13028750050,
+      "artifact_member": "godot-release-checksums.txt",
+      "original_bytes": 5616,
+      "original_sha256": "82cc4e8563f0e6edcbe1b79d1352afc441ce98e8b322b443c0e0d2717096c425",
+      "storage": "gzip",
+      "stored_bytes": 2879,
+      "stored_path": "full-sandfall-sf-m2-build-evidence/godot-release-checksums.txt.gz",
+      "stored_sha256": "7c9956c5471e3e48ce6d38c4c40ffe61956b122785701d2498d4d1694cedcd3e"
+    },
+    {
+      "artifact_id": 13028750050,
+      "artifact_member": "legacy-export-and-godot-tests.log",
+      "original_bytes": 148857,
+      "original_sha256": "58fbdcb8a0325b928ff75d5700dfdc5ef724378c43b744bcafa41bc2bd0361dd",
+      "storage": "gzip",
+      "stored_bytes": 13217,
+      "stored_path": "full-sandfall-sf-m2-build-evidence/legacy-export-and-godot-tests.log.gz",
+      "stored_sha256": "83c71b3b21a1a14e00a389038073987620a78ede6406666f9211cc8c0bf4a580"
+    },
+    {
+      "artifact_id": 13028750050,
+      "artifact_member": "reconciliation-original-m0-refusal.json",
+      "original_bytes": 5869,
+      "original_sha256": "a36dd098a8c59a9e7fff5a1343e9a0a163a803d285ffffd3d5360be224fad1aa",
+      "storage": "gzip",
+      "stored_bytes": 1342,
+      "stored_path": "full-sandfall-sf-m2-build-evidence/reconciliation-original-m0-refusal.json.gz",
+      "stored_sha256": "f2fdc021cbb3e4caad542287a32b11e8b3cb05638da8f9f4dbfb7d398bb5edef"
+    },
+    {
+      "artifact_id": 13028750050,
+      "artifact_member": "reconciliation.json",
+      "original_bytes": 6456,
+      "original_sha256": "e8bacb19706bc6190ea98761e6117a3d5052b65bcdb6ac584d90813840f5497b",
+      "storage": "gzip",
+      "stored_bytes": 1598,
+      "stored_path": "full-sandfall-sf-m2-build-evidence/reconciliation.json.gz",
+      "stored_sha256": "e0e3d43da52007fa699edca72ed4e5bdc5b3a80c0afab0ba67fe86478911467c"
+    },
+    {
+      "artifact_id": 13028750050,
+      "artifact_member": "sandfall-build-and-godot-tests.log",
+      "original_bytes": 246538,
+      "original_sha256": "2a49c3c39c1be60559a5a082dbeef890c835841d70187fb956bcfef5e2dd1842",
+      "storage": "gzip",
+      "stored_bytes": 22261,
+      "stored_path": "full-sandfall-sf-m2-build-evidence/sandfall-build-and-godot-tests.log.gz",
+      "stored_sha256": "e45fc4566068fe0030c42e048dcced1e7adbbd155e2627aa13af331a9312a405"
+    },
+    {
+      "artifact_id": 13028750050,
+      "artifact_member": "source-sha.txt",
+      "original_bytes": 41,
+      "original_sha256": "9138636258e8762258ef634740fb4b93b0e7911a1eab9be7161efa343b4a989c",
+      "storage": "gzip",
+      "stored_bytes": 59,
+      "stored_path": "full-sandfall-sf-m2-build-evidence/source-sha.txt.gz",
+      "stored_sha256": "58d5f2742a844c2e64aafa3bd10cb968e67ead53a7516323d7c7300a2b5ec4a9"
+    },
+    {
+      "artifact_id": 13028306470,
+      "artifact_member": "browser.json",
+      "original_bytes": 2314446,
+      "original_sha256": "f6c0dfeea368e0831538228e50bb3e7e43624ae8a1929f75f9e6a6a29879f57c",
+      "storage": "gzip",
+      "stored_bytes": 60766,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-640x400-dpr2/browser.json.gz",
+      "stored_sha256": "a383f6790eb97055271b4c4e41e09438c99238c2f501e0a0660533405ff72e33"
+    },
+    {
+      "artifact_id": 13028306470,
+      "artifact_member": "browser.png",
+      "original_bytes": 43198,
+      "original_sha256": "dff93bbab49f2f64af88ddbf3c1edd51aaeb3e673c3ae3863d49039fcb59b7c0",
+      "storage": "original",
+      "stored_bytes": 43198,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-640x400-dpr2/browser.png",
+      "stored_sha256": "dff93bbab49f2f64af88ddbf3c1edd51aaeb3e673c3ae3863d49039fcb59b7c0"
+    },
+    {
+      "artifact_id": 13028306470,
+      "artifact_member": "artifact-verification.json",
+      "original_bytes": 5173,
+      "original_sha256": "e82fa3898e9f56b23c32b31412a96d264dac394c0c32af63bf88db15420c25d1",
+      "storage": "gzip",
+      "stored_bytes": 2106,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-640x400-dpr2/artifact-verification.json.gz",
+      "stored_sha256": "a58e66232ca86f0871be1dd3fdc88e9d311e8f611320669dc55bee633db21283"
+    },
+    {
+      "artifact_id": 13028306470,
+      "artifact_member": "chrome-version.txt",
+      "original_bytes": 29,
+      "original_sha256": "8d7631c58053db6151fae1dbe220415fa30a8bfec85a95886027bf77f06f230b",
+      "storage": "gzip",
+      "stored_bytes": 49,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-640x400-dpr2/chrome-version.txt.gz",
+      "stored_sha256": "8aef8b3c088b49ae259c1811cf796f56ba734666d4c7ec2a9515540522c1f26c"
+    },
+    {
+      "artifact_id": 13028306470,
+      "artifact_member": "chrome.log",
+      "original_bytes": 4317,
+      "original_sha256": "c6103a2bfbbf0e818414d9262deb4a9d37c79a7f862087da27f526fa181363ff",
+      "storage": "gzip",
+      "stored_bytes": 612,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-640x400-dpr2/chrome.log.gz",
+      "stored_sha256": "260c1b3693343b0920c69c60a6ee8c93decd869572889681b00d1ad41adcae8c"
+    },
+    {
+      "artifact_id": 13028306470,
+      "artifact_member": "harness.log",
+      "original_bytes": 202436,
+      "original_sha256": "4fc9cab1058e1fca664cfad0dd7d7dac29e87a562dba09de1537a1a66b5c8378",
+      "storage": "gzip",
+      "stored_bytes": 8088,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-640x400-dpr2/harness.log.gz",
+      "stored_sha256": "52dd9883b48a3394b80851d37d4d4c97b36f185f9acee76e8ffc4af07c67f024"
+    },
+    {
+      "artifact_id": 13028306470,
+      "artifact_member": "http.log",
+      "original_bytes": 2492,
+      "original_sha256": "b12fe13a06608f5e5e997e77dc5ab395a939812c007e9f9142ad25b337779dde",
+      "storage": "gzip",
+      "stored_bytes": 418,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-640x400-dpr2/http.log.gz",
+      "stored_sha256": "48ec9c719a6300297cf5cf29aca6f1463e8892405fcdc2274925d8c9bed6a59e"
+    },
+    {
+      "artifact_id": 13028306470,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "full-sandfall-sf-m2-sf_m2_browser-640x400-dpr2/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "browser-helper-tests.log",
+      "original_bytes": 9083,
+      "original_sha256": "bc6f7395fc05a2b51b9fcca363b610a211f5bdd9302355fbc552c3362543b5e3",
+      "storage": "gzip",
+      "stored_bytes": 2288,
+      "stored_path": "full-sandfall-sf-m2-source-native/browser-helper-tests.log.gz",
+      "stored_sha256": "d469fa62cc1abac95b9ed1faeca54ca269ec2302d22eca311d3e292c74824454"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "legacy-staging-tests.log",
+      "original_bytes": 100,
+      "original_sha256": "455a234a903f02c7d36882c9b036acc1ee7cca1176404082cfe9897ae40211f7",
+      "storage": "gzip",
+      "stored_bytes": 53,
+      "stored_path": "full-sandfall-sf-m2-source-native/legacy-staging-tests.log.gz",
+      "stored_sha256": "b56e27deabe0b2531a0a93fa3c29dc6d69cc2e69a01df6176f5cea61f3ee4f88"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/body_barrier.log",
+      "original_bytes": 71,
+      "original_sha256": "6be67f1089074b00463d7b50ed43e5446ab67cfdf098b15e1975b307d1cdc212",
+      "storage": "gzip",
+      "stored_bytes": 89,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/body_barrier.log.gz",
+      "stored_sha256": "00bd66003f983a79888f38ca6802aa0309e2e2d734839425cfd629ab27e29d6d"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/body_capacity.log",
+      "original_bytes": 65,
+      "original_sha256": "81269422a825fe6d99d99e5c9b8b4344a5e940089f1ac2a3e21f84927c4c2375",
+      "storage": "gzip",
+      "stored_bytes": 81,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/body_capacity.log.gz",
+      "stored_sha256": "29cc2702c13fad681434be1d5fa4738c1947a16b6510c3233f426016906dd3f0"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/body_contact.log",
+      "original_bytes": 52,
+      "original_sha256": "9dd94e51d8183ae95a1c0110ddb0ebbe434483f590775808b5ab848c7c994d21",
+      "storage": "gzip",
+      "stored_bytes": 70,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/body_contact.log.gz",
+      "stored_sha256": "7acb34f3520aadc6cd6ed79b86ae287c5655089e08d8aca53408fec3fb11cb10"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/build.log",
+      "original_bytes": 11483,
+      "original_sha256": "d4d882afe86534e16311ff83276da89f496c0374cf52a70c8a914c7539676b9e",
+      "storage": "gzip",
+      "stored_bytes": 1912,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/build.log.gz",
+      "stored_sha256": "0fb3f82f70364bb59137f151af9b02a3396d659a96357a09b5f6f5862ad667fe"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/dirty_rectangles.log",
+      "original_bytes": 39,
+      "original_sha256": "69fa94e4f79f516e05cc451fa1ad41cf668779eb045cabf9ce5dd13d3f617e05",
+      "storage": "gzip",
+      "stored_bytes": 57,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/dirty_rectangles.log.gz",
+      "stored_sha256": "88b4d233b626240b745c037437cb297cc99f4f9a012a092a42900c25661f15b1"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/masked_source.log",
+      "original_bytes": 61,
+      "original_sha256": "8227b8a016ae80499411a881b7a6c3ca5679ec2d7190610e5433d0c4551c3029",
+      "storage": "gzip",
+      "stored_bytes": 78,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/masked_source.log.gz",
+      "stored_sha256": "561a3af5119bcce589965f77a2e1a2b4c6ce91823dc1711085b31d42e5e85e30"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/pause_unmask.log",
+      "original_bytes": 58,
+      "original_sha256": "8399aa105c6f7f7dbe7d5c5e4e86a3591fd8fa044524d96725c77dece8b5658c",
+      "storage": "gzip",
+      "stored_bytes": 74,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/pause_unmask.log.gz",
+      "stored_sha256": "fe5067130dd0c1f25007f35b14ca5f5407d4c5765a8217fd9854abba7f61c334"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/receipt.json",
+      "original_bytes": 20229,
+      "original_sha256": "7d06cfc6173a7f7c96a500b95ec45b244d43e9ff8fbebb2dc3f4c3b751b8261a",
+      "storage": "gzip",
+      "stored_bytes": 7703,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/receipt.json.gz",
+      "stored_sha256": "c2c2f0d5672e815ddd879ed7a0b9e9a905341f6c54f17c6c13398effc68635c3"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/render.log",
+      "original_bytes": 81,
+      "original_sha256": "f238c18cf8ca0b9f6de7089a54b9d3d8e241fcadadbb6504a159c060317b6390",
+      "storage": "gzip",
+      "stored_bytes": 85,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/render.log.gz",
+      "stored_sha256": "bcb2f8b98b38cf0b4333ee7962266ad53f88ab04a93f5a1e3dadd3e63c1c1771"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/rgba.log",
+      "original_bytes": 37,
+      "original_sha256": "0e434cd3572c82dbcb73879667b74148ba1f43b1ff2c54a818e0818c39e90bf4",
+      "storage": "gzip",
+      "stored_bytes": 55,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/rgba.log.gz",
+      "stored_sha256": "45d4bf867baa4e32fed25535d1daf2b23ce2c0995f104526f50c2f3dedaaf2d0"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/settled_regions.log",
+      "original_bytes": 28,
+      "original_sha256": "8d3b6e3c6bb292774e24f69d2edb2c2c084e7599127df8d2b9108759218745f7",
+      "storage": "gzip",
+      "stored_bytes": 48,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/settled_regions.log.gz",
+      "stored_sha256": "d278f0f091ed82bd4c63453a354adb7a007639176f9c4e5e6f4860cab581f82a"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/soliding_lifecycle.log",
+      "original_bytes": 218,
+      "original_sha256": "71660186435d50811e4b99a3790d2624f26ef4943a448a76376c0490654f56f1",
+      "storage": "gzip",
+      "stored_bytes": 178,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/soliding_lifecycle.log.gz",
+      "stored_sha256": "411aac2abc5b1f02d7265cda59fefe726c569495c2e65bb63cd3efa36b58a388"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "native-focused/tick_failure.log",
+      "original_bytes": 138,
+      "original_sha256": "633ead3bf81eb29f0eababdafaa26f7227f38d6a43123fe0ad9b3fb5e4fe0c25",
+      "storage": "gzip",
+      "stored_bytes": 117,
+      "stored_path": "full-sandfall-sf-m2-source-native/native-focused/tick_failure.log.gz",
+      "stored_sha256": "88b52296a97e0d07736a4b4e74e47bab29f8663cbed684d1b2b78c5da4aafeff"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "node-version.txt",
+      "original_bytes": 9,
+      "original_sha256": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906",
+      "storage": "gzip",
+      "stored_bytes": 29,
+      "stored_path": "full-sandfall-sf-m2-source-native/node-version.txt.gz",
+      "stored_sha256": "97c7458b9d9272ebc1e5dfee66038bcff491faa1f4a9f814fd3364268abf2f69"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "python-tests.log",
+      "original_bytes": 3880,
+      "original_sha256": "73b5342f7dafd9ba943a2d7a95ebfe44a0e0acfb60a23ec67954587110dfb7ff",
+      "storage": "gzip",
+      "stored_bytes": 677,
+      "stored_path": "full-sandfall-sf-m2-source-native/python-tests.log.gz",
+      "stored_sha256": "ecf736250a6c19315ed32ecf5342b75a73174557331dc92769c2d322ca168e76"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "source-reconciliation-original-m0-refusal.json",
+      "original_bytes": 5869,
+      "original_sha256": "a36dd098a8c59a9e7fff5a1343e9a0a163a803d285ffffd3d5360be224fad1aa",
+      "storage": "gzip",
+      "stored_bytes": 1342,
+      "stored_path": "full-sandfall-sf-m2-source-native/source-reconciliation-original-m0-refusal.json.gz",
+      "stored_sha256": "f2fdc021cbb3e4caad542287a32b11e8b3cb05638da8f9f4dbfb7d398bb5edef"
+    },
+    {
+      "artifact_id": 13028028579,
+      "artifact_member": "source-reconciliation.json",
+      "original_bytes": 6456,
+      "original_sha256": "e8bacb19706bc6190ea98761e6117a3d5052b65bcdb6ac584d90813840f5497b",
+      "storage": "gzip",
+      "stored_bytes": 1598,
+      "stored_path": "full-sandfall-sf-m2-source-native/source-reconciliation.json.gz",
+      "stored_sha256": "e0e3d43da52007fa699edca72ed4e5bdc5b3a80c0afab0ba67fe86478911467c"
+    }
+  ],
+  "qualified_run": 41163426571,
+  "qualified_source": "533a3de6352074f0cd68faca94417e80f041080e",
+  "schema": "sandfall-sf-m2-evidence-custody-v1",
+  "scope": "Original mixed-cohort evidence; verify each embedded build/harness identity, not just publishing workflow head. Gzip is lossless storage, not a new execution. No threaded or human visual claim."
+}

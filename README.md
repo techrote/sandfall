@@ -2,8 +2,7 @@
 
 **Status: SF-M0 remains on held [draft PR #2](https://github.com/techrote/sandfall/pull/2).
 The dedicated zero-player host is implemented and compatibility-Web qualified on
-stacked [draft PR #3](https://github.com/techrote/sandfall/pull/3). The full editor
-remains a later milestone. Neither PR is merged or ready for review.**
+stacked [draft PR #3](https://github.com/techrote/sandfall/pull/3). SF-M2 authoring/history and the material workshop are implemented on stacked [draft PR #4](https://github.com/techrote/sandfall/pull/4), with bounded compatibility-Web executable qualification passed at `533a3de6` and exact-source evidence in its dated audit. All three PRs remain draft and unmerged.**
 
 Sandfall is a Web-native, interactive, **zero-player cellular + Rapier physics exhibition and editor** derived from CyberSand. “Zero-player” removes player/actor movement and action controls, **not** painting, object creation, time control or camera interaction.
 
@@ -56,8 +55,12 @@ controls are clickable; P toggles pause, Escape opens the menu, and middle drag/
 wheel control the camera. No painting/history or arbitrary object-authoring UI
 is claimed in this initial host cut.
 
-**Next engineering task:** SF-M2's authored initial document and exact Edit
-transactions/history, before expanding the material tools. Owner human visual
-acceptance and threaded/unisolated-hosting qualification remain separate gates.
+## SF-M2 material authoring
+
+The [SF-M2 implementation](docs/SF-M2-AUTHORING-HISTORY.md) adds copied initial documents, exact signed material/state/temperature transactions, one-gesture history, complete first-tick history retirement and bounded journalled Run interventions. The Control sidebar provides catalogue/search, pencil/erase, circle/square/ratio footprints, lines/rectangles, picker, cancellable category fill and exact selection copy/cut/paste/move/delete. Grid/rulers and camera remain presentation-only. Reset restores the frozen design; Reset & Edit starts a new empty undo history. Pacing preserves fixed dt.
+
+[The dated audit](docs/audits/2026-10-31-sf-m2-authoring-history.md) separates development results from exact-SHA native/Web/browser qualification and retained failures. The SF-M1 export linked above predates these tools and cannot demonstrate SF-M2. The [fresh SF-M2 export and full qualification run](https://github.com/techrote/sandfall/actions/runs/41163426571) pass at `533a3de6352074f0cd68faca94417e80f041080e`; use its `sandfall-sf-m2-fresh-web` artifact, not the older SF-M1 package. After extraction, run `python3 serve_web.py --directory . --port 8040`. Open Sandbox, then Tools, to edit the initial scene. Undo/Redo are Edit-only; after Run, Reset & Edit restores a new editable baseline with empty history. The durable evidence manifest and original failures are linked in the dated audit.
+
+**Next:** SF-M3's generalized stable-ID Rapier workshop, including 0-16 coupled boxes and refusal of body 17. Human visual acceptance, threaded/unisolated hosting, broad desktop qualification and the SF-M4 archive/presentation/exhibition work remain separate. All three PRs remain draft and unmerged.
 
 This root filename is deliberately **README.md**, matching normal Git conventions and avoiding the prior **readme.md / README.md** case conflict on Windows during upstream import.

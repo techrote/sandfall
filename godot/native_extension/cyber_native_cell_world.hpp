@@ -151,6 +151,7 @@ private:
     // The demo adapter exchanges owned byte arrays, never native pointers.
     // Both adapters must be called by the same exclusive tick-boundary owner.
     friend class CyberDemoBridge;
+    friend class SandfallEditBridge;
 
     struct BodyState {
         std::uint16_t id = 0;

@@ -397,3 +397,7 @@ For final Gate Aâ€“E PASS, the landed stack, the bounded #200 policy founda
 the [current roadmap checkpoint](reference/status-and-roadmap.md#liquid-comparison-build-design-checkpoint--2026-10-23),
 the [pressure reference entry](reference/status-and-roadmap.md#lcb-001-pressure-reference--2026-10-24)
 and the [dated reconciliation](audits/2026-10-24-lcb000-landed-status-reconciliation.md).
+
+## Sandfall SF-M2
+
+[Authored document, exact history and material tools](SF-M2-AUTHORING-HISTORY.md) and [dated source/execution audit](audits/2026-10-31-sf-m2-authoring-history.md). This Sandfall-specific cut does not promote the inherited CyberSand desktop release or broader programme.

@@ -503,3 +503,6 @@ disposition and inherited provenance limitations. The
 cut. The inherited actor-capable bootstrap is not the Sandfall zero-player host;
 the new UI/editor, archive and sixteen-body v1 requirements remain unimplemented.
 PR #2 remains draft and unmerged by owner instruction.
+
+
+**Updated 31 October 2026:** the dedicated SF-M1 zero-player host and bounded compatibility-Web gates are implemented on held draft PR #3 at `ba7add4de9fe8027aaedeff0fa703c1a55fee21e`. [SF-M2](SF-M2-AUTHORING-HISTORY.md) now implements the initial document, exact history and material workshop on stacked draft PR #4. Its [dated audit](audits/2026-10-31-sf-m2-authoring-history.md) records the completed bounded SF-M2 compatibility-Web matrix at `533a3de6` (run `41163426571`), distinguishing fresh exact-source exports, immutable-artifact retests, local native checks and retained original failures. Neither a native UI pass nor the old SF-M1 binary establishes SF-M2 browser acceptance. The generalized body workshop, archive/presentation/exhibition work and broader platform/human gates retain their agreed later milestones. PR #2 and #3 remain draft, unmerged and unchanged.
