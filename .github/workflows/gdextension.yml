@@ -283,11 +283,27 @@ jobs:
           "$LLVM_MINGW_ROOT/bin/llvm-objdump" -p "$CYBERSAND_NATIVE_OUTPUT" > "$RUNNER_TEMP/windows-imports.txt"
           sha256sum "$CYBERSAND_NATIVE_OUTPUT"
 
+      - name: Record source-pinned fresh Windows DLL for actual execution
+        env:
+          CYBERSAND_NATIVE_OUTPUT: ${{ runner.temp }}/cybersand_native.windows.x86_64.dll
+        run: |
+          set -euo pipefail
+          python3 tools/ci/fresh_windows_runtime.py build --dll "$CYBERSAND_NATIVE_OUTPUT" --output-dir build/windows-runtime
+          python3 tools/ci/fresh_windows_runtime.py verify --bundle-dir build/windows-runtime --expected-source-sha "$(git rev-parse HEAD)"
+
+      - name: Publish source-matched Windows DLL and manifest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-runtime-${{ github.run_id }}
+          path: build/windows-runtime/
+          if-no-files-found: error
+          retention-days: 1
+
   windows-regression:
     name: windows headless regression
-    needs: [ready_scope]
+    needs: [ready_scope, windows-build]
     if: >-
-      always() && inputs.physical_actor_stress != true &&
+      always() && needs.windows-build.result == 'success' && inputs.physical_actor_stress != true &&
       (github.event_name != 'pull_request' ||
        (github.event.pull_request.draft == false &&
         (github.event.action != 'ready_for_review' ||
@@ -313,18 +329,25 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Materialize retained Windows CyberSand and pinned Rapier runtimes
+      - name: Materialize pinned Rapier Windows runtime
         timeout-minutes: 5
         run: |
           set -euo pipefail
           git lfs install --local
-          git lfs pull --include="godot/addons/cybersand_native/bin/cybersand_native.windows.x86_64.dll,godot/addons/godot-rapier2d/bin/libgodot_rapier.windows.x86_64-pc-windows-msvc.dll" --exclude=""
+          git lfs pull --include="godot/addons/godot-rapier2d/bin/libgodot_rapier.windows.x86_64-pc-windows-msvc.dll" --exclude=""
+
+      - name: Restore exact-source freshly built Windows DLL
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: windows-runtime-${{ github.run_id }}
+          path: build/windows-runtime
 
       - name: Validate Windows execution harness
         run: |
           set -euo pipefail
           python tools/ci/test_godot_regression_sharding.py
           python tools/ci/test_windows_godot_regressions.py
+          python tools/ci/test_fresh_windows_runtime.py
           python tools/ci/test_godot_timeout_diagnostics.py
           python tools/ci/test_godot_process_monitor.py
           python tools/ci/test_physical_progress_watchdog.py
@@ -343,7 +366,7 @@ jobs:
         timeout-minutes: 40
         run: |
           set -euo pipefail
-          python tools/ci/run_windows_godot_regressions.py --godot-archive "$RUNNER_TEMP/godot-windows.zip" --expected-source-sha "$GITHUB_SHA" --output build/godot-regressions/windows
+          python tools/ci/run_windows_godot_regressions.py --godot-archive "$RUNNER_TEMP/godot-windows.zip" --expected-source-sha "$GITHUB_SHA" --fresh-windows-runtime build/windows-runtime --output build/godot-regressions/windows
 
       - name: Prove internal watchdog observes a synchronously blocked Windows main thread
         timeout-minutes: 2
