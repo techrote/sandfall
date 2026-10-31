@@ -42,7 +42,9 @@ func _inactive_and_camera() -> void:
 		host.free()
 		return
 	_expect(bool(configured.cpp_exception_probe), "Native C++ malformed-import exception preflight failed")
-	_expect(bool(configured.rapier_available), "Actual Rapier startup probe failed even though this scene has no bodies")
+	_expect(not bool(configured.rapier_available) and bool(configured.rapier_probe_deferred) \
+		and configured.rapier_probe.is_empty() and configured.rapier_steps == 0,
+		"Empty startup executed the physical Rapier probe or advanced a solver")
 	_expect(int(configured.native_tick) == 0 and int(configured.rapier_steps) == 0, "Construction advanced a solver")
 	for _frame: int in range(4):
 		await physics_frame

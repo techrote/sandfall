@@ -493,6 +493,16 @@ New logical modules: **SandfallAuthoringDocument**, **SandfallSessionController*
 This document records **approved design intent**. At the original authoring
 checkpoint, Sandfall had only its bootstrap README and documentation branch.
 
+**Current SF-M3 branch, 31 October 2026:** the
+[dynamic Rapier workshop contract](SF-M3-RAPIER-WORKSHOP.md) implements stable
+logical IDs, 0–16 bodies, explicit transient slot mapping, exact object/material
+history, safe Run interventions, inspector/tools and sixteen-slot rendering.
+The [SF-M3 audit](audits/2026-10-31-sf-m3-rapier-workshop.md) records development
+execution and independent findings separately from required exact-head actual
+Web qualification. SF-M3 remains draft and unmerged. SF-M4 archives,
+presentation/exhibitions and broader platform/human qualification are separate.
+The earlier milestone paragraphs below retain their historical checkpoints.
+
 **Updated 30 October 2026:** draft PR #2 preserves the frozen CyberSand ancestry
 and has a source-matched compatibility Web export, a passing 600-tick
 native/Rapier fixture and the full 164-test native baseline. The ordinary-Web

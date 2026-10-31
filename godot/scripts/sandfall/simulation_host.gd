@@ -8,7 +8,8 @@ const FIXED_DELTA: float = 1.0 / 60.0
 const TERRAIN_CHUNKS_PER_PASS: int = 32
 const TERRAIN_BUDGET_USEC: int = 750
 const MAX_INITIAL_TERRAIN_PASSES: int = 256
-const MAX_INITIAL_BODIES: int = 3
+const Registry = preload("res://scripts/sandfall/rapier_object_registry.gd")
+const MAX_INITIAL_BODIES: int = Registry.MAX_OBJECTS
 
 var _native_world: Variant
 var _edit_bridge: Variant
@@ -28,15 +29,33 @@ var _initial_material_sha256: String = ""
 var _initial_body_states: Array = []
 var _rapier_probe: Dictionary = {}
 var _cpp_exception_probe: bool = false
+var _object_registry: Variant = Registry.new()
+var _object_revision: int = 0
+var _object_feedback: Dictionary = {}
+var _body_body_pairs: Dictionary = {}
+var _object_mutating: bool = false
 
 
 func configure(definition: Dictionary) -> Dictionary:
 	var validation: String = _validate_definition(definition)
 	if not validation.is_empty():
+		if _ready and not _fault:
+			var refused: Dictionary = state()
+			refused["ready"] = false
+			refused["error"] = validation
+			refused["refused"] = true
+			refused["partial"] = false
+			return refused
 		_enter_fault(validation)
 		return state()
 	shutdown()
 	_definition = definition.duplicate(true)
+	_object_registry = Registry.new()
+	_object_registry.install(definition.bodies)
+	_definition.bodies = _object_registry.definitions()
+	_object_revision = 0
+	_object_feedback.clear()
+	_body_body_pairs.clear()
 	_definition.rectangles = PackedInt32Array(definition.rectangles).duplicate()
 	if definition.has("initial_cells"):
 		_definition.initial_cells = PackedByteArray(definition.initial_cells).duplicate()
@@ -85,29 +104,29 @@ func configure(definition: Dictionary) -> Dictionary:
 	if not _cpp_exception_probe:
 		_enter_fault("Native malformed-import exception preflight failed")
 		return state()
-	if _rapier_probe.is_empty():
-		_rapier_probe = CyberWebCapabilities.rapier_probe()
-		print("SANDFALL_RAPIER_PROBE ", JSON.stringify(_rapier_probe))
 	_initial_material_sha256 = material_identity()
 	if _initial_material_sha256.is_empty():
 		_enter_fault("Initial material identity could not be captured")
 		return state()
 	if not _definition.bodies.is_empty():
+		_probe_rapier_if_needed()
 		if not bool(_rapier_probe.get("ok", false)):
 			_enter_fault(str(_rapier_probe.get("reason", "Rapier unavailable")))
 			return state()
-		_create_bodies()
+		if not _create_bodies():
+			_enter_fault("Project body construction failed")
+			return state()
 		_rapier_bridge = CyberRapierPhysicsBridge.new()
-		var bridge_error: Error = _rapier_bridge.initialize(get_world_2d().space, _bodies, _body_sizes)
+		var bridge_error: Error = _rapier_bridge.initialize(get_world_2d().space, _bodies, _body_sizes, _object_registry.ids())
 		if bridge_error != OK:
 			_enter_fault("Manual Rapier bridge initialization failed: " + error_string(bridge_error))
 			return state()
 		for index: int in range(_bodies.size()):
-			_bodies[index].freeze = false
 			var initial: Dictionary = _definition.bodies[index]
-			_rapier_bridge.reset_body(index, initial.position, float(initial.rotation))
+			_install_body_state(_bodies[index], initial, [])
 		_rapier_bridge.refresh_all_states()
 		_rapier_bridge.reset_result_tracking()
+		_rapier_bridge.enable_diagnostics()
 		for _pass: int in range(MAX_INITIAL_TERRAIN_PASSES):
 			_sync_terrain()
 			if _fault:
@@ -129,7 +148,7 @@ func configure(definition: Dictionary) -> Dictionary:
 func tick_once() -> Dictionary:
 	var before_native: int = _native_tick()
 	var before_rapier: int = _rapier_steps()
-	if not _ready or _fault:
+	if not _ready or _fault or _object_mutating:
 		return _tick_receipt(false, before_native, before_rapier, "not_ready")
 	if bool(_native_world.has_failed()):
 		_enter_fault("Native world failed before the next tick: " + str(_native_world.get_last_tick_error()))
@@ -141,7 +160,9 @@ func tick_once() -> Dictionary:
 		if _rapier_bridge.pending_hard_surface_chunks() != 0:
 			return _tick_receipt(false, before_native, before_rapier, "terrain_pending")
 		_rapier_bridge.apply_cellular_results(before_native, _native_world.rigid_body_results())
+		_record_applied_feedback()
 		_rapier_bridge.step()
+		_record_body_contacts()
 		_native_world.prepare_rigid_body_coupling(_rapier_bridge.pack_body_states(), true)
 	else:
 		_native_world.prepare_rigid_body_coupling(PackedFloat32Array(), false)
@@ -151,6 +172,7 @@ func tick_once() -> Dictionary:
 	_contacts_total += int(_native_world.get_rigid_body_contacts_last_tick())
 	_displaced_total += int(_native_world.get_rigid_body_displaced_last_tick())
 	_moves_total += int(_native_world.get_moves_last_tick())
+	_record_native_feedback()
 	var native_delta: int = _native_tick() - before_native
 	var rapier_delta: int = _rapier_steps() - before_rapier
 	if native_delta != 1 or rapier_delta != (1 if _bridge_active() else 0):
@@ -170,6 +192,7 @@ func state(include_material_identity: bool = false) -> Dictionary:
 		"ready": _ready and not _fault, "fault": _fault, "error": _error,
 		"native_available": CyberWebCapabilities.native_available(),
 		"rapier_available": bool(_rapier_probe.get("ok", false)),
+		"rapier_probe_deferred": _rapier_probe.is_empty(),
 		"rapier_reason": str(_rapier_probe.get("reason", "not probed")),
 		"rapier_probe": _rapier_probe.duplicate(true),
 		"cpp_exception_probe": _cpp_exception_probe,
@@ -185,6 +208,11 @@ func state(include_material_identity: bool = false) -> Dictionary:
 		"initial_material_sha256": _initial_material_sha256,
 		"initial_body_states": _initial_body_states.duplicate(true),
 		"body_states": _read_body_states(), "body_sizes": _body_size_values(),
+		"body_ids": _object_registry.ids(), "object_definitions": get_object_definitions(),
+		"logical_objects": Registry.logical_graph(get_object_definitions()),
+		"object_revision": _object_revision, "object_schema_version": Registry.SCHEMA_VERSION,
+		"slot_mapping": _rapier_bridge.slot_mapping() if _rapier_bridge != null else {"epoch": 0, "project_ids": [], "slots": 0, "sample_serial": 0},
+		"object_feedback": _object_feedback.duplicate(true), "body_body_pairs": _body_body_pairs.keys(),
 		"initial_definition_id": str(_definition.get("id", "")),
 		"initial_definition_revision": int(_definition.get("revision", 0)),
 		"world_size": [1024, 1024], "initial_view": [480, 270],
@@ -193,6 +221,174 @@ func state(include_material_identity: bool = false) -> Dictionary:
 	if include_material_identity:
 		result["current_material_sha256"] = material_identity()
 	return result
+
+
+func get_object_definitions() -> Array:
+	return _object_registry.definitions()
+
+
+func apply_object_graph(candidate: Array, expected_revision: int = -1,
+		expected_tick: int = -1, explicit_fields: Dictionary = {}) -> Dictionary:
+	# All validation and allocation precede world mutation. This is called only
+	# at the session's serialized command boundary, never from a body callback.
+	if not _ready or _fault or _object_mutating:
+		return {"ok": false, "error": "host_not_editable", "partial": false}
+	if (expected_revision >= 0 and expected_revision != _object_revision) \
+			or (expected_tick >= 0 and expected_tick != _native_tick()):
+		return {"ok": false, "error": "stale_object_revision_or_tick", "partial": false}
+	var validation: Dictionary = Registry.validate_graph(candidate)
+	if not validation.ok:
+		return {"ok": false, "error": validation.error, "partial": false}
+	var desired: Array = validation.definitions
+	var before: Array = get_object_definitions()
+	var desired_ids: Dictionary = {}
+	for row: Dictionary in desired:
+		desired_ids[row.id] = row
+		var previous: Dictionary = _object_registry.definition(row.id)
+		if not previous.is_empty() and previous.creation_order != row.creation_order:
+			return {"ok": false, "error": "immutable_object_creation_order", "partial": false}
+	for id: Variant in explicit_fields:
+		if not id is String or not explicit_fields[id] is Array \
+				or _object_registry.slot_for_id(id) == 0 or not desired_ids.has(id):
+			return {"ok": false, "error": "invalid_explicit_object_fields", "partial": false}
+		for field: Variant in explicit_fields[id]:
+			if not field is String or field not in Registry.FIELDS \
+					or field in ["id", "creation_order", "schema_version", "shape"]:
+				return {"ok": false, "error": "invalid_explicit_object_fields", "partial": false}
+	var old_states: Array = _read_body_states()
+	var physical_change: bool = before.size() != desired.size()
+	for index: int in range(before.size()):
+		var id: String = before[index].id
+		var requested: Array = explicit_fields.get(id, [])
+		if not desired_ids.has(id):
+			physical_change = true
+			continue
+		var row: Dictionary = desired_ids[id]
+		physical_change = physical_change or not _same_physical_definition(before[index], row) \
+			or _explicit_state_changed(row, old_states[index], requested)
+	if desired == before and not physical_change:
+		return {"ok": true, "error": "", "partial": false, "changed": false,
+			"physical_changed": false, "revision": _object_revision}
+	if not physical_change:
+		# Names and passive-subject metadata belong to the logical document. They
+		# must not retire pending physical feedback or change the sampling epoch.
+		_object_registry.install(desired)
+		_definition.bodies = get_object_definitions()
+		_object_revision += 1
+		return {"ok": true, "error": "", "partial": false, "changed": true,
+			"physical_changed": false, "revision": _object_revision,
+			"definitions": get_object_definitions()}
+	if not desired.is_empty():
+		_probe_rapier_if_needed()
+		if not bool(_rapier_probe.get("ok", false)):
+			return {"ok": false, "error": "rapier_unavailable", "partial": false}
+	var old_by_id: Dictionary = {}
+	for index: int in range(before.size()):
+		old_by_id[before[index].id] = index
+	var staged: Array[RigidBody2D] = []
+	var next_bodies: Array[RigidBody2D] = []
+	var next_sizes: PackedVector2Array = PackedVector2Array()
+	var state_rows: Array = []
+	for row: Dictionary in desired:
+		var old_index: int = int(old_by_id.get(row.id, -1))
+		var old: Dictionary = before[old_index] if old_index >= 0 else {}
+		var prior_state: Array = old_states[old_index].duplicate() if old_index >= 0 else []
+		var requested: Array = explicit_fields.get(row.id, [])
+		var body: RigidBody2D
+		if old_index >= 0 and _same_physical_definition(old, row) \
+				and not _explicit_state_changed(row, prior_state, requested):
+			body = _bodies[old_index]
+		else:
+			body = _make_body(row)
+			if body == null:
+				for allocated: RigidBody2D in staged:
+					allocated.free()
+				return {"ok": false, "error": "object_allocation_refused", "partial": false}
+			staged.append(body)
+			if old_index >= 0:
+				if row.position != old.position or "position" in requested:
+					prior_state[0] = row.position.x
+					prior_state[1] = row.position.y
+				if row.rotation != old.rotation or "rotation" in requested:
+					prior_state[2] = row.rotation
+				if row.linear_velocity != old.linear_velocity or "linear_velocity" in requested:
+					prior_state[3] = row.linear_velocity.x
+					prior_state[4] = row.linear_velocity.y
+				if row.angular_velocity != old.angular_velocity or "angular_velocity" in requested:
+					prior_state[5] = row.angular_velocity
+				prior_state[6] = false
+		next_bodies.append(body)
+		next_sizes.append(row.size)
+		state_rows.append(prior_state)
+	_object_mutating = true
+	# Two separate zero-step preparations retire both old observations and old
+	# previous poses, so a reused slot cannot sweep from a deleted object's pose.
+	_native_world.prepare_rigid_body_coupling(PackedFloat32Array(), false)
+	for body: RigidBody2D in staged:
+		add_child(body)
+	for index: int in range(next_bodies.size()):
+		if next_bodies[index] in staged:
+			_install_body_state(next_bodies[index], desired[index], state_rows[index])
+	var retired: Array[RigidBody2D] = []
+	for body: RigidBody2D in _bodies:
+		if body not in next_bodies:
+			body.freeze = true
+			body.collision_layer = 0
+			body.collision_mask = 0
+			remove_child(body)
+			retired.append(body)
+	_bodies = next_bodies
+	_body_sizes = next_sizes
+	_object_registry.install(desired)
+	_definition.bodies = get_object_definitions()
+	var bridge_error: Error = OK
+	if _rapier_bridge == null and not _bodies.is_empty():
+		_rapier_bridge = CyberRapierPhysicsBridge.new()
+		bridge_error = _rapier_bridge.initialize(get_world_2d().space, _bodies, _body_sizes, _object_registry.ids())
+		_rapier_bridge.enable_diagnostics()
+		_hard_surface_revision = -1
+	elif _rapier_bridge != null:
+		bridge_error = _rapier_bridge.rebind_bodies(_bodies, _body_sizes, _object_registry.ids())
+	for body: RigidBody2D in retired:
+		body.free()
+	if bridge_error != OK or bool(_native_world.has_failed()):
+		_object_mutating = false
+		_enter_fault("Object graph partly installed: " + error_string(bridge_error))
+		return {"ok": false, "error": _error, "partial": true}
+	if _bridge_active():
+		_rapier_bridge.refresh_all_states()
+		for _pass: int in range(MAX_INITIAL_TERRAIN_PASSES):
+			_sync_terrain()
+			if _fault or _rapier_bridge.pending_hard_surface_chunks() == 0:
+				break
+		if _fault or _rapier_bridge.pending_hard_surface_chunks() != 0:
+			_object_mutating = false
+			_enter_fault("Object graph changed but terrain readiness failed")
+			return {"ok": false, "error": _error, "partial": true}
+		_native_world.prepare_rigid_body_coupling(_rapier_bridge.pack_body_states(), false)
+	if bool(_native_world.has_failed()):
+		_object_mutating = false
+		_enter_fault("Object graph changed but native occupancy publication failed")
+		return {"ok": false, "error": _error, "partial": true}
+	# Remove retired identity diagnostics; surviving cumulative observations keep
+	# their stable keys even when their transient sampling slots change.
+	for id: String in _object_feedback.keys():
+		if _object_registry.slot_for_id(id) == 0:
+			_object_feedback.erase(id)
+	for pair: String in _body_body_pairs.keys():
+		var ids: PackedStringArray = pair.split(":")
+		if _object_registry.slot_for_id(ids[0]) == 0 or _object_registry.slot_for_id(ids[1]) == 0:
+			_body_body_pairs.erase(pair)
+	_object_revision += 1
+	_object_mutating = false
+	return {"ok": true, "error": "", "partial": false, "changed": true,
+		"physical_changed": true, "revision": _object_revision, "definitions": get_object_definitions()}
+
+
+func object_occupancy_at(cell: Vector2i) -> String:
+	if _native_world == null or cell.x < 0 or cell.y < 0 or cell.x >= 1024 or cell.y >= 1024:
+		return ""
+	return _object_registry.id_for_slot(int(_native_world.rigid_body_id_at(cell.x, cell.y)))
 
 
 func material_identity() -> String:
@@ -274,7 +470,7 @@ func restore_physical_state(snapshot: Dictionary) -> Dictionary:
 			or body_values.size() != restored_definition.get("bodies", []).size():
 		return {"ok": false, "error": "Malformed internal physical snapshot"}
 	for row: Variant in body_values:
-		if not row is Array or row.size() != 7:
+		if not row is Array or row.size() != 7 or not row[6] is bool:
 			return {"ok": false, "error": "Malformed internal body snapshot"}
 		for component: int in range(6):
 			if not (row[component] is int or row[component] is float) or not is_finite(float(row[component])):
@@ -282,9 +478,6 @@ func restore_physical_state(snapshot: Dictionary) -> Dictionary:
 	var installed: Dictionary = configure(restored_definition)
 	if not bool(installed.ready):
 		return {"ok": false, "error": str(installed.error)}
-	if not _demo_bridge.import_physical_state(_native_world, snapshot.native_payload):
-		_enter_fault("Physical state restore refused: " + str(_demo_bridge.get_last_error()))
-		return {"ok": false, "error": _error}
 	for index: int in range(_bodies.size()):
 		var row: Array = body_values[index]
 		var rid: RID = _bodies[index].get_rid()
@@ -295,16 +488,23 @@ func restore_physical_state(snapshot: Dictionary) -> Dictionary:
 	if _bridge_active():
 		_rapier_bridge.refresh_all_states()
 		_rapier_bridge.reset_result_tracking()
+	# The native candidate installs these restored masks without waking saved
+	# activity/deadline state. Ordinary live mask publication keeps its wakes.
+	var restored_bodies: PackedFloat32Array = _rapier_bridge.pack_body_states() if _bridge_active() else PackedFloat32Array()
+	if not _demo_bridge.import_physical_state(_native_world, snapshot.native_payload, restored_bodies):
+		_enter_fault("Physical state restore refused after body reconstruction: " + str(_demo_bridge.get_last_error()))
+		return {"ok": false, "error": _error, "partial": true}
+	if _bridge_active():
 		_hard_surface_revision = -1
 		for _pass: int in range(MAX_INITIAL_TERRAIN_PASSES):
 			_sync_terrain()
 			if _fault:
-				return {"ok": false, "error": _error}
+				return {"ok": false, "error": _error, "partial": true}
 			if _rapier_bridge.pending_hard_surface_chunks() == 0:
 				break
 		if _rapier_bridge.pending_hard_surface_chunks() != 0:
 			_enter_fault("Restored terrain collider readiness did not complete")
-			return {"ok": false, "error": _error}
+			return {"ok": false, "error": _error, "partial": true}
 	return {"ok": true, "state": state()}
 
 
@@ -326,6 +526,7 @@ func shutdown() -> void:
 	_bodies.clear()
 	_body_sizes = PackedVector2Array()
 	_native_world = null
+	_edit_bridge = null
 	_demo_bridge = null
 	_hard_surface_revision = -1
 	_initial_material_sha256 = ""
@@ -336,32 +537,122 @@ func _exit_tree() -> void:
 	shutdown()
 
 
-func _create_bodies() -> void:
+func _create_bodies() -> bool:
 	for initial: Dictionary in _definition.bodies:
-		var body: RigidBody2D = RigidBody2D.new()
-		body.name = "SandfallBody%d" % (_bodies.size() + 1)
-		body.freeze = true
-		body.position = initial.position
-		body.rotation = float(initial.rotation)
-		body.mass = float(initial.mass)
-		body.gravity_scale = float(initial.gravity_scale)
-		body.linear_damp = float(initial.linear_damp)
-		body.angular_damp = float(initial.angular_damp)
-		body.continuous_cd = RigidBody2D.CCD_MODE_CAST_SHAPE
-		var material: PhysicsMaterial = PhysicsMaterial.new()
-		material.friction = 0.78
-		material.bounce = 0.0
-		material.rough = true
-		material.absorbent = true
-		body.physics_material_override = material
-		var collider: CollisionShape2D = CollisionShape2D.new()
-		var shape: RectangleShape2D = RectangleShape2D.new()
-		shape.size = initial.size
-		collider.shape = shape
-		body.add_child(collider)
+		var body: RigidBody2D = _make_body(initial)
+		if body == null:
+			return false
 		add_child(body)
 		_bodies.append(body)
 		_body_sizes.append(initial.size)
+	return true
+
+
+func _make_body(initial: Dictionary) -> RigidBody2D:
+	var body: RigidBody2D = RigidBody2D.new()
+	body.name = "SandfallBody_" + str(initial.id)
+	body.set_meta("sandfall_object_id", str(initial.id))
+	body.freeze = true
+	body.freeze_mode = RigidBody2D.FREEZE_MODE_STATIC
+	body.position = initial.position
+	body.rotation = float(initial.rotation)
+	body.mass = float(initial.mass)
+	body.gravity_scale = float(initial.gravity_scale)
+	body.linear_damp = float(initial.linear_damp)
+	body.angular_damp = float(initial.angular_damp)
+	body.continuous_cd = RigidBody2D.CCD_MODE_CAST_SHAPE
+	body.contact_monitor = true
+	body.max_contacts_reported = Registry.MAX_OBJECTS * 4
+	var material: PhysicsMaterial = PhysicsMaterial.new()
+	material.friction = float(initial.friction)
+	material.bounce = float(initial.restitution)
+	material.rough = true
+	material.absorbent = true
+	body.physics_material_override = material
+	var collider: CollisionShape2D = CollisionShape2D.new()
+	var shape: RectangleShape2D = RectangleShape2D.new()
+	shape.size = initial.size
+	collider.shape = shape
+	body.add_child(collider)
+	if not body.get_rid().is_valid() or not shape.get_rid().is_valid():
+		body.free()
+		return null
+	return body
+
+
+func _install_body_state(body: RigidBody2D, initial: Dictionary, retained: Array) -> void:
+	body.freeze = bool(initial.fixed) or bool(initial.frozen)
+	var position: Vector2 = initial.position if retained.is_empty() else Vector2(retained[0], retained[1])
+	var rotation: float = float(initial.rotation) if retained.is_empty() else float(retained[2])
+	var velocity: Vector2 = initial.linear_velocity if retained.is_empty() else Vector2(retained[3], retained[4])
+	var angular_velocity: float = float(initial.angular_velocity) if retained.is_empty() else float(retained[5])
+	var sleeping: bool = false if retained.is_empty() else bool(retained[6])
+	var rid: RID = body.get_rid()
+	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_TRANSFORM, Transform2D(rotation, position))
+	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_LINEAR_VELOCITY, velocity)
+	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_ANGULAR_VELOCITY, angular_velocity)
+	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_SLEEPING, sleeping)
+
+
+func _same_physical_definition(a: Dictionary, b: Dictionary) -> bool:
+	for field: String in Registry.FIELDS:
+		if field not in ["id", "creation_order", "schema_version", "name", "passive_subject"] and a[field] != b[field]:
+			return false
+	return true
+
+
+func _explicit_state_changed(row: Dictionary, current: Array, requested: Array) -> bool:
+	return ("position" in requested and Vector2(current[0], current[1]) != row.position) \
+		or ("rotation" in requested and not is_equal_approx(float(current[2]), float(row.rotation))) \
+		or ("linear_velocity" in requested and Vector2(current[3], current[4]) != row.linear_velocity) \
+		or ("angular_velocity" in requested and not is_equal_approx(float(current[5]), float(row.angular_velocity)))
+
+
+func _feedback_row(id: String) -> Dictionary:
+	if not _object_feedback.has(id):
+		_object_feedback[id] = {"samples": 0, "contacts": 0, "displaced": 0, "applications": 0,
+			"accepted_impulse_x": 0.0, "accepted_impulse_y": 0.0}
+	return _object_feedback[id]
+
+
+func _record_native_feedback() -> void:
+	if not _bridge_active():
+		return
+	var results: PackedFloat32Array = _native_world.rigid_body_results()
+	for index: int in range(CyberRigidBodyCoupling.result_body_count(results)):
+		var offset: int = index * CyberRigidBodyCoupling.RESULT_STRIDE
+		var id: String = _object_registry.id_for_slot(roundi(results[offset + CyberRigidBodyCoupling.RESULT_BODY_ID]))
+		if id.is_empty():
+			continue
+		var row: Dictionary = _feedback_row(id)
+		row.samples += 1
+		row.contacts += roundi(results[offset + CyberRigidBodyCoupling.RESULT_CONTACT_COUNT])
+		row.displaced += roundi(results[offset + CyberRigidBodyCoupling.RESULT_DISPLACED_COUNT])
+
+
+func _record_applied_feedback() -> void:
+	var applications: PackedFloat64Array = _rapier_bridge.diagnostic_applications
+	for index: int in range(_bodies.size()):
+		if applications.size() < (index + 1) * 6:
+			break
+		var x: float = applications[index * 6 + 1]
+		var y: float = applications[index * 6 + 2]
+		var row: Dictionary = _feedback_row(_object_registry.id_for_slot(index + 1))
+		row.accepted_impulse_x += x
+		row.accepted_impulse_y += y
+		if x != 0.0 or y != 0.0:
+			row.applications += 1
+
+
+func _record_body_contacts() -> void:
+	for body: RigidBody2D in _bodies:
+		for other: Node in body.get_colliding_bodies():
+			if not is_instance_valid(other) or not other.has_meta("sandfall_object_id"):
+				continue
+			var a: String = str(body.get_meta("sandfall_object_id"))
+			var b: String = str(other.get_meta("sandfall_object_id"))
+			var pair: String = a + ":" + b if a < b else b + ":" + a
+			_body_body_pairs[pair] = true
 
 
 func _sync_terrain() -> void:
@@ -378,7 +669,15 @@ func _sync_terrain() -> void:
 
 
 func _bridge_active() -> bool:
-	return _rapier_bridge != null and _rapier_bridge.is_initialized()
+	return _rapier_bridge != null and _rapier_bridge.is_initialized() and not _bodies.is_empty()
+
+
+func _probe_rapier_if_needed() -> void:
+	# The capability probe performs a real isolated Rapier step. A zero-body
+	# project must never invoke it merely to construct or tick native material.
+	if _rapier_probe.is_empty():
+		_rapier_probe = CyberWebCapabilities.rapier_probe()
+		print("SANDFALL_RAPIER_PROBE ", JSON.stringify(_rapier_probe))
 
 
 func _native_tick() -> int:
@@ -386,7 +685,7 @@ func _native_tick() -> int:
 
 
 func _rapier_steps() -> int:
-	return _rapier_bridge.manual_step_count() if _bridge_active() else 0
+	return _rapier_bridge.manual_step_count() if _rapier_bridge != null and _rapier_bridge.is_initialized() else 0
 
 
 func _read_body_states() -> Array:
@@ -468,23 +767,7 @@ func _validate_definition(definition: Dictionary) -> String:
 			or origin.x + dimensions.x > 1024 or origin.y + dimensions.y > 1024 \
 			or margin.x < 0 or margin.y < 0 or not definition.get("cadence_lod") is bool:
 		return "Initial simulation interest is outside supported bounds"
-	if definition.bodies.size() != 0 and definition.bodies.size() != MAX_INITIAL_BODIES:
-		return "SF-M1 supports the empty or established three-body graph only"
-	for initial: Variant in definition.bodies:
-		if not initial is Dictionary or not initial.get("position") is Vector2 \
-				or not initial.get("size") is Vector2:
-			return "Initial body definition is malformed"
-		var position_value: Vector2 = initial.position
-		var dimensions_value: Vector2 = initial.size
-		if not position_value.is_finite() or not dimensions_value.is_finite() \
-				or dimensions_value.x <= 0.0 or dimensions_value.y <= 0.0 \
-				or position_value.x < 0.0 or position_value.y < 0.0 \
-				or position_value.x >= 1024.0 or position_value.y >= 1024.0:
-			return "Initial body bounds are invalid"
-		for field: String in ["rotation", "mass", "gravity_scale", "linear_damp", "angular_damp"]:
-			if not (initial.get(field) is float or initial.get(field) is int) \
-					or not is_finite(float(initial[field])):
-				return "Initial body numeric values are invalid"
-		if float(initial.mass) <= 0.0 or float(initial.linear_damp) < 0.0 or float(initial.angular_damp) < 0.0:
-			return "Initial body mass/damping is invalid"
+	var objects: Dictionary = Registry.validate_graph(definition.bodies)
+	if not objects.ok:
+		return str(objects.error)
 	return ""

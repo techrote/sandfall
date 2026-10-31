@@ -26,6 +26,8 @@ var _linear_velocities: PackedVector2Array = PackedVector2Array()
 var _angular_velocities: PackedFloat32Array = PackedFloat32Array()
 var _sleeping: Array[bool] = []
 var _body_index_by_rid: Dictionary = {}
+var _project_ids: PackedStringArray = PackedStringArray()
+var _mapping_epoch: int = 0
 var _applied_sample_serials: PackedInt32Array = PackedInt32Array()
 var _hard_surface_body: RID
 var _hard_surface_shape_rids: Array[RID] = []
@@ -48,11 +50,13 @@ var _last_stale_results_rejected: int = 0
 var _hard_surface_shape_count: int = 0
 var _last_hard_surface_build_time_ms: float = 0.0
 var diagnostic_applications: PackedFloat64Array = PackedFloat64Array()
+var _diagnostics_enabled: bool = false
 
 
 # Opt-in fixed storage: age, accepted x/y, duplicate, stale, received per body.
 # Reset each apply call; callers copy/aggregate at their serialized boundary.
 func enable_diagnostics() -> void:
+	_diagnostics_enabled = true
 	diagnostic_applications.resize(_body_rids.size() * 6)
 	diagnostic_applications.fill(0.0)
 
@@ -60,7 +64,8 @@ func enable_diagnostics() -> void:
 func initialize(
 	space: RID,
 	bodies: Array[RigidBody2D],
-	body_sizes: PackedVector2Array
+	body_sizes: PackedVector2Array,
+	project_ids: PackedStringArray = PackedStringArray()
 ) -> Error:
 	if _initialized:
 		return ERR_ALREADY_IN_USE
@@ -72,6 +77,8 @@ func initialize(
 		return ERR_INVALID_PARAMETER
 	if bodies.size() > CyberRigidBodyCoupling.MAX_BODIES:
 		return ERR_OUT_OF_MEMORY
+	if not project_ids.is_empty() and not _valid_project_ids(project_ids, bodies.size()):
+		return ERR_INVALID_DATA
 	var unique_bodies: Dictionary = {}
 	for index: int in range(bodies.size()):
 		var candidate: RigidBody2D = bodies[index]
@@ -83,6 +90,11 @@ func initialize(
 		unique_bodies[candidate.get_rid()] = true
 
 	_space = space
+	_project_ids = project_ids.duplicate()
+	if _project_ids.is_empty():
+		for index: int in range(bodies.size()):
+			_project_ids.append(str(index + 1))
+	_mapping_epoch += 1
 	_bodies.assign(bodies)
 	_body_sizes = body_sizes.duplicate()
 	_body_rids.clear()
@@ -149,6 +161,77 @@ func is_initialized() -> bool:
 	return _initialized
 
 
+func rebind_bodies(bodies: Array[RigidBody2D], body_sizes: PackedVector2Array,
+		project_ids: PackedStringArray) -> Error:
+	# Exclusive main-thread boundary only. Validate the complete replacement map
+	# before dropping any RID reference. Terrain and cumulative step counts stay
+	# owned by this bridge; the caller clears native old masks/observations first.
+	if not _initialized or bodies.size() != body_sizes.size() \
+			or bodies.size() > CyberRigidBodyCoupling.MAX_BODIES \
+			or not _valid_project_ids(project_ids, bodies.size()):
+		return ERR_INVALID_PARAMETER
+	var seen: Dictionary = {}
+	for index: int in range(bodies.size()):
+		var body: RigidBody2D = bodies[index]
+		if not is_instance_valid(body) or not body.is_inside_tree() or not body.get_rid().is_valid() \
+				or seen.has(body.get_rid()) or not body_sizes[index].is_finite() \
+				or body_sizes[index].x <= 0.0 or body_sizes[index].y <= 0.0 \
+				or not is_finite(body.mass) or body.mass <= 0.0:
+			return ERR_INVALID_DATA
+		seen[body.get_rid()] = true
+	_bodies.assign(bodies)
+	_body_sizes = body_sizes.duplicate()
+	_project_ids = project_ids.duplicate()
+	_body_rids.clear()
+	_body_masses.resize(bodies.size())
+	_transforms.clear()
+	_linear_velocities.resize(bodies.size())
+	_angular_velocities.resize(bodies.size())
+	_sleeping.clear()
+	_body_index_by_rid.clear()
+	_applied_sample_serials.resize(bodies.size())
+	_applied_sample_serials.fill(-1)
+	for index: int in range(bodies.size()):
+		var rid: RID = bodies[index].get_rid()
+		_body_rids.append(rid)
+		_body_masses[index] = bodies[index].mass
+		_body_index_by_rid[rid] = index
+		_transforms.append(Transform2D.IDENTITY)
+		_sleeping.append(false)
+		var material: PhysicsMaterial = bodies[index].physics_material_override
+		PhysicsServer2D.body_set_param(rid, PhysicsServer2D.BODY_PARAM_FRICTION,
+			material.friction if material != null else HARD_SURFACE_FRICTION)
+		PhysicsServer2D.body_set_param(rid, PhysicsServer2D.BODY_PARAM_BOUNCE,
+			material.bounce if material != null else HARD_SURFACE_BOUNCE)
+	# A reused slot cannot accept the prior occupant's serial, even if an old
+	# result array was copied before the host retired its native observations.
+	_sample_serial = (_sample_serial + MAX_CELLULAR_RESULT_AGE_TICKS + 1) % SAMPLE_SERIAL_LIMIT
+	_mapping_epoch += 1
+	_last_result_snapshot_serial = -1
+	_last_results_applied = 0
+	_last_stale_results_rejected = 0
+	if _diagnostics_enabled:
+		enable_diagnostics()
+	refresh_all_states()
+	return OK
+
+
+func slot_mapping() -> Dictionary:
+	return {"epoch": _mapping_epoch, "project_ids": _project_ids.duplicate(),
+		"sample_serial": _sample_serial, "slots": _body_rids.size()}
+
+
+static func _valid_project_ids(ids: PackedStringArray, count: int) -> bool:
+	if ids.size() != count:
+		return false
+	var seen: Dictionary = {}
+	for id: String in ids:
+		if id.is_empty() or seen.has(id):
+			return false
+		seen[id] = true
+	return true
+
+
 func fixed_delta() -> float:
 	var tick_rate: float = float(
 		ProjectSettings.get_setting(
@@ -200,6 +283,10 @@ func apply_cellular_results(
 			continue
 
 		var body_rid: RID = _body_rids[body_index]
+		# Static/frozen project objects still occupy native cells and collide, but
+		# cellular positional corrections must never teleport their fixed pose.
+		if _bodies[body_index].freeze:
+			continue
 		var correction: Vector2 = Vector2(
 			results[offset + CyberRigidBodyCoupling.RESULT_CORRECTION_X],
 			results[offset + CyberRigidBodyCoupling.RESULT_CORRECTION_Y]
@@ -661,7 +748,7 @@ func _destroy_chunk_hard_surface_colliders() -> void:
 
 
 func step() -> void:
-	if not _initialized:
+	if not _initialized or _body_rids.is_empty():
 		return
 	var step_start_usec: int = Time.get_ticks_usec()
 	ClassDB.class_call_static(EXPECTED_SERVER_CLASS, &"space_step", _space, fixed_delta())
@@ -910,6 +997,8 @@ func refresh_dynamic_states() -> void:
 
 func clear_state() -> void:
 	_initialized = false
+	_diagnostics_enabled = false
+	diagnostic_applications = PackedFloat64Array()
 	_space = RID()
 	_bodies.clear()
 	_body_rids.clear()
@@ -920,6 +1009,7 @@ func clear_state() -> void:
 	_angular_velocities = PackedFloat32Array()
 	_sleeping.clear()
 	_body_index_by_rid.clear()
+	_project_ids = PackedStringArray()
 	_applied_sample_serials = PackedInt32Array()
 	_hard_surface_body = RID()
 	_hard_surface_shape_rids.clear()

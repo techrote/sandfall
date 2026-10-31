@@ -2,23 +2,21 @@ class_name SandfallWorldCanvas
 extends Control
 
 # Presentation only: copied native RG8 values, a material appearance lookup,
-# and the current three-body graph. There is no actor overlay or input polling.
+# and a bounded sixteen-body graph. There is no actor overlay or input polling.
 const WORLD_SIZE: Vector2i = Vector2i(1024, 1024)
 const INITIAL_VIEW: Vector2 = Vector2(480, 270)
 const MIN_ZOOM: float = 0.5
 const MAX_ZOOM: float = 4.0
+const MAX_BODIES: int = 16
 const MATERIAL_SHADER: String = """
 shader_type canvas_item;
 render_mode unshaded;
 uniform sampler2D material_lut : filter_nearest, repeat_disable;
 uniform vec2 camera_origin = vec2(0.0);
 uniform vec2 view_size = vec2(480.0, 270.0);
-uniform vec4 body_data_0 = vec4(-4096.0, -4096.0, 0.0, 0.0);
-uniform vec4 body_data_1 = vec4(-4096.0, -4096.0, 0.0, 0.0);
-uniform vec4 body_data_2 = vec4(-4096.0, -4096.0, 0.0, 0.0);
-uniform float body_rotation_0 = 0.0;
-uniform float body_rotation_1 = 0.0;
-uniform float body_rotation_2 = 0.0;
+uniform int body_count = 0;
+uniform vec4 body_data[16];
+uniform float body_rotation[16];
 
 bool inside_body(vec2 pixel, vec4 body, float rotation) {
     vec2 d = pixel + vec2(0.5) - body.xy;
@@ -37,10 +35,12 @@ void fragment() {
     if (id == 3.0) {
         colour.rgb *= 0.8 + 0.2 * material_state.g;
     }
-    if (inside_body(pixel, body_data_0, body_rotation_0)
-            || inside_body(pixel, body_data_1, body_rotation_1)
-            || inside_body(pixel, body_data_2, body_rotation_2)) {
-        colour = vec4(0.95, 0.22, 0.18, 1.0);
+    for (int index = 0; index < 16; index++) {
+        if (index >= body_count) { break; }
+        if (inside_body(pixel, body_data[index], body_rotation[index])) {
+            colour = vec4(0.95, 0.22, 0.18, 1.0);
+            break;
+        }
     }
     COLOR = vec4(colour.rgb, 1.0);
 }
@@ -59,6 +59,8 @@ var _last_error: String = ""
 var _last_patch_count: int = 0
 var _last_payload_bytes: int = 0
 var _force_full_required: bool = true
+var _rendered_body_ids: Array = []
+var _rendered_body_count: int = 0
 
 
 func _init() -> void:
@@ -214,6 +216,7 @@ func state() -> Dictionary:
 		"render_error": _last_error, "render_packet_serial": _last_packet_serial,
 		"render_patch_count": _last_patch_count, "render_payload_bytes": _last_payload_bytes,
 		"projection": "copied native RG8 / material appearance LUT / bounded rigid-body overlay",
+		"body_capacity": MAX_BODIES, "body_count": _rendered_body_count, "body_ids": _rendered_body_ids.duplicate(),
 	}
 
 
@@ -233,14 +236,22 @@ func _camera_changed() -> void:
 func _update_body_parameters(host_state: Dictionary) -> void:
 	var bodies: Array = host_state.get("body_states", [])
 	var sizes: Array = host_state.get("body_sizes", [])
-	for index: int in range(3):
-		var body: Vector4 = Vector4(-4096, -4096, 0, 0)
-		var angle: float = 0.0
-		if index < bodies.size() and index < sizes.size():
-			body = Vector4(bodies[index][0], bodies[index][1], sizes[index][0], sizes[index][1])
-			angle = float(bodies[index][2])
-		_shader_material.set_shader_parameter("body_data_%d" % index, body)
-		_shader_material.set_shader_parameter("body_rotation_%d" % index, angle)
+	var ids: Array = host_state.get("body_ids", [])
+	var body_data: PackedVector4Array = PackedVector4Array()
+	var rotations: PackedFloat32Array = PackedFloat32Array()
+	body_data.resize(MAX_BODIES)
+	rotations.resize(MAX_BODIES)
+	_rendered_body_count = mini(MAX_BODIES, mini(bodies.size(), sizes.size()))
+	_rendered_body_ids = ids.slice(0, _rendered_body_count)
+	for index: int in range(MAX_BODIES):
+		body_data[index] = Vector4(-4096, -4096, 0, 0)
+		rotations[index] = 0.0
+		if index < _rendered_body_count:
+			body_data[index] = Vector4(bodies[index][0], bodies[index][1], sizes[index][0], sizes[index][1])
+			rotations[index] = float(bodies[index][2])
+	_shader_material.set_shader_parameter("body_count", _rendered_body_count)
+	_shader_material.set_shader_parameter("body_data", body_data)
+	_shader_material.set_shader_parameter("body_rotation", rotations)
 
 
 func _draw() -> void:

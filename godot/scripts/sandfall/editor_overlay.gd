@@ -36,6 +36,9 @@ func _draw() -> void:
 			var py: float = rect.position.y + (y - origin.y) * scale.y
 			draw_line(Vector2(rect.position.x, py), Vector2(rect.end.x, py), Color(1, 1, 1, 0.12))
 			if y % 64 == 0: draw_string(font, Vector2(rect.position.x + 2, py + 14), str(y), HORIZONTAL_ALIGNMENT_LEFT, -1, 12)
+	if editor.tool_group == "objects":
+		_draw_object_editor(rect, origin, scale)
+		return
 	if editor.selection_rect.has_area():
 		_outline(editor.selection_rect, rect, origin, scale, Color("87d8ff"))
 	var state: Dictionary = editor.state()
@@ -59,3 +62,42 @@ func _outline(world_rect: Rect2i, content: Rect2, origin: Vector2, scale: Vector
 	screen = screen.intersection(content)
 	if screen.has_area():
 		draw_rect(screen, colour, false, 1.5)
+
+
+func _draw_object_editor(content: Rect2, origin: Vector2, scale: Vector2) -> void:
+	var selected: Dictionary = editor.selected_object_view()
+	if not selected.is_empty():
+		_draw_box(selected, content, origin, scale, Color("87d8ff"), true)
+	var preview: Dictionary = editor.object_preview()
+	if not preview.is_empty():
+		_draw_box(preview, content, origin, scale, Color("f4ce74"), false)
+
+
+func _draw_box(definition: Dictionary, content: Rect2, origin: Vector2, scale: Vector2, colour: Color, handles: bool) -> void:
+	var centre: Vector2 = definition.position
+	var dimensions: Vector2 = definition.size
+	var angle: float = float(definition.get("rotation", 0.0))
+	var points: PackedVector2Array = PackedVector2Array()
+	for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
+		var world_point: Vector2 = centre + (corner * dimensions * 0.5).rotated(angle)
+		points.append(content.position + (world_point - origin) * scale)
+	if points.is_empty():
+		return
+	var outline: PackedVector2Array = points.duplicate()
+	outline.append(points[0])
+	draw_polyline(outline, colour, 2.0, true)
+	if not handles:
+		draw_colored_polygon(points, Color(colour, 0.12))
+		return
+	for point: Vector2 in points:
+		if content.has_point(point):
+			draw_rect(Rect2(point - Vector2(3, 3), Vector2(6, 6)), colour)
+	var top: Vector2 = (points[0] + points[1]) * 0.5
+	var top_world: Vector2 = centre + Vector2(0, -dimensions.y * 0.5 - 12.0 / maxf(scale.y, 0.01)).rotated(angle)
+	var knob: Vector2 = content.position + (top_world - origin) * scale
+	if content.has_point(knob):
+		draw_line(top, knob, colour, 1.0, true)
+		draw_circle(knob, 4.0, colour)
+	var label_point: Vector2 = points[0] + Vector2(3, -6)
+	if content.has_point(label_point):
+		draw_string(ThemeDB.fallback_font, label_point, str(definition.get("id", "")), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, colour)

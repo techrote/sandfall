@@ -19,8 +19,14 @@ and [root instructions](../AGENTS.md). The
 source identity, native tests, coupled browser physics and actual UI/rendering.
 [SF-M1](SF-M1-HOST-INPUT-CUT.md) defines the bounded host/input contract; its
 [dated implementation audit](audits/2026-10-30-sf-m1-host-input.md) records the
-dedicated application and current fresh-export qualification. PR #2 remains
-draft and unmerged by owner instruction.
+dedicated application and source-matched export qualification.
+[SF-M2](SF-M2-AUTHORING-HISTORY.md) owns exact material authoring/history.
+[SF-M3](SF-M3-RAPIER-WORKSHOP.md) extends those owners with stable-ID objects,
+the physical workshop and sixteen-body coupling/rendering; its
+[dated audit](audits/2026-10-31-sf-m3-rapier-workshop.md) owns current execution
+and the [independent review](audits/2026-10-31-sf-m3-independent-review.md)
+records cross-author findings and their disposition. Dependency integration is separately authorized;
+the SF-M3 PR must remain draft and unmerged.
 
 ## Retained CyberSand technical reference
 
