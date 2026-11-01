@@ -39,6 +39,11 @@ SF-M0–M3 are merged. SF-M4 final integration is tracked in the
 [reconciliation audit](audits/2026-11-01-sf-m4-final-reconciliation.md); its
 source-specific qualification and guarded merge remain explicit gates.
 
+The [SF-M5 B01 scientific audit](audits/2026-11-01-sf-m5-scientific-acceptance.md)
+records actual five-preset fixed-step tests, chemical/thermal history, repeated
+0–16-body owners and local Golden Run comparisons. Its Linux source/runtime
+evidence keeps browser, threaded, performance and human acceptance separate.
+
 ## Retained CyberSand technical reference
 
 The inherited dated programme and runtime claims below preserve their original

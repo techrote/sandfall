@@ -53,6 +53,9 @@ CASE_WEIGHTS_SECONDS = {
     # a time limit and prevents a long physical workload sharing a heavy shard.
     "test_sandfall_gallery": 450.0,
     "test_sandfall_archive_interop": 90.0,
+    # M5-B01: 49.881 s measured locally for the chemical/thermal, fixed-step
+    # and repeated 0–16-body suite. This affects packing, not its timeout/oracle.
+    "test_sandfall_scientific": 60.0,
     "test_water_feel_controller": 3.0,
     "test_water_feel_integration": 3.0,
     "test_physics_async": 2.5,
