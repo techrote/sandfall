@@ -215,7 +215,7 @@ introduced. Toolchain assets remain pinned or checksum-verified.
 | `web-acceptance.yml` | Mainline compatibility-Web application acceptance | None existed for ordinary source PRs on `main` | **Add / retain** | Existing SF-M2 acceptance contract; source-matched fresh export | Trigger Web workflow and relevant app/build/test changes; skip M3/M4 heads with their own matrix |
 | `web-demo.yml` | Old CyberSand demo from branch `web-demo-m11` and artifact run `34034700056` | Stale demo branch and pre-Sandfall artifact | **Retire** | Branch-only / manual trigger and obsolete artifact identity | Actual Sandfall browser acceptance now runs from current source |
 | `web-toolchain.yml` | Old Web toolchain builder for `web-demo-m11` | Pins Emscripten 4.0.11, while current Sandfall Web gate pins 4.0.20 | **Retire** | Old branch and toolchain differ from Sandfall build | `sf-m2-web.yml` supplies pinned current exports |
-| `sf-m3-web.yml` (PR #5 branch) | Stable-ID Rapier workshop, 16-body and actual-browser qualification | 10 jobs, peak 8; exact feature branch, not on `main` | **Preserve on branch; reconcile later** | Owner-started Web run `41288098937` passed on head `744227d`; GDExtension run `41288103276` failed its Linux controller shard and Windows headless; Native remained active at this checkpoint | Keep its feature tests; do not duplicate with wrapper; reconcile shared CI after the final M3 head |
+| `sf-m3-web.yml` (PR #5 branch) | Stable-ID Rapier workshop, 16-body and actual-browser qualification | 10 jobs, peak 8; exact feature branch, not on `main` | **Preserve on branch; reconcile later** | Owner-started Web run `41288098937` and Native run `41288103233` passed on head `744227d`; GDExtension run `41288103276` failed its Linux controller shard and Windows headless | Keep its feature tests; do not duplicate with wrapper; reconcile shared CI after the final M3 head |
 | `sf-m4-web.yml` (PR #6 branch) | ZIP projects, exhibitions, promotion and actual-browser qualification | 36 jobs, peak 18 in run #9; queue/active wall highly variable | **Preserve on branch; reconcile later** | Owner-started Native run `41288109405` passed on `b57738e`; Web run `41288106201` failed ordinary UI; GDExtension run `41288109464` failed Linux shard 3 and Windows headless; #9 20.2m active; #8 109.8m total with 46.6m queue | Keep actual Web coverage; preserve the current failures for the M4 owner and review matrix breadth/runner pressure during reconciliation |
 
 Retired configurations are removed from `.github/workflows`; their scripts,
@@ -277,7 +277,8 @@ result or relevant failure remains unresolved.
    viewport targeting and exact-once click/Space/F9 delivery. Keep diagnosis
    with the feature diff; Windows portability being manual does not waive the
    Linux failure. Its Windows headless job also failed on that feature head;
-   this CI PR contains no feature fix.
+   Native run `41288103233` passed on the same head, and this CI PR contains no
+   feature fix.
 6. Owner GDExtension run `41288109464` on M4 head `b57738e` failed Linux shard
    3 on the same five Tower input assertions, and its Windows headless job also
    failed. Keep both diagnoses with the M4 owner and preserve Linux as required
