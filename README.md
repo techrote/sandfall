@@ -5,7 +5,7 @@
 owned. SF-M3 implements the stable-ID 0–16-body Rapier workshop on
 `sf-m3/rapier-workshop-20261031`. Its exact-source browser qualification is tracked
 in the [dated audit](docs/audits/2026-10-31-sf-m3-rapier-workshop.md).
-The SF-M3 PR remains draft and unmerged.**
+SF-M3 integration remains subject to exact-head CI, source review and guarded merge.**
 
 Sandfall is a Web-native, interactive, **zero-player cellular + Rapier physics exhibition and editor** derived from CyberSand. “Zero-player” removes player/actor movement and action controls, **not** painting, object creation, time control or camera interaction.
 
