@@ -77,6 +77,9 @@ class CiWorkflowContractTests(unittest.TestCase):
         for job_id in ("windows-build", "windows-regression"):
             with self.subTest(job=job_id):
                 self.assertIn("inputs.windows_portability == true", job_block(text, job_id))
+        self.assertIn("needs.windows-build.result == 'success'", job_block(text, "windows-regression"))
+        self.assertIn("windows-runtime-${{ github.run_id }}", text)
+        self.assertIn("--fresh-windows-runtime build/windows-runtime --profile sandfall-current", text)
         self.assertIn("linux-regression-gate:", text)
 
     def test_gdextension_ready_scope_covers_ci_changes_and_fails_closed(self):
