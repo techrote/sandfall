@@ -1,0 +1,140 @@
+{
+  "workflow": ".github/workflows/native.yml",
+  "stable_check_job": "native",
+  "suite_jobs": [
+    "native-core",
+    "native-thread-safety",
+    "native-general-sanitizers",
+    "native-specialized-sanitizers"
+  ],
+  "checks": [
+    {"job": "native-core", "marker": "timeout 20m make c-header-check"},
+    {"job": "native-core", "marker": "timeout 30m make build/tests"},
+    {"job": "native-core", "marker": "timeout 30m ./build/tests"},
+    {"job": "native-core", "marker": "timeout 25m make worldgen-test"},
+    {"job": "native-core", "marker": "timeout 25m make soliding-test"},
+    {"job": "native-core", "marker": "timeout 15m make soliding-benchmark-smoke"},
+    {"job": "native-core", "marker": "timeout 15m make soliding-stage3b-validation-apparatus-test"},
+    {"job": "native-core", "marker": "timeout 15m make soliding-stage3-cost-smoke"},
+    {"job": "native-core", "marker": "timeout 25m make shared"},
+    {"job": "native-core", "marker": "timeout 25m make build/benchmark"},
+    {"job": "native-core", "marker": "timeout 15m ./build/benchmark"},
+    {"job": "native-thread-safety", "marker": "timeout 30m make build/tests_tsan"},
+    {"job": "native-thread-safety", "marker": "TSAN_OPTIONS=halt_on_error=1 ./build/tests_tsan"},
+    {"job": "native-general-sanitizers", "marker": "timeout 20m make physics-characterisation-sanitize"},
+    {"job": "native-general-sanitizers", "marker": "timeout 30m make build/tests_sanitized"},
+    {"job": "native-general-sanitizers", "marker": "./build/tests_sanitized"},
+    {"job": "native-specialized-sanitizers", "marker": "timeout 35m make worldgen-sanitize"},
+    {"job": "native-specialized-sanitizers", "marker": "make build/test_settled_regions_sanitized"},
+    {"job": "native-specialized-sanitizers", "marker": "timeout 45m make soliding-sanitize"}
+  ],
+  "make_target_dependencies": {
+    "soliding-test": [
+      "test_soliding_lifecycle",
+      "test_settled_discovery",
+      "test_settled_regions",
+      "test_settled_world_discovery",
+      "test_stage3b_runtime_storage",
+      "test_stage3b_bounded_spatial_index",
+      "test_stage3b_sparse_mutation_witness",
+      "test_stage3b_sparse_activity_deadline"
+    ],
+    "soliding-sanitize": [
+      "test_soliding_lifecycle_sanitized",
+      "test_settled_discovery_sanitized",
+      "test_settled_regions_sanitized",
+      "test_settled_world_discovery_sanitized",
+      "test_stage3b_runtime_storage_sanitized",
+      "test_stage3b_bounded_spatial_index_sanitized",
+      "test_stage3b_sparse_mutation_witness_sanitized",
+      "test_stage3b_sparse_activity_deadline_sanitized"
+    ],
+    "worldgen-test": [
+      "test_generation_planes",
+      "test_generation_grammar",
+      "test_generation_typed_integration",
+      "test_generation_typed",
+      "test_generation_spatial",
+      "test_world_generation",
+      "test_world_generation_install",
+      "test_generation_fields",
+      "test_generation_modifiers"
+    ],
+    "worldgen-sanitize": [
+      "test_generation_planes_sanitized",
+      "test_generation_grammar_sanitized",
+      "test_generation_typed_integration_sanitized",
+      "test_generation_typed_sanitized",
+      "test_generation_spatial_sanitized",
+      "test_world_generation_sanitized",
+      "test_world_generation_install_sanitized",
+      "test_generation_fields_sanitized",
+      "test_generation_modifiers_sanitized"
+    ]
+  },
+  "native_test_sources": [
+    "native/tests/test_lcb_inertial.cpp",
+    "native/tests/test_water_inertial.cpp",
+    "native/tests/test_world.cpp",
+    "native/tests/test_liquid_solver_policy.cpp",
+    "native/tests/test_lcb_pressure.cpp",
+    "native/tests/test_pressure_moving_mask.cpp",
+    "native/tests/test_pressure_setup_capacity.cpp",
+    "native/tests/test_water_cellular_yield.cpp",
+    "native/tests/test_water_normalization.cpp",
+    "native/tests/test_liquid_run_receipt.cpp",
+    "native/tests/test_liquid_construction_refusal.cpp",
+    "native/tests/test_quantity_ledger.cpp"
+  ],
+  "make_recipe_markers": {
+    "physics-characterisation-sanitize": ["tools/physics/test_characterisation_cli.py"],
+    "soliding-test": [
+      "./$(BUILD_DIR)/test_soliding_lifecycle",
+      "./$(BUILD_DIR)/test_settled_discovery",
+      "./$(BUILD_DIR)/test_settled_regions",
+      "./$(BUILD_DIR)/test_settled_world_discovery",
+      "./$(BUILD_DIR)/test_stage3b_runtime_storage",
+      "./$(BUILD_DIR)/test_stage3b_bounded_spatial_index",
+      "./$(BUILD_DIR)/test_stage3b_sparse_mutation_witness",
+      "./$(BUILD_DIR)/test_stage3b_sparse_activity_deadline"
+    ],
+    "soliding-sanitize": [
+      "./$(BUILD_DIR)/test_soliding_lifecycle_sanitized",
+      "./$(BUILD_DIR)/test_settled_discovery_sanitized",
+      "./$(BUILD_DIR)/test_settled_regions_sanitized",
+      "./$(BUILD_DIR)/test_settled_world_discovery_sanitized",
+      "./$(BUILD_DIR)/test_stage3b_runtime_storage_sanitized",
+      "./$(BUILD_DIR)/test_stage3b_bounded_spatial_index_sanitized",
+      "./$(BUILD_DIR)/test_stage3b_sparse_mutation_witness_sanitized",
+      "./$(BUILD_DIR)/test_stage3b_sparse_activity_deadline_sanitized"
+    ],
+    "worldgen-test": [
+      "./$(BUILD_DIR)/test_world_generation",
+      "./$(BUILD_DIR)/test_world_generation_install",
+      "./$(BUILD_DIR)/test_generation_fields",
+      "./$(BUILD_DIR)/test_generation_modifiers",
+      "./$(BUILD_DIR)/test_generation_typed",
+      "./$(BUILD_DIR)/test_generation_typed_integration",
+      "./$(BUILD_DIR)/test_generation_spatial",
+      "./$(BUILD_DIR)/test_generation_grammar",
+      "./$(BUILD_DIR)/test_generation_planes"
+    ],
+    "worldgen-sanitize": [
+      "./$(BUILD_DIR)/test_world_generation_sanitized",
+      "./$(BUILD_DIR)/test_world_generation_install_sanitized",
+      "./$(BUILD_DIR)/test_generation_fields_sanitized",
+      "./$(BUILD_DIR)/test_generation_modifiers_sanitized",
+      "./$(BUILD_DIR)/test_generation_typed_sanitized",
+      "./$(BUILD_DIR)/test_generation_typed_integration_sanitized",
+      "./$(BUILD_DIR)/test_generation_spatial_sanitized",
+      "./$(BUILD_DIR)/test_generation_grammar_sanitized",
+      "./$(BUILD_DIR)/test_generation_planes_sanitized"
+    ],
+    "soliding-stage3b-validation-apparatus-test": [
+      "tools/experiments/test_stage3b_validation.py",
+      "stage3b_validation.py synthetic-smoke",
+      "stage3b_validation.py generate-plan",
+      "stage3b_validation.py validate-plan"
+    ]
+  }
+}
