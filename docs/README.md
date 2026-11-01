@@ -44,6 +44,11 @@ records actual five-preset fixed-step tests, chemical/thermal history, repeated
 0–16-body owners and local Golden Run comparisons. Its Linux source/runtime
 evidence keeps browser, threaded, performance and human acceptance separate.
 
+The [SF-M5 C01 archive/lifecycle audit](audits/2026-11-01-sf-m5-c01-archive-lifecycle.md)
+verifies the merged-M4 baseline, retains its archive attack/interoperability
+coverage, and adds bounded stale chooser/input-lease regressions without changing
+the archive implementation or claiming full release acceptance.
+
 ## Retained CyberSand technical reference
 
 The inherited dated programme and runtime claims below preserve their original
