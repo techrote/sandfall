@@ -29,7 +29,8 @@ GODOT_SHA512 = (
 )
 INPUT_SCOPES = (
     "godot", "native/include", "native/src", "tools/ci/run_godot_regressions.py",
-    "tools/ci/run_windows_godot_regressions.py", "tools/ci/godot_timeout_diagnostics.py",
+    "tools/ci/run_windows_godot_regressions.py", "tools/ci/fresh_windows_runtime.py",
+    "tools/ci/godot_timeout_diagnostics.py",
     "tools/ci/godot_process_monitor.py", "tools/ci/physical_progress_watchdog.py",
     ".github/workflows/gdextension.yml",
     "third_party/godot-runtime.lock.json", "third_party/native-toolchain.lock.json",
@@ -229,6 +230,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--godot-archive", required=True, type=Path)
     parser.add_argument("--expected-source-sha", required=True)
+    parser.add_argument("--profile", choices=runner.regression_profile_names(), default="full")
     parser.add_argument("--fresh-windows-runtime", type=Path, default=None)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
@@ -263,7 +265,10 @@ def main() -> int:
         godot, report["godot_identity"] = prepare_godot(args.godot_archive.resolve())
         report["godot_version"] = report["godot_identity"]["version"]
         os.environ["CYBERSAND_SOURCE_REVISION"] = source
-        execute_cases(str(godot), output, report, runner.discover_cases())
+        cases, exclusions = runner.select_cases(runner.discover_cases(), args.profile)
+        report["case_profile"] = args.profile
+        report["case_profile_exclusions"] = exclusions
+        execute_cases(str(godot), output, report, cases)
         after = tested_inputs(ROOT)
         report["source_drift"] = sorted(
             relative for relative in report["tested_inputs"].keys() | after.keys()
