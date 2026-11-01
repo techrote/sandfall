@@ -69,6 +69,7 @@ var _force_full_required: bool = true
 var _rendered_body_ids: Array = []
 var _rendered_body_count: int = 0
 var _presentation_theme: String = "classic"
+var _performance: Variant = SandfallPerformanceSampler.new()
 
 
 func _init() -> void:
@@ -94,6 +95,7 @@ func bind_host(host: Node) -> void:
 
 
 func publish(force_full: bool = false) -> bool:
+	var upload_start_usec: int = Time.get_ticks_usec()
 	if not is_instance_valid(_host):
 		return false
 	var host_state: Dictionary = _host.state()
@@ -139,6 +141,10 @@ func publish(force_full: bool = false) -> bool:
 	_last_patch_count = rectangles.size() / 6
 	_last_payload_bytes = cells.size()
 	_uploads += 1
+	_performance.count("uploads")
+	_performance.count("payload_bytes", cells.size())
+	_performance.count("patch_rectangles", rectangles.size() / 6)
+	_performance.record("render_upload_ms", float(Time.get_ticks_usec() - upload_start_usec) / 1000.0)
 	_last_error = ""
 	_force_full_required = false
 	queue_redraw()
@@ -166,6 +172,10 @@ static func validate_packet(rectangles: PackedInt32Array, cells: PackedByteArray
 				or first + (height - 1) * stride + width * 2 > cells.size():
 			return "Render patch exceeds the copied payload"
 	return ""
+
+
+func performance_snapshot(force: bool = false) -> Dictionary:
+	return _performance.snapshot(force)
 
 
 func content_rect() -> Rect2:

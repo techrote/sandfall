@@ -9,6 +9,7 @@ const TERRAIN_CHUNKS_PER_PASS: int = 32
 const TERRAIN_BUDGET_USEC: int = 750
 const MAX_INITIAL_TERRAIN_PASSES: int = 256
 const Registry = preload("res://scripts/sandfall/rapier_object_registry.gd")
+const PerformanceSampler = preload("res://scripts/sandfall/performance_sampler.gd")
 const MAX_INITIAL_BODIES: int = Registry.MAX_OBJECTS
 
 var _native_world: Variant
@@ -37,6 +38,8 @@ var _object_mutating: bool = false
 var _physics_viewport: SubViewport
 var _body_root: Node2D
 var _adopted_container: SandfallSimulationHost
+var _performance: Variant = PerformanceSampler.new()
+var _tick_started_usec: int = 0
 
 
 func configure(definition: Dictionary) -> Dictionary:
@@ -52,6 +55,7 @@ func configure(definition: Dictionary) -> Dictionary:
 		_enter_fault(validation)
 		return state()
 	shutdown()
+	_performance = PerformanceSampler.new()
 	_definition = definition.duplicate(true)
 	_object_registry = Registry.new()
 	_object_registry.install(definition.bodies)
@@ -215,6 +219,8 @@ func commit_staged_project(candidate: SandfallSimulationHost) -> Dictionary:
 	_object_revision = candidate._object_revision
 	_object_feedback = candidate._object_feedback
 	_body_body_pairs = candidate._body_body_pairs
+	_performance = candidate._performance
+	candidate._performance = PerformanceSampler.new()
 	_physics_viewport = candidate._physics_viewport
 	_body_root = candidate._body_root
 	_adopted_container = candidate
@@ -236,6 +242,8 @@ func commit_staged_project(candidate: SandfallSimulationHost) -> Dictionary:
 
 
 func tick_once() -> Dictionary:
+	_tick_started_usec = Time.get_ticks_usec()
+	_performance.count("tick_attempts")
 	var before_native: int = _native_tick()
 	var before_rapier: int = _rapier_steps()
 	if not _ready or _fault or _object_mutating:
@@ -252,13 +260,27 @@ func tick_once() -> Dictionary:
 		_rapier_bridge.apply_cellular_results(before_native, _native_world.rigid_body_results())
 		_record_applied_feedback()
 		_rapier_bridge.step()
+		_performance.record("rapier_step_ms", _rapier_bridge.last_step_time_ms())
+		_performance.record("rapier_flush_ms", _rapier_bridge.last_flush_time_ms())
+		_performance.count("rapier_completed")
+		_performance.count("feedback_applied", _rapier_bridge.last_results_applied())
+		_performance.count("feedback_stale_rejected", _rapier_bridge.last_stale_results_rejected())
 		_record_body_contacts()
 		_native_world.prepare_rigid_body_coupling(_rapier_bridge.pack_body_states(), true)
 	else:
 		_native_world.prepare_rigid_body_coupling(PackedFloat32Array(), false)
-	if not _advance_native_tick():
+	var native_start_usec: int = Time.get_ticks_usec()
+	var native_advanced: bool = _advance_native_tick()
+	_performance.record("native_dispatch_ms", float(Time.get_ticks_usec() - native_start_usec) / 1000.0)
+	if not native_advanced:
 		_enter_fault("Native tick refused after solver advancement: " + str(_native_world.get_last_tick_error()))
 		return _tick_receipt(false, before_native, before_rapier, "native_tick_refused")
+	_performance.record("native_tick_ms", float(_native_world.get_simulation_time_ms()))
+	_performance.tick_completed(_tick_started_usec)
+	_performance.count("native_contacts", int(_native_world.get_rigid_body_contacts_last_tick()))
+	_performance.count("native_displaced", int(_native_world.get_rigid_body_displaced_last_tick()))
+	_performance.count("native_scanned_cells", int(_native_world.get_scanned_last_tick()))
+	_performance.count("native_scheduler_jobs", int(_native_world.get_scheduler_jobs_last_tick()))
 	_contacts_total += int(_native_world.get_rigid_body_contacts_last_tick())
 	_displaced_total += int(_native_world.get_rigid_body_displaced_last_tick())
 	_moves_total += int(_native_world.get_moves_last_tick())
@@ -311,6 +333,18 @@ func state(include_material_identity: bool = false) -> Dictionary:
 	}
 	if include_material_identity:
 		result["current_material_sha256"] = material_identity()
+	return result
+
+
+func performance_snapshot(force: bool = false) -> Dictionary:
+	var result: Dictionary = _performance.snapshot(force)
+	result["body_count"] = _bodies.size()
+	result["workers"] = int(_native_world.get_worker_threads()) if _native_world != null else 0
+	result["native_tick"] = _native_tick()
+	result["rapier_steps"] = _rapier_steps()
+	result["fixed_delta"] = FIXED_DELTA
+	result["pending_colliders"] = _rapier_bridge.pending_hard_surface_chunks() if _bridge_active() else 0
+	result["collider_shape_count"] = _rapier_bridge.hard_surface_shape_count() if _bridge_active() else 0
 	return result
 
 
@@ -533,10 +567,18 @@ func apply_editor_patch(patch: Dictionary, expected_revision: int, expected_tick
 func take_render_snapshot(force_full: bool = false) -> Dictionary:
 	if not _ready or _fault or _native_world == null:
 		return {"failed": true, "error": _error if _fault else "World is not ready"}
+	var render_start_usec: int = Time.get_ticks_usec()
 	var packet: Dictionary = _native_world.take_render_snapshot(force_full)
 	var copied: Dictionary = packet.duplicate(true)
 	copied["rectangles"] = PackedInt32Array(packet.get("rectangles", PackedInt32Array())).duplicate()
 	copied["cells"] = PackedByteArray(packet.get("cells", PackedByteArray())).duplicate()
+	_performance.record("render_snapshot_ms", float(Time.get_ticks_usec() - render_start_usec) / 1000.0)
+	_performance.count("render_snapshot_calls")
+	if bool(copied.get("failed", false)):
+		_performance.count("render_snapshot_refusals")
+	else:
+		_performance.count("render_payload_bytes", copied.cells.size())
+		_performance.count("render_patch_rectangles", copied.rectangles.size() / 6)
 	return copied
 
 
@@ -760,6 +802,7 @@ func _record_body_contacts() -> void:
 func _sync_terrain() -> void:
 	if not _bridge_active():
 		return
+	var sync_start_usec: int = Time.get_ticks_usec()
 	var revision: int = int(_native_world.get_hard_surface_revision())
 	if revision != _hard_surface_revision:
 		if _rapier_bridge.queue_hard_surface_chunk_snapshot(_native_world.get_hard_surface_chunk_rectangles()):
@@ -767,7 +810,12 @@ func _sync_terrain() -> void:
 		else:
 			_enter_fault("Native terrain collider snapshot was refused")
 			return
-	_rapier_bridge.process_hard_surface_collider_budget(TERRAIN_CHUNKS_PER_PASS, TERRAIN_BUDGET_USEC)
+	var processed: int = _rapier_bridge.process_hard_surface_collider_budget(TERRAIN_CHUNKS_PER_PASS, TERRAIN_BUDGET_USEC)
+	_performance.count("collider_sync_calls")
+	_performance.count("collider_chunks_processed", processed)
+	_performance.record("collider_sync_ms", float(Time.get_ticks_usec() - sync_start_usec) / 1000.0)
+	if processed > 0:
+		_performance.record("collider_build_ms", _rapier_bridge.last_hard_surface_build_time_ms())
 
 
 func _bridge_active() -> bool:
@@ -826,6 +874,9 @@ func _interest_values() -> Dictionary:
 
 
 func _tick_receipt(advanced: bool, native_before: int, rapier_before: int, reason: String) -> Dictionary:
+	_performance.record("coupled_tick_ms", float(Time.get_ticks_usec() - _tick_started_usec) / 1000.0)
+	if not advanced:
+		_performance.count("tick_refusals")
 	var result: Dictionary = state()
 	result["advanced"] = advanced
 	result["reason"] = reason
