@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed": "2026-10-25",
+  "reviewed": "2026-10-31",
   "scope": "Explicit current-answer corpus; status and scope must accompany every chunk. Historical records are separately routed, never silently mixed into current answers.",
   "documents": [
     "MATERIAL_LAB.md",
@@ -117,7 +117,9 @@
     "decisions/ADR-014-semantic-plane-admission.md",
     "systems/generation-workbench-2.md",
     "operations/procedural-qualification.md",
-    "architecture/pressure-optimization.md"
+    "architecture/pressure-optimization.md",
+    "SF-M4-PROJECTS-EXHIBITIONS.md",
+    "SANDFALL-PROJECT-FORMAT.md"
   ],
   "navigation": [
     "README.md",

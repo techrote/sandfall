@@ -43,6 +43,15 @@ test('subpixel cells with no interior integer are refused, never silently shifte
   assert.throws(()=>mapWorldCell([0,0],view,camera,metrics(640,400,2),layout),/no interior integer/);
   assert.throws(()=>mapWorldCell([10,10],view,camera,metrics(160,100,1),layout),/no interior integer/);
 });
+test('retained SF-M4 DPR2 occupied-cell gap requires genuine camera zoom, not a shifted target',()=>{
+  const observedView=[306,116.5625,958,538.875],cell=[124,135],browser=metrics(640,400,2);
+  assert.throws(()=>mapWorldCell(cell,observedView,camera,browser,layout),/no interior integer CSS y pixel/);
+  // The application's visible Zoom In control scales by 1.2 around the centre.
+  const zoomed={camera_origin:[40,22.5],view_size:[400,225]};
+  const mapped=mapWorldCell(cell,observedView,zoomed,browser,layout);
+  assert.deepEqual(cellAt(mapped.point,mapped,observedView,zoomed),cell);
+  assert.ok(Number.isInteger(mapped.point.x)&&Number.isInteger(mapped.point.y));
+});
 test('off-camera, invalid and nonfinite input cannot produce a hit target',()=>{
   for(const cell of [[-1,10],[1024,10],[1.5,10],[NaN,10],[500,20],[10,270]])
     assert.throws(()=>mapWorldCell(cell,view,camera,metrics(800,450,1),layout));

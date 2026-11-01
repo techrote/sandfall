@@ -46,6 +46,38 @@ var _web_focus_callback: JavaScriptObject
 var _web_window: JavaScriptObject
 var _web_document: JavaScriptObject
 var _web_canvas: JavaScriptObject
+var _presentation_overlay: SandfallPresentationOverlay
+var _presentation_panel: VBoxContainer
+var _presentation_active: bool = false
+var _presentation_tool: String = "label"
+var _presentation_points: Array = []
+var _presentation_lease: Dictionary = {}
+var _annotation_serial: int = 0
+var _annotation_text: LineEdit
+var _presentation_theme: OptionButton
+var _presentation_colour: OptionButton
+var _presentation_style_baseline: Dictionary = {}
+var _presentation_style_generation: int = -1
+var _project_modal: Control
+var _project_title: Label
+var _project_description: Label
+var _project_preview: TextEdit
+var _project_content: VBoxContainer
+var _project_actions: HBoxContainer
+var _gallery_search: LineEdit
+var _gallery_list: VBoxContainer
+var _gallery_ids: Array = []
+var _project_dialog_kind: String = ""
+var _project_status: Label
+var _project_controls: Dictionary = {}
+var _file_bridge: SandfallBrowserFileBridge
+var _file_lease: Dictionary = {}
+var _staged_project: Dictionary = {}
+var _promotion_preview: Dictionary = {}
+var _file_observation: Dictionary = {"operation_serial": 0, "import_serial": 0, "export_serial": 0,
+	"import_count": 0, "export_count": 0, "status": "idle", "last_refusal": "", "error": "", "staged": false, "last_export": {}}
+var _desktop_dialog: FileDialog
+var _desktop_export: Dictionary = {}
 
 
 func _ready() -> void:
@@ -57,8 +89,13 @@ func _ready() -> void:
 	_build_ui()
 	_session.reconstructed.connect(_on_reconstructed)
 	_session.document_changed.connect(func() -> void: _canvas.publish())
+	_file_bridge = SandfallBrowserFileBridge.new()
+	_file_bridge.selected.connect(_on_project_selected)
+	_file_bridge.refused.connect(_on_file_refused)
+	_file_bridge.cancelled.connect(_on_file_cancelled)
 	_load_provenance()
 	_session.set_source_identity(_provenance)
+	_file_observation["source_identity"] = _session.source_identity()
 	_connect_browser_focus()
 	_update_ui()
 	_publish_observation(true)
@@ -107,6 +144,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo or _session == null:
 		return
 	var state: Dictionary = _session.state()
+	if event.keycode == KEY_ESCAPE and not _project_dialog_kind.is_empty():
+		_close_project_dialog()
+		get_viewport().set_input_as_handled()
+		return
 	if event.ctrl_pressed and event.keycode in [KEY_Z, KEY_Y]:
 		_request("redo" if event.keycode == KEY_Y or event.shift_pressed else "undo")
 		get_viewport().set_input_as_handled()
@@ -144,7 +185,10 @@ func _canvas_input(event: InputEvent) -> void:
 		_canvas.accept_event()
 
 	if not _pan_active and (event is InputEventMouseMotion or (event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT])):
-		_editor.pointer(event)
+		if _presentation_active:
+			_presentation_pointer(event)
+		else:
+			_editor.pointer(event)
 		_canvas.accept_event()
 
 
@@ -171,11 +215,16 @@ func _clear_input(_reason: String = "") -> void:
 	_pointer_buttons.clear()
 	_button_gestures.clear()
 	_pan_active = false
+	_presentation_points.clear()
+	_presentation_lease.clear()
+	if _presentation_overlay != null:
+		_presentation_overlay.preview_points.clear()
 	_clear_serial += 1
 
 
 func _on_reconstructed() -> void:
 	_canvas.bind_host(_host)
+	_canvas.set_initial_camera(_session.authored_project().get("project", {}).get("camera", {}))
 	_sidebar.visible = _session.state().entry == "sandbox"
 	_update_ui()
 
@@ -218,6 +267,10 @@ func _build_ui() -> void:
 	header.add_child(title)
 	_add_button(header, "gallery", "Gallery", func() -> void: _request("gallery"))
 	_add_button(header, "sandbox", "Sandbox", func() -> void: _request("sandbox"))
+	_editor_button(header, "file_open", "Open", _open_project)
+	_editor_button(header, "file_save", "Save initial", _save_project)
+	_editor_button(header, "file_evidence", "Evidence", _save_evidence)
+	_editor_button(header, "file_promote", "New draft", _open_promotion)
 	_add_button(header, "tools", "Tools: shown", func() -> void: _toggle_tools())
 	_add_button(header, "menu", "Menu", func() -> void: _request("menu"))
 	var templates: HBoxContainer = HBoxContainer.new()
@@ -228,6 +281,7 @@ func _build_ui() -> void:
 	_add_button(templates, "template_blank", "Blank", func() -> void: _request("template", "blank"))
 	_add_button(templates, "template_native", "Material Lab", func() -> void: _request("template", "material_lab"))
 	_add_button(templates, "template_coupled", "Physics Pit", func() -> void: _request("template", "physics_pit"))
+	_editor_button(templates, "gallery_browse", "Exhibitions", _open_gallery)
 	var workspace: HBoxContainer = HBoxContainer.new()
 	workspace.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	workspace.add_theme_constant_override("separation", 10)
@@ -251,6 +305,11 @@ func _build_ui() -> void:
 	_canvas.gui_input.connect(_canvas_input)
 	_canvas.mouse_exited.connect(func() -> void: _session.clear_pending_input("canvas_exit"))
 	_editor = SandfallEditorController.new(_session, _canvas)
+	_presentation_overlay = SandfallPresentationOverlay.new()
+	_presentation_overlay.canvas = _canvas
+	_presentation_overlay.session = _session
+	_canvas.add_child(_presentation_overlay)
+	_presentation_overlay.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	_overlay = SandfallEditorOverlay.new()
 	_overlay.canvas = _canvas
 	_overlay.editor = _editor
@@ -294,7 +353,13 @@ func _build_ui() -> void:
 	_status.add_theme_font_size_override("font_size", 16)
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	lifecycle.add_child(_status)
+	_project_status = Label.new()
+	_project_status.add_theme_font_size_override("font_size", 14)
+	_project_status.clip_text = true
+	_project_status.custom_minimum_size.y = 18
+	column.add_child(_project_status)
 	_build_menu()
+	_build_project_dialog()
 
 
 func _add_button(parent: Node, key: String, label: String, callback: Callable) -> Button:
@@ -357,22 +422,42 @@ func _update_ui() -> void:
 	var state: Dictionary = _session.state()
 	_home.visible = state.entry == "home"
 	_canvas.visible = state.entry != "home"
-	_modal.visible = state.menu
+	_modal.visible = state.menu and _project_dialog_kind.is_empty()
+	_project_modal.visible = not _project_dialog_kind.is_empty()
 	if state.entry == "home":
 		_sidebar.hide()
 	for key: String in _buttons:
 		var button: Button = _buttons[key]
-		button.disabled = bool(state.menu) and key != "continue"
-		if key.begins_with("tool_") or key.begins_with("material_") or key.begins_with("object_") or key.begins_with("mode_") or key in ["copy", "cut", "delete", "grid", "cancel_tool", "filled"]:
+		button.disabled = bool(state.menu) and key != "continue" and not key.begins_with("project_") and not key.begins_with("promotion_") and not key.begins_with("gallery_launch_")
+		if key.begins_with("tool_") or key.begins_with("material_") or key.begins_with("object_") or key.begins_with("mode_") or key.begins_with("presentation_") or key in ["copy", "cut", "delete", "grid", "cancel_tool", "filled"]:
 			button.disabled = button.disabled or not state.ready or state.mode == "fault"
 		if key.begins_with("template_") or key in ["pan_left", "pan_right", "pan_up", "pan_down", "zoom_in", "zoom_out", "fit", "reset", "reset_edit"]:
 			button.disabled = button.disabled or state.entry == "home"
 	_buttons.tools.text = "Tools: shown" if _sidebar.visible else "Tools: hidden"
-	_material_panel.visible = _editor.tool_group == "materials"
-	_object_panel.visible = _editor.tool_group == "objects"
-	_inspector.visible = state.entry != "home" and _sidebar.visible and _editor.tool_group == "objects"
-	_buttons.mode_materials.set_pressed_no_signal(_editor.tool_group == "materials")
-	_buttons.mode_objects.set_pressed_no_signal(_editor.tool_group == "objects")
+	_material_panel.visible = not _presentation_active and _editor.tool_group == "materials"
+	_object_panel.visible = not _presentation_active and _editor.tool_group == "objects"
+	_presentation_panel.visible = _presentation_active
+	_inspector.visible = state.entry != "home" and _sidebar.visible and not _presentation_active and _editor.tool_group == "objects"
+	_overlay.visible = not _presentation_active
+	_buttons.mode_materials.set_pressed_no_signal(not _presentation_active and _editor.tool_group == "materials")
+	_buttons.mode_objects.set_pressed_no_signal(not _presentation_active and _editor.tool_group == "objects")
+	_buttons.mode_presentation.set_pressed_no_signal(_presentation_active)
+	var presentation: Dictionary = _session.presentation()
+	_canvas.set_presentation_style(presentation.get("style", {}))
+	var style: Dictionary = presentation.get("style", {})
+	if style != _presentation_style_baseline or int(state.generation) != _presentation_style_generation:
+		_presentation_style_baseline = style.duplicate(true)
+		_presentation_style_generation = int(state.generation)
+		_presentation_theme.select(maxi(0, SandfallPresentationModel.THEMES.find(str(style.get("theme", "classic")))))
+	_buttons.presentation_visible.text = "Annotations: shown" if bool(presentation.get("style", {}).get("annotations_visible", true)) else "Annotations: hidden"
+	_buttons.file_save.disabled = state.menu or not state.ready or state.mode == "fault"
+	_buttons.file_save.text = "Save draft" if state.mode == "edit" else "Save frozen"
+	_buttons.file_save.tooltip_text = "Save authored initial scene only. Evolved material, body poses and history are not saved."
+	_buttons.file_evidence.disabled = state.menu or state.entry == "home"
+	_buttons.file_promote.disabled = state.menu or state.mode != "run" or int(state.intervention_count) == 0
+	_buttons.file_promote.tooltip_text = "Preview eligible declarative interventions on a new tick-zero draft, then confirm."
+	_buttons.project_confirm.disabled = _staged_project.is_empty() or _project_dialog_kind != "open"
+	_buttons.promotion_confirm.disabled = _project_dialog_kind != "promotion" or not bool(_promotion_preview.get("accepted", false))
 	_update_object_ui(state)
 	_buttons.run.visible = state.mode == "edit" and state.entry != "home"
 	_buttons.pause.visible = state.mode == "run"
@@ -397,6 +482,7 @@ func _update_ui() -> void:
 		_status.add_theme_color_override("font_color", Color("ff9c81"))
 	else:
 		_status.remove_theme_color_override("font_color")
+	_project_status.text = str(_file_observation.get("message", ""))
 
 
 func observation() -> Dictionary:
@@ -409,12 +495,19 @@ func observation() -> Dictionary:
 		if button.is_visible_in_tree():
 			var rect: Rect2 = button.get_global_rect()
 			buttons[key] = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
+	for key: String in _project_controls:
+		var control: Control = _project_controls[key]
+		if control.is_visible_in_tree():
+			var rect: Rect2 = control.get_global_rect()
+			buttons[key] = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
 	var editor_state: Dictionary = _editor.state()
 	editor_state["object_inspector"] = _object_inspector_observation()
 	editor_state["tools_visible"] = _sidebar.visible
+	editor_state["presentation_active"] = _presentation_active
+	editor_state["presentation_gesture_active"] = not _presentation_lease.is_empty()
 	result.merge({"schema": "sandfall-host-v1", "app_ready": true, "frame": _frame,
 		"input": {"held_keys": _held_keys.keys(), "pointer_buttons": _pointer_buttons.size(),
-			"gesture_active": _pan_active or _editor.state().gesture_active, "pending_ui_gestures": _button_gestures.size(), "clear_serial": _clear_serial},
+			"gesture_active": _pan_active or _editor.state().gesture_active or not _presentation_lease.is_empty(), "pending_ui_gestures": _button_gestures.size(), "clear_serial": _clear_serial},
 		"actor_count": _count_actor_nodes(get_tree().root), "paint_commands": result.mutation_count,
 		"editor": editor_state, "editor_controls": _editor_control_rects(),
 		"camera": {"camera_origin": rendering.camera_origin, "view_size": rendering.view_size, "zoom": rendering.zoom},
@@ -425,6 +518,10 @@ func observation() -> Dictionary:
 		"source_commit": str(_provenance.get("source_commit", "")),
 		"native_sha256": str(_provenance.get("sha256", "")),
 		"provenance": _provenance.duplicate(true),
+		"project_file": _file_observation.duplicate(true), "project_modal": _project_dialog_kind,
+		"project_controls": _project_control_rects(), "presentation": _session.presentation(),
+		"promotion": _promotion_preview.duplicate(true), "promotion_preview": _promotion_preview.duplicate(true),
+		"gallery": {"query": _gallery_search.text, "visible_ids": _gallery_ids.duplicate(), "selected": str(result.scene_id), "entries": SandfallGallery.entries()},
 	}, true)
 	return result
 
@@ -444,6 +541,13 @@ func _load_provenance() -> void:
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 		if parsed is Dictionary:
 			_provenance = parsed
+	var identity_path: String = "res://sandfall_build_identity.json"
+	# Web export staging also runs native Godot tests. Its WASM identity must
+	# never replace the native/local runtime provenance in those processes.
+	if OS.has_feature("web") and FileAccess.file_exists(identity_path):
+		var identity: Variant = JSON.parse_string(FileAccess.get_file_as_string(identity_path))
+		if identity is Dictionary:
+			_provenance.merge(identity, true)
 
 
 func _connect_browser_focus() -> void:
@@ -480,7 +584,9 @@ func _publish_observation(force: bool = false) -> void:
 	_last_observation_ms = now
 	# Read-only values in the ordinary application. No acceptance URL selects
 	# a different scene or allows JavaScript to mutate the host or its counters.
-	var encoded: String = JSON.stringify(JSON.stringify(observation()))
+	# Preserve the same exact numeric values as project/evidence exports. The
+	# outer stringify only quotes the JSON text safely for JavaScript delivery.
+	var encoded: String = JSON.stringify(JSON.stringify(observation(), "", true, true))
 	JavaScriptBridge.eval("(() => { let e = document.getElementById('sandfall-test-state'); if (!e) { e = document.createElement('pre'); e.id = 'sandfall-test-state'; e.hidden = true; document.body.appendChild(e); } e.textContent = " + encoded + "; })()", true)
 
 
@@ -518,10 +624,17 @@ func _build_editor(mode_parent: Node) -> void:
 		var choice: String = group
 		var button: Button = _editor_button(modes, "mode_" + group, group.capitalize(), func() -> void:
 			_clear_input("tool_group")
+			_presentation_active = false
 			_editor.set_tool_group(choice)
 		)
 		button.toggle_mode = true
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var presentation_button: Button = _editor_button(modes, "mode_presentation", "Presentation", func() -> void:
+		_clear_input("presentation_tool_group")
+		_presentation_active = true
+		_sidebar.show()
+	)
+	presentation_button.toggle_mode = true
 	_material_panel = VBoxContainer.new()
 	_material_panel.add_theme_constant_override("separation", 4)
 	shared.add_child(_material_panel)
@@ -638,6 +751,7 @@ func _build_editor(mode_parent: Node) -> void:
 			_editor.clipboard_action(command)
 		)
 	_build_object_tools(shared)
+	_build_presentation_tools(shared)
 	var history_row: HBoxContainer = HBoxContainer.new()
 	shared.add_child(history_row)
 	_editor_button(history_row, "undo", "Undo", func() -> void: _request("undo"))
@@ -824,7 +938,8 @@ func _build_object_inspector(parent: Node) -> void:
 	_inspector_spin(motion, "vx", "Velocity X (cells/s)", -4096, 4096, 0.01)
 	_inspector_spin(motion, "vy", "Velocity Y (cells/s)", -4096, 4096, 0.01)
 	_inspector_spin(motion, "angular_velocity", "Spin (degrees/s)", -5729, 5729, 0.01)
-	_inspector_check(motion, "passive_subject", "Passive subject (no controls)")
+	_inspector_check(motion, "passive_subject", "Passive subject (one per project)")
+	_inspector_fields.passive_subject.tooltip_text = "An uncontrolled visual role. Selecting it transfers the role from the previous subject; duplicating keeps the original subject."
 	var note: Label = Label.new()
 	note.text = "Edit: initial velocities.\nRun: explicit live intervention.\nNo actor motor or physical rewind."
 	note.add_theme_font_size_override("font_size", 13)
@@ -1011,3 +1126,518 @@ func _refusal_label(reason: String) -> String:
 		"history_capacity": return "Edit history is full. This change was not applied."
 		"intervention_journal_capacity": return "This Run's intervention journal is full. Reset to begin a new Run."
 		_: return "Refused: " + reason.replace("_", " ")
+
+
+func _build_project_dialog() -> void:
+	_project_modal = Control.new()
+	_project_modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_project_modal.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_project_modal)
+	var shade: ColorRect = ColorRect.new()
+	shade.color = Color(0, 0, 0, 0.82)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_STOP
+	_project_modal.add_child(shade)
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_project_modal.add_child(center)
+	var panel: PanelContainer = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(760, 0)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	center.add_child(panel)
+	var margin: MarginContainer = MarginContainer.new()
+	for edge: String in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + edge, 20)
+	panel.add_child(margin)
+	_project_content = VBoxContainer.new()
+	_project_content.add_theme_constant_override("separation", 12)
+	margin.add_child(_project_content)
+	_project_title = Label.new()
+	_project_title.add_theme_font_size_override("font_size", 24)
+	_project_content.add_child(_project_title)
+	_project_description = Label.new()
+	_project_description.custom_minimum_size.x = 720
+	_project_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_project_description.add_theme_font_size_override("font_size", 16)
+	_project_content.add_child(_project_description)
+	_project_preview = TextEdit.new()
+	_project_preview.editable = false
+	_project_preview.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+	_project_preview.custom_minimum_size = Vector2(720, 240)
+	_project_preview.add_theme_font_size_override("font_size", 14)
+	_project_preview.mouse_filter = Control.MOUSE_FILTER_STOP
+	_project_content.add_child(_project_preview)
+	_project_controls["promotion_preview_text"] = _project_preview
+	_gallery_search = LineEdit.new()
+	_gallery_search.placeholder_text = "Search mechanism, material, complexity or title"
+	_gallery_search.max_length = 128
+	_gallery_search.text_changed.connect(_filter_gallery)
+	_project_content.add_child(_gallery_search)
+	_project_controls["gallery_search"] = _gallery_search
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.name = "GalleryScroll"
+	scroll.custom_minimum_size = Vector2(720, 330)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_project_content.add_child(scroll)
+	_gallery_list = VBoxContainer.new()
+	_gallery_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_gallery_list.add_theme_constant_override("separation", 8)
+	scroll.add_child(_gallery_list)
+	for entry: Dictionary in SandfallGallery.entries():
+		var id: String = str(entry.id)
+		var row: VBoxContainer = VBoxContainer.new()
+		row.name = id
+		_gallery_list.add_child(row)
+		var button: Button = _editor_button(row, "gallery_launch_" + id, str(entry.title) + "  ·  " + str(entry.kind), func() -> void: _launch_gallery(id))
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		var description: Label = Label.new()
+		description.text = str(entry.description)
+		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		description.custom_minimum_size.x = 680
+		description.add_theme_font_size_override("font_size", 14)
+		row.add_child(description)
+	_project_actions = HBoxContainer.new()
+	_project_actions.add_theme_constant_override("separation", 12)
+	_project_content.add_child(_project_actions)
+	_add_button(_project_actions, "project_cancel", "Cancel", _close_project_dialog)
+	_add_button(_project_actions, "project_confirm", "Open project", _confirm_project)
+	_add_button(_project_actions, "promotion_cancel", "Keep this Run", _close_project_dialog)
+	_add_button(_project_actions, "promotion_confirm", "Create new Edit draft", _confirm_promotion)
+	_project_modal.hide()
+	_filter_gallery("")
+
+
+func _set_project_dialog(kind: String, title: String, description: String) -> void:
+	_session.set_modal_open(true)
+	_project_dialog_kind = kind
+	_project_title.text = title
+	_project_description.text = description
+	_project_preview.visible = kind == "promotion"
+	_gallery_search.visible = kind == "gallery"
+	_gallery_list.get_parent().visible = kind == "gallery"
+	_buttons.project_cancel.visible = kind != "promotion"
+	_buttons.project_confirm.visible = kind == "open"
+	_buttons.promotion_cancel.visible = kind == "promotion"
+	_buttons.promotion_confirm.visible = kind == "promotion"
+	_update_ui()
+
+
+func _close_project_dialog() -> void:
+	if _file_bridge != null:
+		_file_bridge.cancel()
+	_staged_project.clear()
+	_file_lease.clear()
+	_project_dialog_kind = ""
+	_file_observation["staged"] = false
+	_session.set_modal_open(false)
+	_update_ui()
+
+
+func _open_gallery() -> void:
+	_set_project_dialog("gallery", "Gallery · Physical exhibitions", "Search by mechanism, material or complexity. Choose a self-running scene to watch, inspect and edit. All subjects move through physics without player controls.")
+	_gallery_search.text = ""
+	_filter_gallery("")
+
+
+func _filter_gallery(query: String) -> void:
+	_gallery_ids.clear()
+	for entry: Dictionary in SandfallGallery.entries(query):
+		_gallery_ids.append(str(entry.id))
+	for row: Node in _gallery_list.get_children():
+		row.visible = str(row.name) in _gallery_ids
+
+
+func _launch_gallery(id: String) -> void:
+	_close_project_dialog()
+	_request("gallery", id)
+	_file_observation["message"] = "Gallery: " + str(SandfallGallery.entry(id).get("title", id))
+
+
+func _open_project() -> void:
+	_staged_project.clear()
+	_set_project_dialog("open", "Open authored project", "Choose a .sandfall or .zip archive. The file is validated before the current scene is replaced. Confirm the staged project below to open it.")
+	var state: Dictionary = _session.state()
+	_file_lease = {"generation": int(state.generation)}
+	_file_observation["status"] = "choosing"
+	_file_observation["last_refusal"] = ""
+	_file_observation["error"] = ""
+	_file_observation["staged"] = false
+	var serial: int = _file_bridge.open_project()
+	_file_lease["serial"] = serial
+	if not OS.has_feature("web"):
+		_show_desktop_dialog(false)
+
+
+func _on_project_selected(bytes: PackedByteArray, filename: String, serial: int) -> void:
+	if _project_dialog_kind != "open" or serial != int(_file_lease.get("serial", -1)):
+		return
+	if int(_session.state().generation) != int(_file_lease.get("generation", -1)):
+		_on_file_refused("stale_project_generation", serial)
+		return
+	_file_observation["status"] = "validating"
+	_file_observation["filename"] = filename
+	var decoded: Dictionary = SandfallArchiveCodec.decode_bytes(bytes)
+	if not bool(decoded.get("ok", false)):
+		_on_file_refused(str(decoded.get("error", "archive_decode_failed")), serial)
+		return
+	_staged_project = decoded.definition.duplicate(true)
+	_file_observation["operation_serial"] = int(_file_observation.operation_serial) + 1
+	_file_observation["staged"] = true
+	_file_observation["status"] = "staged"
+	_file_observation["staged_digest"] = str(decoded.get("logical_sha256", ""))
+	_file_observation["staged_source"] = decoded.get("manifest", {}).get("source", {}).duplicate(true)
+	_project_description.text = "Ready to open: %s\n%d physical objects · authored initial material and thermal state\n\nLogical project SHA-256: %s\n\nOpening constructs a fresh tick-zero scene. The current scene is retained if candidate reconstruction or readiness fails." % [str(_staged_project.get("title", filename)), _staged_project.get("bodies", []).size(), str(decoded.get("logical_sha256", ""))]
+	_update_ui()
+
+
+func _on_file_refused(reason: String, serial: int) -> void:
+	if serial != int(_file_lease.get("serial", -1)):
+		return
+	_staged_project.clear()
+	_file_observation["status"] = "refused"
+	_file_observation["last_refusal"] = reason
+	_file_observation["error"] = reason
+	_file_observation["operation_serial"] = int(_file_observation.operation_serial) + 1
+	_file_observation["staged"] = false
+	_file_observation["message"] = "Project refused: " + reason.replace("_", " ")
+	_project_description.text = "The project was not opened.\n\n" + reason.replace("_", " ") + "\n\nYour previous authored document and physical scene remain active."
+	_update_ui()
+
+
+func _on_file_cancelled(serial: int) -> void:
+	if serial == int(_file_lease.get("serial", -1)):
+		_file_observation["status"] = "cancelled"
+		_close_project_dialog()
+
+
+func _confirm_project() -> void:
+	if _project_dialog_kind != "open" or _staged_project.is_empty():
+		return
+	var state: Dictionary = _session.state()
+	if int(state.generation) != int(_file_lease.get("generation", -1)):
+		_on_file_refused("stale_project_generation", int(_file_lease.get("serial", -1)))
+		return
+	# File picker blur retires gestures. Installation requires this new explicit
+	# confirmation and its current epoch, never the old chooser's pointer lease.
+	var receipt: Dictionary = _session.import_project(_staged_project, int(state.generation), int(state.input_epoch))
+	if not bool(receipt.get("accepted", false)):
+		if bool(receipt.get("partial", false)):
+			_report_project_partial(str(receipt.get("error", "project_install_partial_failure")))
+		else:
+			_on_file_refused(str(receipt.get("error", "project_install_refused")), int(_file_lease.get("serial", -1)))
+		return
+	_file_observation["import_serial"] = int(_file_observation.import_serial) + 1
+	_file_observation["import_count"] = int(_file_observation.import_serial)
+	_file_observation["operation_serial"] = int(_file_observation.operation_serial) + 1
+	_file_observation["imported_digest"] = str(_file_observation.get("staged_digest", ""))
+	_file_observation["status"] = "opened"
+	_file_observation["last_refusal"] = ""
+	_file_observation["error"] = ""
+	_file_observation["message"] = "Opened authored project: " + str(_staged_project.get("title", "Sandfall"))
+	_close_project_dialog()
+
+
+func _save_project() -> void:
+	_clear_input("project_export")
+	var state: Dictionary = _session.state()
+	if int(state.queued_commands) > 0 or bool(state.tool_busy):
+		_file_observation["status"] = "export_refused"
+		_file_observation["last_refusal"] = "finish_pending_edit_before_save"
+		_file_observation["error"] = "finish_pending_edit_before_save"
+		_file_observation["operation_serial"] = int(_file_observation.operation_serial) + 1
+		_file_observation["message"] = "Wait for the current edit to finish, then save."
+		return
+	var definition: Dictionary = _session.authored_project()
+	var encoded: Dictionary = SandfallArchiveCodec.encode_definition(definition, _session.source_identity())
+	if not bool(encoded.get("ok", false)):
+		_file_observation["status"] = "export_refused"
+		_file_observation["last_refusal"] = str(encoded.get("error", "archive_encode_failed"))
+		_file_observation["error"] = str(_file_observation.last_refusal)
+		_file_observation["operation_serial"] = int(_file_observation.operation_serial) + 1
+		_file_observation["message"] = "Save refused: " + str(_file_observation.last_refusal).replace("_", " ")
+		return
+	var filename: String = _safe_project_filename(str(definition.get("id", "project"))) + ".sandfall"
+	var bytes: PackedByteArray = encoded.bytes
+	var initial_ids: Array = []
+	for object: Dictionary in definition.get("bodies", []): initial_ids.append(str(object.id))
+	var export_record: Dictionary = {"kind": "authored_initial", "filename": filename, "bytes": bytes.size(),
+		"sha256": _sha256(bytes), "logical_sha256": str(encoded.get("logical_sha256", "")),
+		"initial_cells_sha256": _sha256(definition.get("initial_cells", PackedByteArray())),
+		"body_ids": initial_ids, "mode": str(_session.state().mode),
+		"tick": int(_session.state().tick), "source": _session.source_identity()}
+	_offer_export(bytes, filename, "application/zip", export_record)
+
+
+func _save_evidence() -> void:
+	_clear_input("run_evidence_export")
+	var evidence: Dictionary = _session.run_evidence()
+	evidence["application"] = {"version": "sandfall-run-evidence-v1", "rendering": _canvas.state(),
+		"actor_count": _count_actor_nodes(get_tree().root), "input": {"actor_controls": "absent", "held_ui_keys": _held_keys.keys()},
+		"gallery_entry": SandfallGallery.entry(str(_session.state().scene_id)),
+		"evidence_limits": ["Run evidence is not a portable initial project", "No mid-run continuation or whole-stack bitwise replay guarantee", "Human exhibition acceptance is separate"]}
+	var bytes: PackedByteArray = (JSON.stringify(evidence, "  ", true, true) + "\n").to_utf8_buffer()
+	var filename: String = _safe_project_filename(str(_session.state().scene_id)) + ".sandfall-run.json"
+	_offer_export(bytes, filename, "application/json", {"kind": "run_evidence", "filename": filename, "bytes": bytes.size(), "sha256": _sha256(bytes), "tick": int(_session.state().tick)})
+
+
+func _offer_export(bytes: PackedByteArray, filename: String, mime: String, record: Dictionary) -> void:
+	if OS.has_feature("web"):
+		var receipt: Dictionary = SandfallBrowserFileBridge.offer_download(bytes, filename, mime)
+		if not bool(receipt.get("accepted", false)):
+			_file_observation["last_refusal"] = str(receipt.get("error", "download_refused"))
+			_file_observation["error"] = str(_file_observation.last_refusal)
+			_file_observation["operation_serial"] = int(_file_observation.operation_serial) + 1
+			_file_observation["message"] = "Download refused: " + str(_file_observation.last_refusal)
+			return
+		record["delivery"] = str(receipt.delivery)
+		_record_export(record)
+	else:
+		_desktop_export = {"bytes": bytes.duplicate(), "record": record.duplicate(true)}
+		_show_desktop_dialog(true, filename)
+
+
+func _record_export(record: Dictionary) -> void:
+	_file_observation["export_serial"] = int(_file_observation.export_serial) + 1
+	_file_observation["export_count"] = int(_file_observation.export_serial)
+	_file_observation["operation_serial"] = int(_file_observation.operation_serial) + 1
+	_file_observation["last_export"] = record.duplicate(true)
+	_file_observation["status"] = "exported"
+	_file_observation["last_refusal"] = ""
+	_file_observation["error"] = ""
+	var action: String = " saved: " if record.get("delivery", "") == "desktop_file_written" else " offered for download: "
+	_file_observation["message"] = ("Authored initial scene" if record.kind == "authored_initial" else "Run evidence") + action + str(record.filename)
+
+
+func _show_desktop_dialog(save: bool, filename: String = "") -> void:
+	if is_instance_valid(_desktop_dialog):
+		_desktop_dialog.queue_free()
+	_desktop_dialog = FileDialog.new()
+	_desktop_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_desktop_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE if save else FileDialog.FILE_MODE_OPEN_FILE
+	_desktop_dialog.filters = PackedStringArray(["*.sandfall,*.zip ; Sandfall project", "*.json ; Run evidence"]) if save else PackedStringArray(["*.sandfall,*.zip ; Sandfall project"])
+	_desktop_dialog.current_file = filename
+	add_child(_desktop_dialog)
+	_desktop_dialog.file_selected.connect(func(path: String) -> void:
+		if save:
+			var written: Dictionary = _write_export_file(path, _desktop_export.bytes)
+			if not bool(written.ok):
+				_file_observation["status"] = "export_refused"
+				_file_observation["error"] = str(written.error)
+				_file_observation["last_refusal"] = str(written.error)
+				_file_observation["message"] = "The file could not be saved: " + str(written.error).replace("_", " ")
+				return
+			var record: Dictionary = _desktop_export.record.duplicate(true)
+			record["delivery"] = "desktop_file_written"
+			_record_export(record)
+			_desktop_export.clear()
+		else:
+			var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+			var serial: int = int(_file_lease.get("serial", -1))
+			if file == null or file.get_length() > SandfallBrowserFileBridge.MAX_ARCHIVE_BYTES:
+				_on_file_refused("archive_file_read_or_size_refusal", serial)
+				return
+			_on_project_selected(file.get_buffer(file.get_length()), path.get_file(), serial)
+	)
+	_desktop_dialog.canceled.connect(func() -> void:
+		if not save: _close_project_dialog()
+	)
+	_desktop_dialog.popup_centered_ratio(0.8)
+
+
+func _write_export_file(path: String, bytes: PackedByteArray) -> Dictionary:
+	# Stage in the destination directory and rename only after a complete
+	# flush/close. No existing project is truncated by a failed write.
+	var temporary: String = ""
+	for attempt: int in 8:
+		var random: PackedByteArray = Crypto.new().generate_random_bytes(8)
+		if random.size() != 8:
+			return {"ok": false, "error": "temporary_file_identity_unavailable"}
+		temporary = path + ".sandfall-writing-" + random.hex_encode()
+		if not FileAccess.file_exists(temporary) and not DirAccess.dir_exists_absolute(temporary):
+			break
+		temporary = ""
+	if temporary.is_empty():
+		return {"ok": false, "error": "temporary_file_capacity"}
+	var file: FileAccess = FileAccess.open(temporary, FileAccess.WRITE)
+	if file == null:
+		return {"ok": false, "error": "temporary_file_open_failed"}
+	file.store_buffer(bytes)
+	file.flush()
+	var error: Error = file.get_error()
+	file.close()
+	if error != OK:
+		DirAccess.remove_absolute(temporary)
+		return {"ok": false, "error": "temporary_file_write_failed"}
+	if DirAccess.rename_absolute(temporary, path) != OK:
+		DirAccess.remove_absolute(temporary)
+		return {"ok": false, "error": "file_replacement_failed"}
+	return {"ok": true, "error": ""}
+
+
+func _open_promotion() -> void:
+	_set_project_dialog("promotion", "Apply interventions to a new draft", "Preparing a reconstruction from the frozen initial scene…")
+	_promotion_preview = _session.preview_promotion()
+	_project_description.text = str(_promotion_preview.get("summary", _promotion_preview.get("error", "No eligible reconstruction")))
+	var conflicts: Array = _promotion_preview.get("conflicts", [])
+	_project_preview.text = "Candidate project SHA-256\n" + str(_promotion_preview.get("candidate_hash", "Not available")) + "\n\nAuthored initial-state changes\n" + JSON.stringify(_promotion_preview.get("preview", {}), "  ", true, true)
+	if not conflicts.is_empty():
+		_project_preview.text += "\n\nExcluded or conflicting operations\n" + JSON.stringify(conflicts, "  ", true, true)
+	_project_description.text += "\n\nThis replays eligible declarative edits on the frozen initial scene at tick zero. Evolved chemistry, contact caches and trajectories are not copied. The new Run may behave differently."
+	_update_ui()
+
+
+func _confirm_promotion() -> void:
+	if _project_dialog_kind != "promotion" or not bool(_promotion_preview.get("accepted", false)):
+		return
+	var receipt: Dictionary = _session.confirm_promotion(int(_promotion_preview.get("token", 0)))
+	if not bool(receipt.get("accepted", false)):
+		if bool(receipt.get("partial", false)):
+			_report_project_partial(str(receipt.get("error", "promotion_partial_failure")))
+		else:
+			_project_description.text = "Draft was not created: " + str(receipt.get("error", "promotion_refused")).replace("_", " ")
+		_promotion_preview["accepted"] = false
+		return
+	_file_observation["message"] = "Created a fresh Edit draft from the frozen initial state and approved interventions."
+	_promotion_preview["confirmed"] = true
+	_close_project_dialog()
+
+
+func _build_presentation_tools(parent: Node) -> void:
+	_presentation_panel = VBoxContainer.new()
+	_presentation_panel.add_theme_constant_override("separation", 7)
+	parent.add_child(_presentation_panel)
+	var explanation: Label = Label.new()
+	explanation.text = "Presentation only\nLabels and strokes do not change materials or physics."
+	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	explanation.custom_minimum_size.x = 230
+	explanation.add_theme_font_size_override("font_size", 15)
+	_presentation_panel.add_child(explanation)
+	_annotation_text = LineEdit.new()
+	_annotation_text.placeholder_text = "Label text"
+	_annotation_text.text = "Observation"
+	_annotation_text.max_length = 128
+	_presentation_panel.add_child(_annotation_text)
+	_project_controls["annotation_text"] = _annotation_text
+	var tools: HBoxContainer = HBoxContainer.new()
+	_presentation_panel.add_child(tools)
+	_editor_button(tools, "presentation_label", "Label", func() -> void:
+		_clear_input("presentation_label")
+		_presentation_tool = "label"
+	)
+	_editor_button(tools, "presentation_stroke", "Stroke", func() -> void:
+		_clear_input("presentation_stroke")
+		_presentation_tool = "stroke"
+	)
+	_presentation_colour = OptionButton.new()
+	for label: String in ["Mint", "Gold", "White", "Rose"]:
+		_presentation_colour.add_item(label)
+	_presentation_panel.add_child(_presentation_colour)
+	_project_controls["annotation_color"] = _presentation_colour
+	_presentation_theme = OptionButton.new()
+	for theme: String in SandfallPresentationModel.THEMES:
+		_presentation_theme.add_item(theme.capitalize())
+	_presentation_panel.add_child(_presentation_theme)
+	_project_controls["presentation_theme"] = _presentation_theme
+	_editor_button(_presentation_panel, "presentation_apply_style", "Apply colourway", func() -> void:
+		var value: Dictionary = _session.presentation()
+		value.style.theme = SandfallPresentationModel.THEMES[_presentation_theme.selected]
+		_commit_presentation(value)
+	)
+	_editor_button(_presentation_panel, "presentation_visible", "Annotations: shown", func() -> void:
+		var value: Dictionary = _session.presentation()
+		value.style.annotations_visible = not bool(value.style.annotations_visible)
+		_commit_presentation(value)
+	)
+	_editor_button(_presentation_panel, "presentation_clear", "Clear annotations", func() -> void:
+		var value: Dictionary = _session.presentation()
+		value.annotations = []
+		_commit_presentation(value)
+	)
+
+
+func _presentation_pointer(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			if not _canvas.global_content_rect().has_point(event.global_position):
+				return
+			var state: Dictionary = _session.state()
+			_presentation_lease = {"generation": state.generation, "epoch": state.input_epoch, "revision": int(state.document.get("revision", -1))}
+			_presentation_points = [_presentation_point(event.global_position)]
+		elif not _presentation_lease.is_empty():
+			if not _canvas.global_content_rect().has_point(event.global_position):
+				_clear_input("presentation_release_outside")
+				return
+			if _presentation_tool == "stroke":
+				_presentation_points.append(_presentation_point(event.global_position))
+			var value: Dictionary = _session.presentation()
+			_annotation_serial += 1
+			var id: String = "annotation-%d" % _annotation_serial
+			var ids: Array = []
+			for annotation: Dictionary in value.annotations: ids.append(annotation.id)
+			while id in ids:
+				_annotation_serial += 1
+				id = "annotation-%d" % _annotation_serial
+			value.annotations.append({"id": id, "type": _presentation_tool,
+				"points": _presentation_points.duplicate(true), "color": ["#8de4d7ff", "#f4ce74ff", "#ffffffff", "#ff9bb5ff"][_presentation_colour.selected],
+				"width": 2.0, "text": _annotation_text.text if _presentation_tool == "label" else ""})
+			_session.enqueue_presentation(value, int(_presentation_lease.revision), int(_presentation_lease.generation), int(_presentation_lease.epoch))
+			_clear_input("presentation_committed")
+	elif event is InputEventMouseMotion and not _presentation_lease.is_empty() and _presentation_tool == "stroke":
+		if not _canvas.global_content_rect().has_point(event.global_position):
+			_clear_input("presentation_world_exit")
+			return
+		var point: Array = _presentation_point(event.global_position)
+		if point != _presentation_points.back():
+			if _presentation_points.size() >= SandfallPresentationModel.MAX_STROKE_POINTS - 1:
+				_clear_input("presentation_point_capacity")
+				_editor.notice = "Stroke too long; no annotation was added. Limit: 256 points per stroke."
+				return
+			_presentation_points.append(point)
+		_presentation_overlay.preview_points = _presentation_points.duplicate(true)
+
+
+func _presentation_point(global_position: Vector2) -> Array:
+	var point: Vector2 = _canvas.global_to_world(global_position).clamp(Vector2.ZERO, Vector2(1024, 1024))
+	return [snappedf(point.x, 0.01), snappedf(point.y, 0.01)]
+
+
+func _commit_presentation(value: Dictionary) -> void:
+	_clear_input("presentation_control")
+	var state: Dictionary = _session.state()
+	_session.enqueue_presentation(value, int(state.document.get("revision", -1)), int(state.generation), int(state.input_epoch))
+
+
+func _project_control_rects() -> Dictionary:
+	var result: Dictionary = {}
+	for key: String in _project_controls:
+		var control: Control = _project_controls[key]
+		if control.is_visible_in_tree():
+			var rect: Rect2 = control.get_global_rect()
+			result[key] = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
+	return result
+
+
+func _safe_project_filename(id: String) -> String:
+	var result: String = "sandfall-"
+	for character: String in id.substr(0, 64):
+		if character.to_lower() in "abcdefghijklmnopqrstuvwxyz0123456789-_":
+			result += character.to_lower()
+	return result
+
+
+func _sha256(bytes: PackedByteArray) -> String:
+	var context: HashingContext = HashingContext.new()
+	context.start(HashingContext.HASH_SHA256)
+	context.update(bytes)
+	return context.finish().hex_encode()
+
+
+func _report_project_partial(reason: String) -> void:
+	_staged_project.clear()
+	_file_observation["operation_serial"] = int(_file_observation.operation_serial) + 1
+	_file_observation["status"] = "fault"
+	_file_observation["last_refusal"] = reason
+	_file_observation["error"] = reason
+	_file_observation["staged"] = false
+	_file_observation["message"] = "Project replacement stopped after a partial physical mutation."
+	_project_description.text = "Project replacement failed after a partial physical mutation. The simulation is stopped in Fault; the previous physical state was not restored.\n\n" + reason.replace("_", " ") + "\n\nClose this dialog and use Reset to reconstruct the authored baseline."

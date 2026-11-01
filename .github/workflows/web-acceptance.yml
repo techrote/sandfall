@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/web-acceptance.yml'
-      - '.github/workflows/sf-m3-web.yml'
+      - '.github/workflows/sf-m4-web.yml'
       - 'godot/**'
       - 'native/**'
       - 'third_party/**'
@@ -20,7 +20,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
     paths:
       - '.github/workflows/web-acceptance.yml'
-      - '.github/workflows/sf-m3-web.yml'
+      - '.github/workflows/sf-m4-web.yml'
       - 'godot/**'
       - 'native/**'
       - 'third_party/**'
@@ -43,12 +43,11 @@ concurrency:
 
 jobs:
   compatibility-web:
-    name: SF-M3 workshop, compatibility browser and legacy coupling
+    name: SF-M3 workshop, SF-M4 projects and Gallery, compatibility browser and legacy coupling
     if: >-
       github.event_name != 'pull_request' ||
       (github.event.pull_request.draft == false &&
-       !startsWith(github.head_ref, 'sf-m3/') &&
        !startsWith(github.head_ref, 'sf-m4/'))
-    uses: ./.github/workflows/sf-m3-web.yml
+    uses: ./.github/workflows/sf-m4-web.yml
     with:
       routine: true

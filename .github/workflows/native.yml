@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/native.yml'
+      # The targeted M4 workflow owns the complete native qualification gate.
+      - '.github/workflows/sf-m4-web.yml'
       - 'Makefile'
       - 'native/**'
       - 'tools/ci/native_aggregate.py'
@@ -17,6 +19,8 @@ on:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
     paths:
       - '.github/workflows/native.yml'
+      # The targeted M4 workflow owns the complete native qualification gate.
+      - '.github/workflows/sf-m4-web.yml'
       - 'Makefile'
       - 'native/**'
       - 'tools/ci/native_aggregate.py'

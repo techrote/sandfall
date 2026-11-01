@@ -669,8 +669,20 @@ try {
   await click("pause"); await waitFor("coupled-Run-paused",s=>s.paused);
   await pausedStep(true);
   await material("sand",2); await tool("pencil");
-  before=checkpoint("before-body-occupancy-refusal");
   const bodyCell=state.body_poses[0].slice(0,2).map(Math.floor);
+  // The body's dynamic centre can land in a cell narrower than one integer
+  // MouseEvent CSS pixel at DPR2. Use the visible camera control to make that
+  // exact occupied cell addressable; never move the probe to a neighbouring
+  // cell or relax the strict coordinate/refusal oracle.
+  const occupancyZoom=checkpoint("before-body-occupancy-camera-zoom");
+  await click("zoom_in");
+  await waitFor("body-occupancy-camera-zoomed",s=>s.camera.zoom>occupancyZoom.camera.zoom);
+  await stable("body-occupancy-zoom-is-physical-and-interest-neutral",occupancyZoom);
+  check("body-occupancy-target-remains-exact-and-addressable",()=>{
+    assert.deepEqual(state.body_poses[0].slice(0,2).map(Math.floor),bodyCell);
+    cellPoint(bodyCell);
+  });
+  before=checkpoint("before-body-occupancy-refusal");
   await stroke(bodyCell,bodyCell,{label:"body-occupancy-negative"});
   await waitFor("occupied-cell-edit-refused",s=>String(s.last_refusal).includes("occup"));
   check("occupied-body-cell-refusal-is-nonmutating",()=>assertPausedStable(before,state));

@@ -10,6 +10,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { analyzePng, pngDimensions } from "./sf_m0_png_stats.mjs";
 import { mapGodotRect, cssRectToScreenshotROI } from "./sf_m0_geometry.mjs";
+import {sampleControlLayout,sameControlLayout,controlLayoutSettled} from "./sf_m3_browser_assertions.mjs";
 import {
   assertOrdinaryState, assertEdit, assertInputClear, physicalCheckpoint,
   assertPausedStable, assertStep, assertReset, assertGallery600, assertTrustedDelivery,
@@ -42,7 +43,7 @@ if (![width, height, dpr, timeoutMs].every(x => Number.isFinite(x) && x > 0))
 const sha256 = bytes => createHash("sha256").update(bytes).digest("hex");
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const copy = value => structuredClone(value);
-const harnessInputs = ["sf_m1_browser.mjs", "sf_m1_browser_assertions.mjs", "sf_m0_geometry.mjs", "sf_m0_png_stats.mjs"]
+const harnessInputs = ["sf_m1_browser.mjs", "sf_m1_browser_assertions.mjs", "sf_m3_browser_assertions.mjs", "sf_m2_browser_assertions.mjs", "sf_m0_geometry.mjs", "sf_m0_png_stats.mjs"]
   .map(path => ({path, sha256:sha256(readFileSync(new URL(path, import.meta.url)))}));
 const repoRoot = fileURLToPath(new URL("../../",import.meta.url));
 const harnessHead = execFileSync("git",["-C",repoRoot,"rev-parse","HEAD"],{encoding:"utf8"}).trim();
@@ -57,6 +58,7 @@ let ws, nextId = 0, originalTarget, secondaryTarget;
 let state = null, metrics = null, domInputEvents = [], browserVersion = null;
 let phase = "startup", captureStarted = false, pollErrors = 0, lastLog = "", lastLogAt = 0;
 const pending = new Map();
+const controlLayouts = [];
 
 function cmd(method, params = {}, deadlineMs = 30000) {
   return new Promise((resolve, reject) => {
@@ -181,10 +183,19 @@ async function input(method, params) {
 }
 
 async function click(name, {holdMs = 100, heldBaseline = null} = {}) {
-  await observe();
-  const rect = state.buttons?.[name];
-  if (!rect) throw Error("No observed Control rectangle for " + name);
-  const mapped = mapGodotRect(rect,metrics,layout);
+  let baseline = null, confirmed = null;
+  // app_ready can be published at frame zero before deferred Container layout.
+  // Measure stable geometry on fresh application frames before one real click.
+  await waitFor("control-" + name + "-layout-settled", currentState => {
+    const current = sampleControlLayout(currentState,metrics,layout,name);
+    if (controlLayoutSettled(baseline,current)) { confirmed = current; return true; }
+    if (!sameControlLayout(baseline,current) || current.frame < baseline.frame) baseline = current;
+    return false;
+  },15000);
+  assert.ok(controlLayoutSettled(baseline,confirmed),"Control geometry never settled on newer Godot frames");
+  const rect = confirmed.geometry.rect, mapped = confirmed.mapped;
+  controlLayouts.push({name,elapsed_ms:Date.now()-started,first_frame:baseline.frame,
+    confirmed_frame:confirmed.frame,geometry:confirmed.geometry,mapped});
   const {x,y} = mapped.center;
   const startIndex = domInputEvents.length;
   inputEvents.push({action:name,elapsed_ms:Date.now()-started,godot:rect,mapped,metrics:copy(metrics)});
@@ -629,7 +640,7 @@ try {
       physical_save_restore_and_partial_fault:"Separate Godot backend/session gates; not claimed by this browser receipt"},
     final_state:state,final_metrics:metrics,checks,checkpoints,transitions,input_events:inputEvents,
     expected_dom_delivery:expectedDOM,dom_input_events:domInputEvents,cdp_poll_errors:pollErrors,
-    captures,observations,console_events:consoleEvents};
+    control_layouts:controlLayouts,captures,observations,console_events:consoleEvents};
   mkdirSync(dirname(output),{recursive:true});
   writeFileSync(output,JSON.stringify(evidence,null,2)+"\n");
   console.log("SF_M1_BROWSER_RESULT",JSON.stringify({status:evidence.status,failures,

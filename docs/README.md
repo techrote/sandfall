@@ -28,6 +28,17 @@ and the [independent review](audits/2026-10-31-sf-m3-independent-review.md)
 records cross-author findings and their disposition. Integration requires accepted CI,
 source-matched qualification and independent review; historical receipts retain their scope.
 
+[SF-M4](SF-M4-PROJECTS-EXHIBITIONS.md) implements portable projects,
+presentation, curated Gallery, run evidence and safe initial-state promotion.
+The [format reference](SANDFALL-PROJECT-FORMAT.md) specifies the ordinary ZIP
+and editable folder. Its [dated audit](audits/2026-10-31-sf-m4-projects-exhibitions.md)
+records branch ownership, original negatives and exact-head qualification.
+The [independent review](audits/2026-10-31-sf-m4-independent-review.md) records
+cross-author findings, corrections and the final evidence boundary.
+SF-M0–M3 are merged. SF-M4 final integration is tracked in the
+[reconciliation audit](audits/2026-11-01-sf-m4-final-reconciliation.md); its
+source-specific qualification and guarded merge remain explicit gates.
+
 ## Retained CyberSand technical reference
 
 The inherited dated programme and runtime claims below preserve their original

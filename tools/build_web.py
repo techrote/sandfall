@@ -43,7 +43,16 @@ def run(args: list[str], *, cwd: Path = ROOT, timeout: int = 1200) -> None:
         result.check_returncode()
         # Godot can return zero and write a PCK despite GDScript parse errors.
         if "ERROR:" in result.stdout:
-            raise RuntimeError("Godot reported errors; this is not a valid export")
+            script = Path(args[args.index("--script") + 1]).name if "--script" in args else ""
+            try:
+                from sandfall.sf_m4_expected_diagnostics import validate
+            except ModuleNotFoundError:
+                from tools.sandfall.sf_m4_expected_diagnostics import validate
+            try:
+                diagnostics = validate(result.stdout, script)
+            except (ValueError, KeyError, TypeError) as exc:
+                raise RuntimeError("Godot reported errors outside the witnessed malformed-archive matrix: " + str(exc)) from exc
+            print("SF_M4_EXPECTED_DIAGNOSTICS_RETAINED", json.dumps(diagnostics, sort_keys=True), flush=True)
     else:
         subprocess.run(resolve_command(args), cwd=cwd, check=True, timeout=timeout)
 
@@ -184,6 +193,31 @@ def write_runtime_identity(stage: Path, library: Path, args: argparse.Namespace)
     destination.write_text(json.dumps(identity, indent=2) + "\n", encoding="utf-8")
     return identity
 
+def write_sandfall_identity(stage: Path, library: Path, args: argparse.Namespace) -> dict:
+    """Expose measured build identity to authored projects and run receipts.
+
+    This is data in the exported PCK, never an assertion of browser acceptance.
+    The archive's creation identity may differ from the importing application;
+    both identities remain available to the session/evidence owner.
+    """
+    commit = args.source_commit or output(["git", "-C", str(ROOT), "rev-parse", "HEAD"])
+    tree = output(["git", "-C", str(ROOT), "rev-parse", f"{commit}^{{tree}}"])
+    data = library.read_bytes()
+    rapier = verify_rapier(args.profile == "threaded")
+    identity = {
+        "source_commit": commit,
+        "native_source_commit": commit,
+        "source_tree": tree,
+        "native_runtime_sha256": hashlib.sha256(data).hexdigest(),
+        "rapier_version": "0.35.2",
+        "rapier_runtime_sha256": rapier["sha256"],
+        "godot_version": GODOT_VERSION,
+        "build_profile": args.profile,
+    }
+    (stage / "sandfall_build_identity.json").write_text(
+        json.dumps(identity, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return identity
+
 def clean_sandfall_source(expected_commit: str) -> None:
     # This script is executable directly (tools/ is then the import root), and
     # is also imported by staging tests from the repository root.
@@ -247,6 +281,13 @@ def main() -> None:
         library = compile_extension(args.cpp.resolve(), libs, "web", threaded)
     native_library = None
     if args.native_tests:
+        if args.entry == "sandfall":
+            # Both the Godot encoder and the independent Python ZIP reader
+            # retain exact bytes. Use a reproducible absolute path so separate
+            # native processes can consume the same interchange fixtures.
+            codec_output = Path(os.environ.get("SF_M4_TEST_OUTPUT", str(ROOT / "build/sf-m4-codec"))).resolve()
+            codec_output.mkdir(parents=True, exist_ok=True)
+            os.environ["SF_M4_TEST_OUTPUT"] = str(codec_output)
         native_library = compile_extension(args.native_cpp.resolve(), libs, "linux", True)
     if args.compile_only:
         return
@@ -258,12 +299,18 @@ def main() -> None:
         clean_sandfall_source(build_source_commit)
     stage = stage_project(library, native_library, args.cellular_only, threaded, args.entry)
     web_runtime_identity = write_runtime_identity(stage, library, args)
+    sandfall_identity = write_sandfall_identity(stage, library, args) if args.entry == "sandfall" else None
     output_name = "web-sandfall" if args.entry == "sandfall" else "web"
     output_dir = ROOT / "build" / (output_name + ("-threaded" if threaded else ""))
     if output_dir.exists():
         shutil.rmtree(output_dir)  # This tool's fixed disposable export only.
     output_dir.mkdir(parents=True, exist_ok=True)
     preset = (ROOT / "godot/export_presets.cfg").read_text()
+    if args.entry == "sandfall":
+        # JSON is a plain data asset, not an imported Godot resource. Include it
+        # explicitly so the application's archive/evidence path reads the same
+        # measured source/native/Rapier identity as the outer export manifest.
+        preset = preset.replace('include_filter=""', 'include_filter="sandfall_build_identity.json"')
     for kind in ("debug", "release"):
         template = args.templates / f"web_dlink_{'' if threaded else 'nothreads_'}{kind}.zip"
         if not template.is_file():
@@ -285,9 +332,22 @@ def main() -> None:
             tests += ["test_rapier_backend_preflight.gd", "test_rapier_drop_in.gd", "test_rapier_manual_step.gd"]
         if args.entry == "sandfall":
             tests += ["test_sandfall_simulation_host.gd", "test_sandfall_session.gd", "test_sandfall_authoring.gd", "test_sandfall_editor_input.gd",
-                      "test_sandfall_objects.gd", "test_sandfall_object_history.gd", "test_sandfall_object_input.gd"]
+                      "test_sandfall_objects.gd", "test_sandfall_object_history.gd", "test_sandfall_object_input.gd",
+                      "test_sandfall_archive.gd", "test_sandfall_projects.gd", "test_sandfall_promotion.gd",
+                      "test_sandfall_presentation.gd", "test_sandfall_gallery.gd", "test_sandfall_project_input.gd"]
         for name in tests:
-            run([args.godot, "--headless", "--path", str(stage), "--script", f"res://tests/{name}"], timeout=240)
+            # Seven curated scenes each run twice for 600 real coupled ticks,
+            # plus the independent no-water physical control. This sustained
+            # 9,000-tick test has its own bounded budget; other gates retain 240s.
+            budget = 900 if name == "test_sandfall_gallery.gd" else 240
+            run([args.godot, "--headless", "--path", str(stage), "--script", f"res://tests/{name}"], timeout=budget)
+        if args.entry == "sandfall":
+            interop = codec_output / "external-interop"
+            run([sys.executable, str(ROOT / "tools/sandfall/sf_m4_archive_fixture.py"), "interop", str(codec_output),
+                 "--destination", str(interop), "--output", str(codec_output / "python-interop-receipt.json")], timeout=240)
+            os.environ["SF_M4_INTEROP_DIR"] = str(interop)
+            run([args.godot, "--headless", "--path", str(stage), "--script",
+                 "res://tests/test_sandfall_archive_interop.gd"], timeout=240)
     run([args.godot, "--headless", "--path", str(stage), "--export-release", "Web Demo", str(output_dir / "index.html")], timeout=240)
     for name in ("index.html", "index.js", "index.wasm", "index.pck"):
         if not (output_dir / name).is_file():
@@ -317,6 +377,9 @@ def main() -> None:
                 "staged_project_sha256": hashlib.sha256((stage / "project.godot").read_bytes()).hexdigest(),
                 "water_runtime": web_runtime_identity}
     shutil.copy2(stage / "project.godot", output_dir / "export-project.godot")
+    if sandfall_identity is not None:
+        shutil.copy2(stage / "sandfall_build_identity.json", output_dir / "sandfall_build_identity.json")
+        identity["sandfall_identity"] = sandfall_identity
     (output_dir / "build-info.json").write_text(json.dumps(identity, indent=2) + "\n")
     (output_dir / "SHA256SUMS").write_text("".join(
         f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}\n"

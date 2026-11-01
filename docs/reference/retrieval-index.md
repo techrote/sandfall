@@ -26,6 +26,10 @@ related-documents: [../README.md, retrieval-corpus.json, ../operations/documenta
 
 - [Prepared Water Feel reference bodies](../architecture/liquid-prepared-setup-and-receipts.md#prepared-water-feel-reference-bodies): actual frozen masks, permanent-space adoption/refusal and normal unpaused feedback; preserve local-source limits, actual Web and host-mask continuation gaps.
 
+The [SF-M4 final reconciliation](../audits/2026-11-01-sf-m4-final-reconciliation.md)
+records preserved projects/exhibitions source, the measured M1 browser-layout
+race and the permanent M3/M4 actual-browser regression route.
+
 ## Generation Workbench 2 and procedural quality
 
 - [Workbench inspection and transactions](../systems/generation-workbench-2.md): accepted native identities, bounded deterministic replay, actual stage meanings, invalid-edit preservation, graph/hierarchy/plane editing, undo/redo, seeds and comparison.
@@ -308,3 +312,13 @@ executed results belong to the [dated Deepworks audit](../audits/2026-10-20-deep
 ## Semantic four-plane generation and authoring
 
 GEN-005 projection, typed link, fixture lifecycle, atomic admission and frozen-background questions route to the [semantic-plane contract](../systems/procedural-semantic-planes.md). Refinery/cavern JSON, source programmes, controls, actor placements, actual captures and provenance inspection route to the [authoring guide](../operations/semantic-depth-authoring.md).
+
+## Sandfall project and exhibition routes
+
+Use [SF-M4](../SF-M4-PROJECTS-EXHIBITIONS.md) for project replacement ownership,
+presentation history, passive subjects, Gallery/run evidence and safe promotion.
+Use [the portable format](../SANDFALL-PROJECT-FORMAT.md) for ordinary ZIP entries,
+cell encoding, source identity, hashes and hostile-input limits. Source behavior
+and dated execution are distinct; the [SF-M4 audit](../audits/2026-10-31-sf-m4-projects-exhibitions.md)
+and exact-head PR record own runtime qualification. Historical CyberSand saves
+and inherited platform claims do not describe a Sandfall authored project.

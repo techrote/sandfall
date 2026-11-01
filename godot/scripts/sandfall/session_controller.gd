@@ -11,6 +11,10 @@ const MAX_COMMANDS: int = 32
 const MAX_JOURNAL: int = 64
 const MAX_INTERVENTIONS: int = 256
 const MAX_INTERVENTION_BYTES: int = 32 * 1024 * 1024
+const MAX_DIAGNOSTIC_PARAMETER_BYTES: int = 16 * 1024
+const Archive = preload("res://scripts/sandfall/archive_codec.gd")
+const Presentation = preload("res://scripts/sandfall/presentation_model.gd")
+const Promotion = preload("res://scripts/sandfall/intervention_promotion.gd")
 
 var _document: SandfallAuthoringDocument
 var _pristine: bool = true
@@ -45,6 +49,14 @@ var _journal: Array[Dictionary] = []
 # Reconstruction may restore a previous ID; allocation never reissues one.
 var _next_object_serial: int = 1
 var _editable_initial_body_poses: Array = []
+var _run_presentation: Dictionary = Presentation.defaults()
+var _promotion: Dictionary = {}
+var _promotion_serial: int = 0
+var _event_sequence: int = 0
+var _journal_dropped: int = 0
+var _project_identity_cache: Dictionary = {}
+var _project_identity_revision: int = -1
+var _command_context: Dictionary = {}
 
 
 func _init(host: Node) -> void:
@@ -75,10 +87,12 @@ func process_commands() -> void:
 	var batch: Array[Dictionary] = _commands.duplicate(true)
 	_commands.clear()
 	for command: Dictionary in batch:
+		_command_context = _command_summary(command)
 		if int(command.generation) != _generation or int(command.input_epoch) != _input_epoch:
 			_refuse("retired_command_epoch")
 			continue
 		_apply(str(command.action), command.value)
+	_command_context = {}
 
 
 func advance() -> bool:
@@ -129,6 +143,7 @@ func clear_pending_input(reason: String) -> void:
 	_tool_hold = false
 	_tick_credit = 0.0
 	_input_epoch += 1
+	_promotion.clear()
 	_pending_steps = 0
 	_commands.clear()
 	input_retired.emit(reason)
@@ -147,6 +162,9 @@ func state() -> Dictionary:
 		"entry": _entry, "mode": _mode, "paused": _paused, "menu": _menu,
 		"ready": bool(native.ready), "generation": _generation, "input_epoch": _input_epoch,
 		"scene_id": str(_initial.get("id", "")),
+		"project": _document.project_metadata() if _document != null else {},
+		"presentation": presentation(),
+		"promotion_pending": not _promotion.is_empty(),
 		"definition_hash": _definition_hash,
 		"initial_hash": str(native.initial_material_sha256),
 		"current_hash": _current_hash, "material_hash_tick": _hash_tick,
@@ -192,11 +210,16 @@ func _apply(action: String, value: Variant) -> void:
 			_apply_mutation(value)
 		"object_edit":
 			_apply_object_edit(value)
+		"presentation":
+			_apply_presentation(value)
 		"undo", "redo":
 			_apply_history(action)
 		"gallery", "sandbox":
 			_entry = action
-			var selected: String = "physics_pit" if action == "gallery" else "blank"
+			var selected: String = (str(value) if not str(value).is_empty() else "physics_pit") if action == "gallery" else "blank"
+			if selected not in SandfallSceneDefinitions.ids():
+				_refuse("unknown_gallery_scene")
+				return
 			_install(SandfallSceneDefinitions.get_definition(selected), "run" if action == "gallery" else "edit", action != "gallery")
 		"template":
 			if _entry == "home" or value not in SandfallSceneDefinitions.ids():
@@ -252,6 +275,8 @@ func _install(definition: Dictionary, mode: String, paused: bool, retain_documen
 	clear_pending_input("session_replaced")
 	_menu = false
 	_paused = true
+	_project_identity_cache.clear()
+	_project_identity_revision = -1
 	_initial = _copy_definition(accepted)
 	_frozen = _copy_definition(accepted) if mode == "run" else {}
 	_pristine = true
@@ -285,6 +310,9 @@ func _install(definition: Dictionary, mode: String, paused: bool, retain_documen
 		if mode == "run" and _document != null:
 			_document.lock_for_run()
 	if _document != null and _document.valid():
+		_initial = _document.snapshot()
+		_frozen = _copy_definition(_initial) if mode == "run" else {}
+		_run_presentation = _document.presentation_copy()
 		_definition_hash = _hash_definition(_document.snapshot())
 	_mode = mode if bool(installed.ready) and _document != null and _document.valid() else "fault"
 	_paused = paused if bool(installed.ready) else true
@@ -318,16 +346,303 @@ func _refuse(reason: String) -> bool:
 	return false
 
 
-func _record(action: String, detail: String = "") -> void:
-	_journal.append({"action": action, "detail": detail, "generation": _generation,
+func _record(action: String, detail: String = "", parameters: Dictionary = {}) -> void:
+	_event_sequence += 1
+	var context: Dictionary = _command_context.duplicate(true)
+	if not parameters.is_empty():
+		context.merge(parameters, true)
+	_journal.append({"sequence": _event_sequence, "action": action, "detail": detail, "generation": _generation,
+		"input_epoch": _input_epoch, "accepted": action not in ["refused", "partial_mutation", "fault"],
+		"source": source_identity(), "command": context,
 		"native_tick": int(_host.state().native_tick), "rapier_steps": int(_host.state().rapier_steps)})
 	if _journal.size() > MAX_JOURNAL:
 		_journal.pop_front()
+		_journal_dropped += 1
+
+
+func _command_summary(command: Dictionary) -> Dictionary:
+	var action: String = str(command.action)
+	var result: Dictionary = {"command_class": action, "requested_generation": command.generation,
+		"requested_input_epoch": command.input_epoch}
+	var value: Variant = command.value
+	if action == "mutation":
+		result["kind"] = value.kind
+		result["requested_cells"] = value.indices.size()
+		result["indices_sha256"] = Archive.sha256(value.indices.to_byte_array())
+		result["tuples_sha256"] = Archive.sha256(value.desired)
+		result["parameter_encoding"] = "sha256 of little-endian i32 indices and five-byte tuples; accepted values in interventions"
+	else:
+		var logical: Variant = _evidence_value(value)
+		var bytes: PackedByteArray = JSON.stringify(logical, "", true, true).to_utf8_buffer()
+		result["parameters_sha256"] = Archive.sha256(bytes)
+		result["parameters_bytes"] = bytes.size()
+		result["parameters_truncated"] = bytes.size() > MAX_DIAGNOSTIC_PARAMETER_BYTES
+		if bytes.size() <= MAX_DIAGNOSTIC_PARAMETER_BYTES:
+			result["parameters"] = logical
+	return result
+
+
+static func _evidence_value(value: Variant) -> Variant:
+	if value is Vector2 or value is Vector2i:
+		return [value.x, value.y]
+	if value is float and not is_finite(value):
+		return {"invalid_number": "nonfinite"}
+	if value is Dictionary:
+		var out: Dictionary = {}
+		for key: Variant in value:
+			out[str(key)] = _evidence_value(value[key])
+		return out
+	if value is Array:
+		var out: Array = []
+		for item: Variant in value:
+			out.append(_evidence_value(item))
+		return out
+	return value
 
 
 func set_source_identity(identity: Dictionary) -> void:
-	_source_identity = {"source_commit": str(identity.get("source_commit", "local-unpublished")),
-		"native_sha256": str(identity.get("sha256", "unattested"))}
+	_source_identity = Archive.local_source_identity()
+	for key: String in _source_identity:
+		if identity.has(key):
+			_source_identity[key] = identity[key]
+	if not identity.has("native_runtime_sha256") and identity.has("sha256"):
+		_source_identity.native_runtime_sha256 = str(identity.sha256)
+	_project_identity_cache.clear()
+
+
+func source_identity() -> Dictionary:
+	return Archive.local_source_identity() if _source_identity.is_empty() else _source_identity.duplicate(true)
+
+
+func authored_project() -> Dictionary:
+	# Even a Gallery recipe is captured as exact initial tuples at setup. The
+	# locked document continues to own those values throughout an evolved Run.
+	return _document.snapshot() if _document != null and _document.valid() else {}
+
+
+func project_identity() -> Dictionary:
+	if _document == null or not _document.valid():
+		return {"ok": false, "error": "no_authored_project"}
+	var revision: int = int(_document.state().revision)
+	if _project_identity_cache.is_empty() or _project_identity_revision != revision:
+		_project_identity_cache = Archive.canonical_identity(authored_project(), source_identity())
+		_project_identity_revision = revision
+	return _project_identity_cache.duplicate(true)
+
+
+func set_modal_open(open: bool) -> void:
+	_menu = open
+	clear_pending_input("project_modal_open" if open else "project_modal_closed")
+	_record("project_modal_open" if open else "project_modal_closed")
+
+
+func import_project(candidate: Dictionary, expected_generation: int, expected_epoch: int) -> Dictionary:
+	if expected_generation != _generation or expected_epoch != _input_epoch:
+		return _project_refusal("retired_project_import")
+	var checked: Dictionary = Archive.validate_definition(candidate, source_identity())
+	if not bool(checked.ok):
+		return _project_refusal(str(checked.error))
+	# Validation, native construction, Rapier construction, collider readiness
+	# and copied document allocation all precede retirement of the active owner.
+	var definition: Dictionary = checked.definition
+	var document: SandfallAuthoringDocument = SandfallAuthoringDocument.new(definition, definition.initial_cells)
+	if not document.valid():
+		return _project_refusal("candidate_document_invalid")
+	var staged: Dictionary = _host.stage_project(definition)
+	if not bool(staged.ok):
+		return _project_refusal(str(staged.error))
+	var projection: Dictionary = staged.candidate.capture_cells()
+	if not bool(projection.ok) or projection.cells != definition.initial_cells:
+		staged.candidate.free()
+		return _project_refusal("candidate_initial_projection_mismatch")
+	var installed: Dictionary = _host.commit_staged_project(staged.candidate)
+	if not bool(installed.ok):
+		if is_instance_valid(staged.candidate):
+			staged.candidate.free()
+		if bool(installed.get("partial", false)):
+			_handle_edit_refusal(installed)
+		return _project_refusal(str(installed.error), bool(installed.get("partial", false)))
+	_document = document
+	_generation += 1
+	clear_pending_input("project_installed")
+	_menu = false
+	_mode = "run" if str(definition.project.startup) == "run_autoplay" else "edit"
+	_entry = "gallery" if _mode == "run" else "sandbox"
+	_paused = _mode == "edit"
+	_pristine = true
+	_history_retired = false
+	_interventions.clear()
+	_intervention_bytes = 0
+	_last_edit = {}
+	_last_refusal = ""
+	_initial = _document.snapshot()
+	_frozen = _copy_definition(_initial) if _mode == "run" else {}
+	_run_presentation = _document.presentation_copy()
+	if _mode == "run":
+		_document.lock_for_run()
+	else:
+		_edit_epoch += 1
+	_editable_initial_body_poses = installed.state.body_states.duplicate(true) if _mode == "edit" else []
+	_reserve_object_ids()
+	_definition_hash = _hash_definition(_initial)
+	_project_identity_cache.clear()
+	_project_identity_revision = -1
+	_refresh_hash()
+	_record("project_import", str(definition.id))
+	reconstructed.emit()
+	document_changed.emit()
+	return {"ok": true, "accepted": true, "error": "", "generation": _generation,
+		"mode": _mode, "tick": 0, "partial": false}
+
+
+func _reserve_object_ids() -> void:
+	for definition: Dictionary in _host.get_object_definitions():
+		_next_object_serial = maxi(_next_object_serial, int(definition.creation_order) + 1)
+		var id: String = str(definition.id)
+		var suffix: String = id.trim_prefix("sf-box-")
+		if id.begins_with("sf-box-") and suffix.length() <= 10 and suffix.is_valid_int():
+			var serial: int = suffix.to_int()
+			if serial >= 1 and serial <= SandfallRapierObjectRegistry.MAX_CREATION_ORDER and str(serial) == suffix:
+				_next_object_serial = maxi(_next_object_serial, serial + 1)
+
+
+func presentation() -> Dictionary:
+	if _mode == "edit" and _document != null:
+		return _document.presentation_copy()
+	return _run_presentation.duplicate(true)
+
+
+func enqueue_presentation(value: Dictionary, expected_revision: int, generation: int, epoch: int) -> bool:
+	if generation != _generation or epoch != _input_epoch or _menu or _mode not in ["edit", "run"]:
+		return _refuse("retired_or_wrong_mode_presentation")
+	var checked: Dictionary = Presentation.validate(value)
+	if not bool(checked.ok):
+		return _refuse(str(checked.error))
+	for command: Dictionary in _commands:
+		if command.action in ["mutation", "object_edit", "presentation"]:
+			return _refuse("mutation_already_queued")
+	if _commands.size() >= MAX_COMMANDS:
+		return _refuse("command_capacity")
+	_commands.append({"action": "presentation", "value": {"value": checked.presentation,
+		"revision": expected_revision}, "generation": generation, "input_epoch": epoch})
+	return true
+
+
+func _apply_presentation(intent: Dictionary) -> void:
+	if _menu or _mode not in ["edit", "run"] or not bool(_host.state().ready):
+		_refuse("presentation_requires_ready_owner")
+		return
+	if _mode == "edit":
+		if int(_host.state().native_tick) != 0 or int(_host.state().rapier_steps) != 0:
+			_refuse("edit_requires_both_solvers_at_zero")
+			return
+		var patch: Dictionary = _document.prepare_presentation(intent.value, int(intent.revision))
+		if not bool(patch.ok):
+			_refuse(str(patch.error))
+			return
+		if not _document.commit(patch):
+			_refuse("presentation_document_commit_conflict")
+			return
+		_definition_hash = _hash_definition(_document.snapshot())
+	else:
+		# Run decoration is only an observation setting. Save still packages the
+		# frozen document; it never silently promotes a viewing change.
+		_run_presentation = intent.value.duplicate(true)
+	_last_refusal = ""
+	_last_edit = {"kind": "presentation", "accepted": true, "physical": false, "mode": _mode}
+	_record("presentation")
+	document_changed.emit()
+
+
+func preview_promotion() -> Dictionary:
+	_promotion.clear()
+	if _mode != "run" or _frozen.is_empty() or not bool(_host.state().ready):
+		return _project_refusal("promotion_requires_ready_run")
+	var built: Dictionary = Promotion.build(_frozen, intervention_journal())
+	if not bool(built.ok):
+		var refusal: Dictionary = _project_refusal(str(built.error))
+		refusal["conflicts"] = built.get("conflicts", []).duplicate(true)
+		return refusal
+	var checked: Dictionary = Archive.validate_definition(built.definition, source_identity())
+	if not bool(checked.ok):
+		return _project_refusal("promotion_candidate: " + str(checked.error))
+	var identity: Dictionary = Archive.canonical_identity(checked.definition, source_identity())
+	if not bool(identity.ok):
+		return _project_refusal(str(identity.error))
+	_promotion_serial += 1
+	_promotion = {"token": _promotion_serial, "generation": _generation, "epoch": _input_epoch,
+		"sequence": _sequence, "tick": int(_host.state().native_tick), "definition": checked.definition,
+		"candidate_hash": identity.logical_sha256, "summary": built.summary}
+	return {"ok": true, "accepted": true, "token": _promotion_serial, "candidate_hash": identity.logical_sha256,
+		"summary": built.summary, "conflicts": built.conflicts.duplicate(true),
+		"eligible": built.eligible, "skipped": built.skipped, "preview": built.preview.duplicate(true)}
+
+
+func confirm_promotion(token: int) -> Dictionary:
+	if _promotion.is_empty() or token != int(_promotion.token) or _mode != "run" \
+			or _generation != int(_promotion.generation) or _input_epoch != int(_promotion.epoch) \
+			or _sequence != int(_promotion.sequence) or int(_host.state().native_tick) != int(_promotion.tick):
+		return _project_refusal("retired_promotion_preview")
+	var candidate: Dictionary = _copy_definition(_promotion.definition)
+	var previous_generation: int = _generation
+	var receipt: Dictionary = import_project(candidate, _generation, _input_epoch)
+	if bool(receipt.ok):
+		_record("interventions_promoted_to_new_draft", "from generation %d" % previous_generation)
+	return receipt
+
+
+func _project_refusal(reason: String, partial: bool = false) -> Dictionary:
+	_refuse(reason)
+	return {"ok": false, "accepted": false, "error": reason, "reason": reason, "partial": partial}
+
+
+func run_evidence() -> Dictionary:
+	var live: Dictionary = _host.state()
+	var identity: Dictionary = project_identity()
+	var initial: Dictionary = authored_project()
+	var interventions: Array = []
+	for entry: Dictionary in intervention_journal():
+		var row: Dictionary = entry.duplicate(true)
+		if row.has("after_objects"):
+			row.before_objects = SandfallRapierObjectRegistry.logical_graph(row.before_objects)
+			row.after_objects = SandfallRapierObjectRegistry.logical_graph(row.after_objects)
+		if row.has("indices"):
+			row.indices = Array(row.indices)
+			row["after_base64"] = Marshalls.raw_to_base64(row.after)
+			row.erase("after")
+			row.command_indices = Array(row.command_indices)
+			row["command_after_base64"] = Marshalls.raw_to_base64(row.command_after)
+			row.erase("command_after")
+		interventions.append(row)
+	return {"type": "sandfall-run-evidence", "schema_version": 1, "source": source_identity(),
+		"scope": "recorded local outcome; no full-stack bitwise replay or continuation guarantee",
+		"project": {"id": initial.get("id", ""), "title": initial.get("title", ""),
+			"logical_sha256": identity.get("logical_sha256", ""), "physical_sha256": identity.get("physical_sha256", ""),
+			"identity_valid": bool(identity.get("ok", false)), "identity_error": identity.get("error", ""),
+			"initial_cells_sha256": _document.state().cells_sha256 if _document != null else "",
+			"initial_objects": SandfallRapierObjectRegistry.logical_graph(initial.get("bodies", [])),
+			"settings": initial.get("project", Archive.project_defaults(initial.get("bodies", []))).duplicate(true), "interest": live.simulation_interest},
+		"session": {"mode": _mode, "pristine": _pristine, "generation": _generation,
+			"edit_epoch": _edit_epoch, "tick": int(live.native_tick), "rapier_steps": int(live.rapier_steps),
+			"paused": _paused, "speed": _speed, "fixed_delta": 1.0 / 60.0,
+			"history_retired": _history_retired, "error": str(live.error)},
+		"actor_control_trace": {"mode": "absent", "locomotion_commands": 0, "action_commands": 0},
+		"physical": {"body_ids": Array(live.body_ids), "body_poses": live.body_states,
+			"cells_sha256": _host.material_identity(),
+			"current_objects": SandfallRapierObjectRegistry.logical_graph(_host.get_object_definitions()),
+			"initial_body_poses": live.initial_body_states, "moves": live.moves_total,
+			"contacts": live.contacts_total, "displacements": live.displaced_total,
+			"per_object_feedback": live.object_feedback, "body_body_pairs": live.body_body_pairs,
+			"workers": live.workers, "pending_colliders": live.pending_colliders},
+		"interventions": interventions, "intervention_bytes": _intervention_bytes,
+		"observation": {"presentation": presentation()},
+		"events": _journal.duplicate(true), "events_dropped": _journal_dropped,
+		"trace_limits": {"diagnostic_parameter_bytes_per_event": MAX_DIAGNOSTIC_PARAMETER_BYTES,
+			"unadmitted_malformed_parameters": "omitted; refusal reason retained", "full_replay_trace": false},
+		"limits": {"interventions": MAX_INTERVENTIONS, "intervention_payload_bytes": MAX_INTERVENTION_BYTES,
+			"diagnostic_events": MAX_JOURNAL},
+		"qualification": {"human_exhibition_accepted": false, "threaded_web_qualified": false,
+			"cross_platform_bitwise_replay": false}}
 
 
 func authoring_cells() -> PackedByteArray:
@@ -360,7 +675,7 @@ func enqueue_mutation(indices: PackedInt32Array, desired: PackedByteArray, kind:
 	if indices.is_empty() or indices.size() > 1024 * 1024 or desired.size() != indices.size() * 5:
 		return _refuse("invalid_mutation_size")
 	for command: Dictionary in _commands:
-		if command.action in ["mutation", "object_edit"]:
+		if command.action in ["mutation", "object_edit", "presentation"]:
 			return _refuse("mutation_already_queued")
 	if _commands.size() >= MAX_COMMANDS or kind.is_empty() or kind.length() > 64:
 		return _refuse("mutation_command_capacity_or_kind")
@@ -398,7 +713,7 @@ func enqueue_object_edit(operation: Dictionary, expected_revision: int, generati
 	if not error.is_empty():
 		return _refuse(error)
 	for command: Dictionary in _commands:
-		if command.action in ["mutation", "object_edit"]:
+		if command.action in ["mutation", "object_edit", "presentation"]:
 			return _refuse("mutation_already_queued")
 	if _commands.size() >= MAX_COMMANDS:
 		return _refuse("mutation_command_capacity_or_kind")
@@ -471,12 +786,20 @@ func _apply_object_edit(intent: Dictionary) -> void:
 			var duplicate: Dictionary = candidate[target].duplicate(true)
 			duplicate.id = object_id
 			duplicate.creation_order = serial
+			# The project has one optional distinguished passive subject. Copying
+			# its physical box does not silently create a second designation.
+			duplicate.passive_subject = false
 			duplicate.position += operation.get("offset", Vector2(24, 0))
 			candidate.append(duplicate)
 		"update":
 			candidate[target].merge(operation.get("changes", {}), true)
 		"delete":
 			candidate.remove_at(target)
+	var properties: Dictionary = operation.get("definition", {}) if operation.operation == "spawn" else operation.get("changes", {})
+	if bool(properties.get("passive_subject", false)):
+		for row: Dictionary in candidate:
+			if str(row.id) != object_id:
+				row.passive_subject = false
 	var checked: Dictionary = SandfallRapierObjectRegistry.validate_graph(candidate)
 	if not bool(checked.ok):
 		_refuse(str(checked.error))
@@ -524,7 +847,7 @@ func _apply_object_edit(intent: Dictionary) -> void:
 		_sequence += 1
 		_interventions.append({"sequence": _sequence, "tick": int(live.native_tick),
 			"generation": _generation, "input_epoch": _input_epoch, "kind": kind, "accepted": true,
-			"source": _source_identity.duplicate(true), "object_id": object_id,
+			"source": source_identity(), "object_id": object_id,
 			"before_objects": before.duplicate(true), "after_objects": candidate.duplicate(true),
 			"explicit_fields": explicit_fields.duplicate(true), "object_schema_version": 1})
 		_intervention_bytes += cost
@@ -557,7 +880,9 @@ func _apply_mutation(intent: Dictionary) -> void:
 	if not bool(patch.ok):
 		_refuse(str(patch.error))
 		return
-	var cost: int = patch.indices.size() * 9
+	# Both the actual physical delta and the complete explicit command are
+	# retained. The latter is necessary for faithful initial-state promotion.
+	var cost: int = patch.indices.size() * 9 + intent.indices.size() * 9
 	if _mode == "run" and (_interventions.size() >= MAX_INTERVENTIONS or _intervention_bytes + cost > MAX_INTERVENTION_BYTES):
 		_refuse("intervention_journal_capacity")
 		return
@@ -575,8 +900,9 @@ func _apply_mutation(intent: Dictionary) -> void:
 		_sequence += 1
 		_interventions.append({"sequence": _sequence, "tick": int(capture.tick),
 			"generation": _generation, "kind": str(intent.kind), "accepted": true,
-			"source": _source_identity.duplicate(true), "indices": PackedInt32Array(patch.indices).duplicate(),
-			"after": PackedByteArray(patch.after).duplicate()})
+			"input_epoch": _input_epoch, "source": source_identity(), "indices": PackedInt32Array(patch.indices).duplicate(),
+			"after": PackedByteArray(patch.after).duplicate(), "command_indices": PackedInt32Array(intent.indices).duplicate(),
+			"command_after": PackedByteArray(intent.desired).duplicate()})
 		_intervention_bytes += cost
 	_mutation_count += 1
 	_last_refusal = ""
@@ -595,7 +921,9 @@ func _apply_history(direction: String) -> void:
 		_refuse(str(patch.error))
 		return
 	var receipt: Dictionary
-	if str(patch.get("domain", "cells")) == "objects":
+	if str(patch.get("domain", "cells")) == "presentation":
+		receipt = {"ok": true}
+	elif str(patch.get("domain", "cells")) == "objects":
 		var live: Dictionary = _host.state()
 		receipt = _host.apply_object_graph(patch.after_objects, int(live.object_revision), int(live.native_tick))
 	else:

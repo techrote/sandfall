@@ -34,6 +34,9 @@ var _object_revision: int = 0
 var _object_feedback: Dictionary = {}
 var _body_body_pairs: Dictionary = {}
 var _object_mutating: bool = false
+var _physics_viewport: SubViewport
+var _body_root: Node2D
+var _adopted_container: SandfallSimulationHost
 
 
 func configure(definition: Dictionary) -> Dictionary:
@@ -68,6 +71,20 @@ func configure(definition: Dictionary) -> Dictionary:
 	if not is_inside_tree():
 		_enter_fault("Simulation host must be inside the scene tree")
 		return state()
+	# Each logical scene owns an isolated physics space. An archive candidate
+	# can therefore construct bodies/colliders while the current scene remains
+	# intact, with neither graph ever appearing in the other's coupling space.
+	_physics_viewport = SubViewport.new()
+	_physics_viewport.name = "SandfallOwnedPhysics"
+	_physics_viewport.world_2d = World2D.new()
+	_physics_viewport.size = Vector2i(1, 1)
+	_physics_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	add_child(_physics_viewport)
+	_body_root = Node2D.new()
+	_physics_viewport.add_child(_body_root)
+	# Empty scenes are native-only too: do not leave an automatically stepped
+	# Rapier space merely because there is no bridge to deactivate it yet.
+	PhysicsServer2D.space_set_active(_body_root.get_world_2d().space, false)
 	if not CyberWebCapabilities.native_available():
 		_enter_fault("Native Sandfall simulation extension unavailable")
 		return state()
@@ -117,7 +134,7 @@ func configure(definition: Dictionary) -> Dictionary:
 			_enter_fault("Project body construction failed")
 			return state()
 		_rapier_bridge = CyberRapierPhysicsBridge.new()
-		var bridge_error: Error = _rapier_bridge.initialize(get_world_2d().space, _bodies, _body_sizes, _object_registry.ids())
+		var bridge_error: Error = _rapier_bridge.initialize(_body_root.get_world_2d().space, _bodies, _body_sizes, _object_registry.ids())
 		if bridge_error != OK:
 			_enter_fault("Manual Rapier bridge initialization failed: " + error_string(bridge_error))
 			return state()
@@ -143,6 +160,79 @@ func configure(definition: Dictionary) -> Dictionary:
 		_native_world.prepare_rigid_body_coupling(_rapier_bridge.pack_body_states(), false)
 	_ready = true
 	return state()
+
+
+func stage_project(definition: Dictionary) -> Dictionary:
+	# No live owner is retired until every native/Rapier readiness check passes.
+	var error: String = _validate_definition(definition)
+	if not error.is_empty():
+		return {"ok": false, "error": error, "partial": false}
+	var candidate: SandfallSimulationHost = _new_staging_host()
+	add_child(candidate)
+	candidate._rapier_probe = _rapier_probe.duplicate(true)
+	var result: Dictionary = candidate.configure(definition)
+	if not bool(result.ready):
+		var reason: String = str(result.error)
+		candidate.free()
+		return {"ok": false, "error": "candidate_readiness: " + reason, "partial": false}
+	return {"ok": true, "candidate": candidate, "state": result}
+
+
+func _new_staging_host() -> SandfallSimulationHost:
+	return SandfallSimulationHost.new()
+
+
+func commit_staged_project(candidate: SandfallSimulationHost) -> Dictionary:
+	if candidate == null or candidate == self or candidate.get_parent() != self \
+			or not candidate._ready or candidate._fault or candidate._native_tick() != 0 \
+			or candidate._rapier_steps() != 0 or not is_instance_valid(candidate._physics_viewport):
+		return {"ok": false, "error": "invalid_staged_owner", "partial": false}
+	# Keep the candidate's physical subtree continuously attached. Reparenting
+	# a viewport makes CollisionObject2D exit/re-enter and detaches Rapier bodies
+	# from their space, losing actual velocities. The emptied candidate remains
+	# one inert container; this host alone owns the transferred solver handles.
+	# No fallible solver operation follows retirement of the old graph.
+	shutdown()
+	_native_world = candidate._native_world
+	_edit_bridge = candidate._edit_bridge
+	_demo_bridge = candidate._demo_bridge
+	_rapier_bridge = candidate._rapier_bridge
+	_bodies = candidate._bodies
+	_body_sizes = candidate._body_sizes
+	_definition = candidate._definition
+	_ready = candidate._ready
+	_fault = candidate._fault
+	_error = candidate._error
+	_hard_surface_revision = candidate._hard_surface_revision
+	_contacts_total = candidate._contacts_total
+	_displaced_total = candidate._displaced_total
+	_moves_total = candidate._moves_total
+	_initial_material_sha256 = candidate._initial_material_sha256
+	_initial_body_states = candidate._initial_body_states
+	_rapier_probe = candidate._rapier_probe
+	_cpp_exception_probe = candidate._cpp_exception_probe
+	_object_registry = candidate._object_registry
+	_object_revision = candidate._object_revision
+	_object_feedback = candidate._object_feedback
+	_body_body_pairs = candidate._body_body_pairs
+	_physics_viewport = candidate._physics_viewport
+	_body_root = candidate._body_root
+	_adopted_container = candidate
+	candidate._ready = false
+	candidate._bodies = []
+	candidate._body_sizes = PackedVector2Array()
+	candidate._initial_body_states = []
+	candidate._rapier_bridge = null
+	candidate._physics_viewport = null
+	candidate._body_root = null
+	candidate._native_world = null
+	candidate._edit_bridge = null
+	candidate._demo_bridge = null
+	candidate._definition = {}
+	candidate._object_registry = Registry.new()
+	candidate._object_feedback = {}
+	candidate._body_body_pairs = {}
+	return {"ok": true, "state": state()}
 
 
 func tick_once() -> Dictionary:
@@ -200,6 +290,7 @@ func state(include_material_identity: bool = false) -> Dictionary:
 		"native_attempted_tick": int(_native_world.get_attempted_tick_index()) if _native_world != null else 0,
 		"native_revision": int(_native_world.get_revision()) if _native_world != null else 0,
 		"bridge_active": _bridge_active(),
+		"owned_physics_space_active": PhysicsServer2D.space_is_active(_body_root.get_world_2d().space) if is_instance_valid(_body_root) else false,
 		"pending_colliders": _rapier_bridge.pending_hard_surface_chunks() if _bridge_active() else 0,
 		"contacts_total": _contacts_total, "displaced_total": _displaced_total,
 		"moves_total": _moves_total,
@@ -325,7 +416,7 @@ func apply_object_graph(candidate: Array, expected_revision: int = -1,
 	# previous poses, so a reused slot cannot sweep from a deleted object's pose.
 	_native_world.prepare_rigid_body_coupling(PackedFloat32Array(), false)
 	for body: RigidBody2D in staged:
-		add_child(body)
+		_body_root.add_child(body)
 	for index: int in range(next_bodies.size()):
 		if next_bodies[index] in staged:
 			_install_body_state(next_bodies[index], desired[index], state_rows[index])
@@ -335,7 +426,7 @@ func apply_object_graph(candidate: Array, expected_revision: int = -1,
 			body.freeze = true
 			body.collision_layer = 0
 			body.collision_mask = 0
-			remove_child(body)
+			body.get_parent().remove_child(body)
 			retired.append(body)
 	_bodies = next_bodies
 	_body_sizes = next_sizes
@@ -344,7 +435,7 @@ func apply_object_graph(candidate: Array, expected_revision: int = -1,
 	var bridge_error: Error = OK
 	if _rapier_bridge == null and not _bodies.is_empty():
 		_rapier_bridge = CyberRapierPhysicsBridge.new()
-		bridge_error = _rapier_bridge.initialize(get_world_2d().space, _bodies, _body_sizes, _object_registry.ids())
+		bridge_error = _rapier_bridge.initialize(_body_root.get_world_2d().space, _bodies, _body_sizes, _object_registry.ids())
 		_rapier_bridge.enable_diagnostics()
 		_hard_surface_revision = -1
 	elif _rapier_bridge != null:
@@ -479,12 +570,7 @@ func restore_physical_state(snapshot: Dictionary) -> Dictionary:
 	if not bool(installed.ready):
 		return {"ok": false, "error": str(installed.error)}
 	for index: int in range(_bodies.size()):
-		var row: Array = body_values[index]
-		var rid: RID = _bodies[index].get_rid()
-		_rapier_bridge.reset_body(index, Vector2(float(row[0]), float(row[1])), float(row[2]))
-		PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_LINEAR_VELOCITY, Vector2(float(row[3]), float(row[4])))
-		PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_ANGULAR_VELOCITY, float(row[5]))
-		PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_SLEEPING, bool(row[6]))
+		_install_body_state(_bodies[index], restored_definition.bodies[index], body_values[index])
 	if _bridge_active():
 		_rapier_bridge.refresh_all_states()
 		_rapier_bridge.reset_result_tracking()
@@ -516,7 +602,7 @@ func shutdown() -> void:
 			body.freeze = true
 			body.collision_layer = 0
 			body.collision_mask = 0
-			remove_child(body)
+			body.get_parent().remove_child(body)
 	if _rapier_bridge != null:
 		_rapier_bridge.shutdown()
 		_rapier_bridge = null
@@ -531,6 +617,13 @@ func shutdown() -> void:
 	_hard_surface_revision = -1
 	_initial_material_sha256 = ""
 	_initial_body_states.clear()
+	if is_instance_valid(_physics_viewport):
+		_physics_viewport.free()
+	_physics_viewport = null
+	_body_root = null
+	if is_instance_valid(_adopted_container):
+		_adopted_container.free()
+	_adopted_container = null
 
 
 func _exit_tree() -> void:
@@ -542,7 +635,7 @@ func _create_bodies() -> bool:
 		var body: RigidBody2D = _make_body(initial)
 		if body == null:
 			return false
-		add_child(body)
+		_body_root.add_child(body)
 		_bodies.append(body)
 		_body_sizes.append(initial.size)
 	return true
@@ -558,6 +651,10 @@ func _make_body(initial: Dictionary) -> RigidBody2D:
 	body.rotation = float(initial.rotation)
 	body.mass = float(initial.mass)
 	body.gravity_scale = float(initial.gravity_scale)
+	# Authored damping is the total coefficient, not an addition to hidden
+	# project defaults. Zero must mean no damping for a free inertial subject.
+	body.linear_damp_mode = RigidBody2D.DAMP_MODE_REPLACE
+	body.angular_damp_mode = RigidBody2D.DAMP_MODE_REPLACE
 	body.linear_damp = float(initial.linear_damp)
 	body.angular_damp = float(initial.angular_damp)
 	body.continuous_cd = RigidBody2D.CCD_MODE_CAST_SHAPE
@@ -588,7 +685,12 @@ func _install_body_state(body: RigidBody2D, initial: Dictionary, retained: Array
 	var angular_velocity: float = float(initial.angular_velocity) if retained.is_empty() else float(retained[5])
 	var sleeping: bool = false if retained.is_empty() else bool(retained[6])
 	var rid: RID = body.get_rid()
-	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_TRANSFORM, Transform2D(rotation, position))
+	var transform: Transform2D = Transform2D(rotation, position)
+	# Newly attached CollisionObject2D nodes still have a deferred transform
+	# notification. Keep that node cache equal to the retained live pose before
+	# writing the backend, or the next idle frame restores the authored pose.
+	body.transform = transform
+	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_TRANSFORM, transform)
 	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_LINEAR_VELOCITY, velocity)
 	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_ANGULAR_VELOCITY, angular_velocity)
 	PhysicsServer2D.body_set_state(rid, PhysicsServer2D.BODY_STATE_SLEEPING, sleeping)

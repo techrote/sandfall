@@ -490,6 +490,16 @@ New logical modules: **SandfallAuthoringDocument**, **SandfallSessionController*
 
 ## Current implementation status
 
+**Current SF-M4 branch, 31 October 2026:** the
+[project/exhibition contract](SF-M4-PROJECTS-EXHIBITIONS.md) implements the
+ordinary ZIP [portable format](SANDFALL-PROJECT-FORMAT.md), staged World/Rapier
+installation, presentation history, curated Gallery, passive-subject designation,
+source-bound run evidence and confirmed declarative promotion to a new draft.
+Its [dated audit](audits/2026-10-31-sf-m4-projects-exhibitions.md) and exact-head PR
+record distinguish source, development, actual-browser and remaining release
+qualification. SF-M0/M1/M2 are merged; SF-M3 and SF-M4 remain draft/unmerged.
+The following earlier checkpoint paragraphs preserve their original dates.
+
 This document records **approved design intent**. At the original authoring
 checkpoint, Sandfall had only its bootstrap README and documentation branch.
 
