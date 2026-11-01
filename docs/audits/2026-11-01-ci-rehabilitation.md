@@ -250,13 +250,16 @@ branch before hosted runs:
 (run `41289878845`). CI validation run `41289878883` exposed ShellCheck SC2094
 in the retained manual M2 fixture: checksum output was written into the same
 directory being scanned. The manifest now writes to `$RUNNER_TEMP` before it
-moves into the fixture directory; rerun on the corrective SHA is pending.
-Native, GDExtension and Web qualification jobs skipped on the draft as intended.
-The exact-source hosted result remains pending; record the corrective SHA,
-actionlint/CI result, Native suite timestamps and runner-minutes, Linux
-GDExtension aggregate, fresh compatibility Web/browser receipts, and final
-independent-review disposition after qualification. Do not merge while any
-required exact-head result or relevant failure remains unresolved.
+moves into the fixture directory. The independent reviewer confirmed the
+correction preserves relative checksum paths. At corrective SHA
+`673fac92eed3aa5e6310b35463efb6a628310691`, CI validation passed (run
+`41289995337`) and Documentation/provenance passed (`41289995343`). Native,
+GDExtension and Web qualification jobs skipped on the draft as intended. The
+exact-source hosted result remains pending; record the final implementation
+SHA, Native suite timestamps and runner-minutes, Linux GDExtension aggregate,
+fresh compatibility Web/browser receipts, and final independent-review
+disposition after qualification. Do not merge while any required exact-head
+result or relevant failure remains unresolved.
 
 ## SF-M3/SF-M4 reconciliation checklist
 
