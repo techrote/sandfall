@@ -7,6 +7,17 @@ on:
         type: boolean
         required: false
         default: false
+  push:
+    branches: ['sf-m3/**']
+    paths:
+      - 'godot/**'
+      - 'native/**'
+      - 'tools/**'
+      - 'docs/SF-M3*'
+      - 'docs/audits/2026-10-31-sf-m3*'
+      - '.github/workflows/sf-m3-web.yml'
+      - 'README.md'
+      - 'AGENTS.md'
   workflow_dispatch:
 
 permissions:
