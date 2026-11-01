@@ -256,6 +256,7 @@ private:
     void refresh_render_cells() const;
     void clear_observations();
     [[nodiscard]] static BodyStates parse_body_state_values(const PackedFloat32Array& states, bool strict);
+    [[nodiscard]] static std::vector<std::uint16_t> restored_body_mask(const BodyStates& bodies);
     [[nodiscard]] static PackedInt32Array hard_surface_chunks_from_cells(const PackedByteArray& cells);
     static void rasterize_transform_in(cybersand::World& world, std::vector<std::int32_t>* indices,
         std::uint16_t body_id, Vector2 center, double rotation, Vector2 half_size);

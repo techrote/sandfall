@@ -2472,6 +2472,62 @@ void test_physics_masked_source_characterisation() {
     require(stored_sand==1, "masked source material was lost or duplicated");
 }
 
+void test_sandfall_restore_transient_occupancy() {
+    WorldConfig config;
+    config.chunk_size = 16;
+    config.activity_block_size = 8;
+    config.scheduling_core_size = 8;
+    World source(config);
+    source.reserve_region({0, 0, 32, 32});
+    source.set(24, 24, Material::Wall);
+    source.configure_transient_obstacles({0, 0, 32, 32});
+    require(source.set_transient_obstacle(8, 8, 1U) && source.set_transient_obstacle(9, 8, 16U),
+            "restore occupancy source fixture could not publish its actual mask");
+    for (int tick = 0; tick < 6; ++tick) (void)source.tick();
+    const auto saved = source.save_physical_state();
+    const auto original_hash = source.physical_state_hash();
+    std::vector<std::uint16_t> mask(32U * 32U, 0U);
+    mask[8U * 32U + 8U] = 1U;
+    mask[8U * 32U + 9U] = 16U;
+    auto restored = World::restore_physical_state_with_transient_obstacles(
+        config, saved, {0, 0, 32, 32}, mask);
+    require(restored->save_physical_state() == saved &&
+                restored->physical_state_hash() == original_hash,
+            "restore-only occupancy changed exact physical scheduler/cell/clock state");
+    require(restored->transient_obstacle_at(8, 8) == 1U &&
+                restored->transient_obstacle_at(9, 8) == 16U &&
+                restored->stored_material(8, 8) == Material::Empty &&
+                restored->get(8, 8) == Material::Wall,
+            "restored body mask is absent or became authoritative painted material");
+    require(restored->transient_contact_count(1U) == 0U &&
+                restored->transient_contact_impulse_y(16U) == 0,
+            "restored mask resurrected old transient feedback");
+    restored->clear_transient_obstacles();
+    require(restored->transient_obstacle_at(8, 8) == 0U &&
+                restored->save_physical_state() != saved,
+            "ordinary clear lost its required live-mask wake behavior");
+    require(restored->set_transient_obstacle(8, 8, 1U),
+            "ordinary publication failed after restore-only reconstruction");
+    (void)restored->tick();
+    require(restored->tick_index() == source.tick_index() + 1U,
+            "normal native stepping did not resume after restored mask publication");
+    const auto refuse = [&](cybersand::RectI64 region, std::span<const std::uint16_t> values) {
+        try {
+            (void)World::restore_physical_state_with_transient_obstacles(config, saved, region, values);
+        } catch (const std::invalid_argument&) {
+            return true;
+        }
+        return false;
+    };
+    require(refuse({0, 0, 0, 32}, mask) && refuse({0, 0, 32, -1}, mask) &&
+                refuse({0, 0, 1025, 1024}, mask) && refuse({0, 0, 16, 16}, mask) &&
+                refuse({std::numeric_limits<std::int64_t>::max(), 0, 32, 32}, mask),
+            "malformed/over-capacity restored mask region was admitted");
+    mask[0] = 65U;
+    require(refuse({0, 0, 32, 32}, mask) && source.save_physical_state() == saved,
+            "invalid restored body identity changed the retained physical source");
+}
+
 void test_articulated_body_identity_capacity() {
     static_assert(World::kMaximumTransientBodies == 64U);
     std::uint64_t reference_hash = 0;
@@ -3836,6 +3892,7 @@ int main(int argc, char** argv) {
         {"physics diagnostic isolated controls", test_physics_diagnostic_controls},
         {"physics masked source characterisation", test_physics_masked_source_characterisation},
         {"ACT-004 articulated body identity capacity", test_articulated_body_identity_capacity},
+        {"Sandfall SF-M3 restored transient occupancy preserves physical state", test_sandfall_restore_transient_occupancy},
         {"negative coordinates", test_negative_coordinates},
         {"scheduler geometry", test_scheduler_geometry},
         {"sand fall", test_sand_falls_and_stops},

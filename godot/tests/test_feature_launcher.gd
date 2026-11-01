@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Launcher = preload("res://feature_launcher.tscn")
+const FeatureNavigation = preload("res://scripts/feature_navigation.gd")
 var failures: int = 0
 var assertions: int = 0
 
@@ -14,6 +15,19 @@ func _initialize() -> void:
 	run.call_deferred()
 
 func run() -> void:
+	# The Sandfall app deliberately has no inherited global FeatureNavigation.
+	# This fixture tests the retained CyberSand launcher in isolation rather
+	# than reinstalling its player/launcher authority in the Sandfall host.
+	var navigation: Node = root.get_node_or_null("FeatureNavigation")
+	var owned_navigation: bool = navigation == null
+	if owned_navigation:
+		navigation = Node.new()
+		navigation.name = "FeatureNavigation"
+		navigation.set_script(FeatureNavigation)
+		root.add_child(navigation)
+	await process_frame
+	expect(root.get_node_or_null("FeatureNavigation") == navigation,
+		"Legacy launcher test must own or explicitly retain its navigation service")
 	for destination: String in ["blacksite", "showcase", "actors", "sandbox", "thunderbowl", "worldgen", "semantic_depth", "depth", "deepworks", "player_playground", "experimental/blacksite/ripper"]:
 		var menu: Control = Launcher.instantiate()
 		root.add_child(menu)
@@ -46,6 +60,9 @@ func run() -> void:
 		expect(not has_meta("cybersand_feature"), "Navigation must clear session selection")
 		current_scene.queue_free()
 		current_scene = null
+		await process_frame
+	if owned_navigation:
+		navigation.queue_free()
 		await process_frame
 	print("Feature launcher: %d assertions, %d failures" % [assertions, failures])
 	quit(0 if failures == 0 else 1)

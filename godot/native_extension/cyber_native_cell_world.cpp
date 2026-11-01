@@ -53,6 +53,39 @@ constexpr double kGranularSettleVelocity = 4.0;
 constexpr double kMaximumGranularBearingCorrection = 0.5;
 constexpr double kGranularBearingCorrectionFraction = 0.99;
 
+// One geometry implementation serves ordinary World publication and the
+// restore-only dense-mask candidate. Slot order chooses overlap ownership.
+template <typename Publish>
+void visit_rasterized_box_cells(Vector2 center, double rotation, Vector2 half_size,
+                               Publish&& publish) {
+    const auto cosine = std::cos(rotation);
+    const auto sine = std::sin(rotation);
+    const Vector2 extent{
+        std::abs(cosine) * half_size.x + std::abs(sine) * half_size.y,
+        std::abs(sine) * half_size.x + std::abs(cosine) * half_size.y,
+    };
+    // An escaped body may be far outside the cell world. Clamp in floating
+    // point before conversion, preserving the ordinary bounded raster rule.
+    const auto first_x = static_cast<std::int32_t>(std::clamp(
+        std::floor(static_cast<double>(center.x) - extent.x), 0.0, double(CyberNativeCellWorld::kWorldWidth - 1)));
+    const auto last_x = static_cast<std::int32_t>(std::clamp(
+        std::ceil(static_cast<double>(center.x) + extent.x) - 1.0, 0.0, double(CyberNativeCellWorld::kWorldWidth - 1)));
+    const auto first_y = static_cast<std::int32_t>(std::clamp(
+        std::floor(static_cast<double>(center.y) - extent.y), 0.0, double(CyberNativeCellWorld::kWorldHeight - 1)));
+    const auto last_y = static_cast<std::int32_t>(std::clamp(
+        std::ceil(static_cast<double>(center.y) + extent.y) - 1.0, 0.0, double(CyberNativeCellWorld::kWorldHeight - 1)));
+    for (auto y = first_y; y <= last_y; ++y) {
+        for (auto x = first_x; x <= last_x; ++x) {
+            const Vector2 delta{static_cast<double>(x) + 0.5 - center.x,
+                                static_cast<double>(y) + 0.5 - center.y};
+            const Vector2 local{cosine * delta.x + sine * delta.y,
+                                -sine * delta.x + cosine * delta.y};
+            if (std::abs(local.x) <= half_size.x && std::abs(local.y) <= half_size.y)
+                publish(x, y);
+        }
+    }
+}
+
 [[nodiscard]] Vector2 normalized_or_zero(Vector2 value) {
     const auto length = value.length();
     return length > 0.000001 ? value / length : Vector2{};
@@ -540,34 +573,23 @@ void CyberNativeCellWorld::rasterize_transform(std::uint16_t body_id, Vector2 ce
 void CyberNativeCellWorld::rasterize_transform_in(cybersand::World& world,
     std::vector<std::int32_t>* indices, std::uint16_t body_id, Vector2 center,
     double rotation, Vector2 half_size) {
-    const auto cosine = std::cos(rotation);
-    const auto sine = std::sin(rotation);
-    const Vector2 extent{
-        std::abs(cosine) * half_size.x + std::abs(sine) * half_size.y,
-        std::abs(sine) * half_size.x + std::abs(cosine) * half_size.y,
-    };
-    // Clamp in floating point before conversion: an escaped body may be far
-    // outside the cell world, but must not overflow an integer raster bound.
-    const auto first_x = static_cast<std::int32_t>(std::clamp(
-        std::floor(static_cast<double>(center.x) - extent.x), 0.0, double(kWorldWidth - 1)));
-    const auto last_x = static_cast<std::int32_t>(std::clamp(
-        std::ceil(static_cast<double>(center.x) + extent.x) - 1.0, 0.0, double(kWorldWidth - 1)));
-    const auto first_y = static_cast<std::int32_t>(std::clamp(
-        std::floor(static_cast<double>(center.y) - extent.y), 0.0, double(kWorldHeight - 1)));
-    const auto last_y = static_cast<std::int32_t>(std::clamp(
-        std::ceil(static_cast<double>(center.y) + extent.y) - 1.0, 0.0, double(kWorldHeight - 1)));
-    for (auto y = first_y; y <= last_y; ++y) {
-        for (auto x = first_x; x <= last_x; ++x) {
-            const Vector2 delta{static_cast<double>(x) + 0.5 - center.x,
-                                static_cast<double>(y) + 0.5 - center.y};
-            const Vector2 local{cosine * delta.x + sine * delta.y,
-                                -sine * delta.x + cosine * delta.y};
-            if (std::abs(local.x) > half_size.x || std::abs(local.y) > half_size.y) continue;
-            if (world.set_transient_obstacle(x, y, body_id)) {
-                if (indices) indices->push_back(y * kWorldWidth + x);
-            }
-        }
+    visit_rasterized_box_cells(center, rotation, half_size, [&](std::int32_t x, std::int32_t y) {
+        if (world.set_transient_obstacle(x, y, body_id) && indices)
+            indices->push_back(y * kWorldWidth + x);
+    });
+}
+
+std::vector<std::uint16_t> CyberNativeCellWorld::restored_body_mask(const BodyStates& bodies) {
+    std::vector<std::uint16_t> mask(std::size_t{kWorldWidth} * kWorldHeight, 0U);
+    for (const auto& body : bodies) {
+        if (!body.valid) continue;
+        visit_rasterized_box_cells(body.center, body.rotation, body.half_size,
+            [&](std::int32_t x, std::int32_t y) {
+                auto& slot = mask[static_cast<std::size_t>(y) * kWorldWidth + x];
+                if (slot == 0U) slot = body.id;
+            });
     }
+    return mask;
 }
 
 void CyberNativeCellWorld::reconcile_swept_overlaps() {

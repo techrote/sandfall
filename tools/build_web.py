@@ -284,7 +284,8 @@ def main() -> None:
         if not args.cellular_only:
             tests += ["test_rapier_backend_preflight.gd", "test_rapier_drop_in.gd", "test_rapier_manual_step.gd"]
         if args.entry == "sandfall":
-            tests += ["test_sandfall_simulation_host.gd", "test_sandfall_session.gd", "test_sandfall_authoring.gd", "test_sandfall_editor_input.gd"]
+            tests += ["test_sandfall_simulation_host.gd", "test_sandfall_session.gd", "test_sandfall_authoring.gd", "test_sandfall_editor_input.gd",
+                      "test_sandfall_objects.gd", "test_sandfall_object_history.gd", "test_sandfall_object_input.gd"]
         for name in tests:
             run([args.godot, "--headless", "--path", str(stage), "--script", f"res://tests/{name}"], timeout=240)
     run([args.godot, "--headless", "--path", str(stage), "--export-release", "Web Demo", str(output_dir / "index.html")], timeout=240)

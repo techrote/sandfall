@@ -41,6 +41,10 @@ var _hash_tick: int = 0
 var _definition_hash: String = ""
 var _last_refusal: String = ""
 var _journal: Array[Dictionary] = []
+# Monotone for this application owner, including after undo/deletion/reset.
+# Reconstruction may restore a previous ID; allocation never reissues one.
+var _next_object_serial: int = 1
+var _editable_initial_body_poses: Array = []
 
 
 func _init(host: Node) -> void:
@@ -149,7 +153,9 @@ func state() -> Dictionary:
 		"tick": int(native.native_tick), "rapier_steps": int(native.rapier_steps),
 		"rapier_active": bool(native.bridge_active),
 		"rapier_available": bool(native.rapier_available), "workers": int(native.workers),
-		"body_poses": native.body_states, "initial_body_poses": native.initial_body_states,
+		"body_poses": native.body_states, "initial_body_poses": _editable_initial_body_poses.duplicate(true) if _mode == "edit" else native.initial_body_states,
+		"body_ids": native.get("body_ids", []),
+		"object_definitions": SandfallRapierObjectRegistry.logical_graph(object_definitions()),
 		"moves": int(native.get("moves_total", 0)),
 		"contacts_total": int(native.contacts_total), "displaced_total": int(native.displaced_total),
 		"pending_steps": _pending_steps, "queued_commands": _commands.size(),
@@ -184,6 +190,8 @@ func _apply(action: String, value: Variant) -> void:
 			_record("speed", str(value))
 		"mutation":
 			_apply_mutation(value)
+		"object_edit":
+			_apply_object_edit(value)
 		"undo", "redo":
 			_apply_history(action)
 		"gallery", "sandbox":
@@ -256,6 +264,21 @@ func _install(definition: Dictionary, mode: String, paused: bool, retain_documen
 		_edit_epoch += 1
 	var installed: Dictionary = _host.configure(accepted)
 	if bool(installed.ready):
+		# An accepted zero-tick preview is the projection of the authored graph.
+		# Preserve it independently so later accidental drift remains observable.
+		_editable_initial_body_poses = installed.body_states.duplicate(true) if mode == "edit" else []
+		for object_definition: Dictionary in _host.get_object_definitions():
+			_next_object_serial = maxi(_next_object_serial, int(object_definition.creation_order) + 1)
+			# Logical reconstruction permits IDs independent of creation order.
+			# Reserve any canonical allocator ID already observed, even if that
+			# object is deleted before our monotonically increasing counter reaches it.
+			var id: String = str(object_definition.id)
+			var suffix: String = id.trim_prefix("sf-box-")
+			if id.begins_with("sf-box-") and suffix.length() <= 10 and suffix.is_valid_int():
+				var observed_serial: int = suffix.to_int()
+				if observed_serial >= 1 and observed_serial <= SandfallRapierObjectRegistry.MAX_CREATION_ORDER \
+						and str(observed_serial) == suffix:
+					_next_object_serial = maxi(_next_object_serial, observed_serial + 1)
 		if not retain_document:
 			var captured: Dictionary = _host.capture_cells()
 			_document = SandfallAuthoringDocument.new(accepted, captured.get("cells", PackedByteArray()))
@@ -337,7 +360,7 @@ func enqueue_mutation(indices: PackedInt32Array, desired: PackedByteArray, kind:
 	if indices.is_empty() or indices.size() > 1024 * 1024 or desired.size() != indices.size() * 5:
 		return _refuse("invalid_mutation_size")
 	for command: Dictionary in _commands:
-		if command.action == "mutation":
+		if command.action in ["mutation", "object_edit"]:
 			return _refuse("mutation_already_queued")
 	if _commands.size() >= MAX_COMMANDS or kind.is_empty() or kind.length() > 64:
 		return _refuse("mutation_command_capacity_or_kind")
@@ -350,10 +373,169 @@ func intervention_journal() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for entry: Dictionary in _interventions:
 		var copy: Dictionary = entry.duplicate(true)
-		copy.indices = PackedInt32Array(entry.indices).duplicate()
-		copy.after = PackedByteArray(entry.after).duplicate()
+		if entry.has("indices"):
+			copy.indices = PackedInt32Array(entry.indices).duplicate()
+			copy.after = PackedByteArray(entry.after).duplicate()
 		out.append(copy)
 	return out
+
+
+func object_definitions() -> Array:
+	return _host.get_object_definitions()
+
+
+func object_edit_snapshot() -> Dictionary:
+	var live: Dictionary = _host.state()
+	return {"ok": _mode in ["edit", "run"] and bool(live.ready) and not _menu,
+		"definitions": object_definitions(), "generation": _generation, "input_epoch": _input_epoch,
+		"revision": int(_document.state().revision) if _mode == "edit" and _document != null else int(live.get("object_revision", 0))}
+
+
+func enqueue_object_edit(operation: Dictionary, expected_revision: int, generation: int, epoch: int) -> bool:
+	if generation != _generation or epoch != _input_epoch or _menu or _mode not in ["edit", "run"]:
+		return _refuse("retired_or_wrong_mode_object_edit")
+	var error: String = _validate_object_operation(operation)
+	if not error.is_empty():
+		return _refuse(error)
+	for command: Dictionary in _commands:
+		if command.action in ["mutation", "object_edit"]:
+			return _refuse("mutation_already_queued")
+	if _commands.size() >= MAX_COMMANDS:
+		return _refuse("mutation_command_capacity_or_kind")
+	_commands.append({"action": "object_edit", "value": {"operation": operation.duplicate(true),
+		"revision": expected_revision, "mode": _mode}, "generation": generation, "input_epoch": epoch})
+	return true
+
+
+func _validate_object_operation(operation: Dictionary) -> String:
+	if not operation.get("operation") is String or operation.operation not in ["spawn", "update", "delete", "duplicate"]:
+		return "unsupported_object_operation"
+	var allowed: Dictionary = {"spawn": ["operation", "definition"], "update": ["operation", "id", "changes"],
+		"delete": ["operation", "id"], "duplicate": ["operation", "id", "offset"]}
+	for key: Variant in operation:
+		if key not in allowed[operation.operation]:
+			return "unsupported_object_operation_field"
+	if operation.operation != "spawn" and (not operation.get("id") is String or str(operation.id).is_empty() or str(operation.id).length() > 64):
+		return "invalid_object_identity"
+	var property_key: String = "definition" if operation.operation == "spawn" else "changes"
+	if operation.has(property_key):
+		if not operation[property_key] is Dictionary:
+			return "malformed_object_properties"
+		for key: Variant in operation[property_key]:
+			if key not in ["name", "passive_subject", "shape", "position", "size", "rotation", "linear_velocity", "angular_velocity", "mass", "gravity_scale", "friction", "restitution", "linear_damp", "angular_damp", "fixed", "frozen"]:
+				return "unsupported_or_immutable_object_property"
+	if operation.has("offset") and (not operation.offset is Vector2 or not operation.offset.is_finite()):
+		return "invalid_duplicate_offset"
+	return ""
+
+
+func _apply_object_edit(intent: Dictionary) -> void:
+	var live: Dictionary = _host.state()
+	if _menu or _mode not in ["edit", "run"] or _mode != str(intent.mode) or not bool(live.ready):
+		_refuse("object_edit_requires_ready_owner")
+		return
+	var expected_revision: int = int(_document.state().revision) if _mode == "edit" else int(live.object_revision)
+	if int(intent.revision) != expected_revision:
+		_refuse("stale_document_revision" if _mode == "edit" else "stale_object_revision")
+		return
+	if _mode == "edit" and (int(live.native_tick) != 0 or int(live.rapier_steps) != 0):
+		_refuse("edit_requires_both_solvers_at_zero")
+		return
+	var operation: Dictionary = intent.operation
+	var before: Array = object_definitions()
+	var candidate: Array = before.duplicate(true)
+	var target: int = -1
+	var object_id: String = str(operation.get("id", ""))
+	for index: int in range(candidate.size()):
+		if str(candidate[index].id) == object_id:
+			target = index
+	if operation.operation != "spawn" and target < 0:
+		_refuse("object_not_found")
+		return
+	var allocated: bool = operation.operation in ["spawn", "duplicate"]
+	var serial: int = _next_object_serial
+	if allocated:
+		object_id = "sf-box-%d" % serial
+		var occupied: Dictionary = {}
+		for definition: Dictionary in candidate:
+			occupied[str(definition.id)] = true
+		while occupied.has(object_id):
+			serial += 1
+			object_id = "sf-box-%d" % serial
+	match str(operation.operation):
+		"spawn":
+			var definition: Dictionary = SandfallRapierObjectRegistry.make_box(object_id, serial, Vector2(240, 80), Vector2(24, 24))
+			definition.merge(operation.get("definition", {}), true)
+			candidate.append(definition)
+		"duplicate":
+			var duplicate: Dictionary = candidate[target].duplicate(true)
+			duplicate.id = object_id
+			duplicate.creation_order = serial
+			duplicate.position += operation.get("offset", Vector2(24, 0))
+			candidate.append(duplicate)
+		"update":
+			candidate[target].merge(operation.get("changes", {}), true)
+		"delete":
+			candidate.remove_at(target)
+	var checked: Dictionary = SandfallRapierObjectRegistry.validate_graph(candidate)
+	if not bool(checked.ok):
+		_refuse(str(checked.error))
+		return
+	candidate = checked.definitions
+	var patch: Dictionary = {}
+	var kind: String = "object_" + str(operation.operation)
+	if _mode == "edit":
+		patch = _document.prepare_objects(candidate, expected_revision, kind)
+		if not bool(patch.ok):
+			_refuse(str(patch.error))
+			return
+	var explicit_fields: Dictionary = {}
+	if _mode == "run" and operation.operation == "update":
+		explicit_fields[object_id] = operation.get("changes", {}).keys()
+	var cost: int = SandfallRapierObjectRegistry.logical_payload_bytes(before) + SandfallRapierObjectRegistry.logical_payload_bytes(candidate) \
+		+ JSON.stringify(explicit_fields, "", true, true).to_utf8_buffer().size()
+	var metadata_only: bool = operation.operation == "update"
+	for field: Variant in operation.get("changes", {}):
+		metadata_only = metadata_only and field in ["name", "passive_subject"]
+	if _mode == "run" and not metadata_only and (_interventions.size() >= MAX_INTERVENTIONS or _intervention_bytes + cost > MAX_INTERVENTION_BYTES):
+		_refuse("intervention_journal_capacity")
+		return
+	var receipt: Dictionary = _host.apply_object_graph(candidate, int(live.object_revision), int(live.native_tick), explicit_fields)
+	if not bool(receipt.ok):
+		if allocated and bool(receipt.get("partial", false)):
+			_next_object_serial = serial + 1
+		receipt["kind"] = kind
+		receipt["object_id"] = object_id
+		_handle_edit_refusal(receipt)
+		return
+	if not bool(receipt.get("changed", false)):
+		_refuse("no_effect")
+		return
+	if allocated:
+		_next_object_serial = serial + 1
+	if _mode == "edit":
+		if not _document.commit(patch):
+			_handle_edit_refusal({"ok": false, "partial": true, "error": "document_commit_conflict"})
+			return
+		_definition_hash = _hash_definition(_document.snapshot())
+		_editable_initial_body_poses = _host.state().body_states.duplicate(true)
+	elif bool(receipt.get("physical_changed", true)):
+		_pristine = false
+		_sequence += 1
+		_interventions.append({"sequence": _sequence, "tick": int(live.native_tick),
+			"generation": _generation, "input_epoch": _input_epoch, "kind": kind, "accepted": true,
+			"source": _source_identity.duplicate(true), "object_id": object_id,
+			"before_objects": before.duplicate(true), "after_objects": candidate.duplicate(true),
+			"explicit_fields": explicit_fields.duplicate(true), "object_schema_version": 1})
+		_intervention_bytes += cost
+	else:
+		_record("object_metadata", object_id)
+	_mutation_count += 1
+	_last_refusal = ""
+	_last_edit = {"kind": kind, "object_id": object_id, "objects": candidate.size(), "mode": _mode,
+		"tick": int(live.native_tick), "object_revision": int(receipt.get("revision", live.object_revision)),
+		"physical": bool(receipt.get("physical_changed", true)), "accepted": true}
+	document_changed.emit()
 
 
 func _apply_mutation(intent: Dictionary) -> void:
@@ -412,11 +594,16 @@ func _apply_history(direction: String) -> void:
 	if not bool(patch.ok):
 		_refuse(str(patch.error))
 		return
-	var capture: Dictionary = _host.capture_cells()
-	if not bool(capture.ok):
-		_refuse(str(capture.error))
-		return
-	var receipt: Dictionary = _host.apply_editor_patch(patch, int(capture.revision), int(capture.tick))
+	var receipt: Dictionary
+	if str(patch.get("domain", "cells")) == "objects":
+		var live: Dictionary = _host.state()
+		receipt = _host.apply_object_graph(patch.after_objects, int(live.object_revision), int(live.native_tick))
+	else:
+		var capture: Dictionary = _host.capture_cells()
+		if not bool(capture.ok):
+			_refuse(str(capture.error))
+			return
+		receipt = _host.apply_editor_patch(patch, int(capture.revision), int(capture.tick))
 	if not bool(receipt.ok):
 		_handle_edit_refusal(receipt)
 		return
@@ -425,17 +612,29 @@ func _apply_history(direction: String) -> void:
 		return
 	_last_refusal = ""
 	_definition_hash = _hash_definition(_document.snapshot())
-	_last_edit = {"kind": direction, "cells": patch.indices.size(), "mode": "edit", "tick": 0, "accepted": true}
+	if str(patch.get("domain", "cells")) == "objects":
+		_editable_initial_body_poses = _host.state().body_states.duplicate(true)
+	_last_edit = {"kind": direction, "domain": str(patch.get("domain", "cells")),
+		"cells": patch.get("indices", PackedInt32Array()).size(), "mode": "edit", "tick": 0, "accepted": true}
 	_refresh_hash()
 	document_changed.emit()
 
 
 func _handle_edit_refusal(receipt: Dictionary) -> void:
 	if bool(receipt.get("partial", false)):
+		var previous_mode: String = _mode
+		var actual: Dictionary = _host.state()
+		if previous_mode == "run":
+			_pristine = false
+		_last_edit = {"kind": str(receipt.get("kind", "mutation")), "accepted": false,
+			"partial": true, "mode": previous_mode, "error": str(receipt.error),
+			"object_id": str(receipt.get("object_id", "")), "tick": int(actual.native_tick),
+			"rapier_steps": int(actual.rapier_steps), "object_revision": int(actual.get("object_revision", 0))}
 		_mode = "fault"
 		_paused = true
 		_retire_history()
 		clear_pending_input("partial_edit_fault")
+		_record("partial_mutation", str(receipt.error))
 	_refuse(str(receipt.error))
 
 

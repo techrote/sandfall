@@ -8,6 +8,20 @@ var _session: SandfallSessionController
 var _editor: SandfallEditorController
 var _overlay: SandfallEditorOverlay
 var _sidebar: ScrollContainer
+var _material_panel: VBoxContainer
+var _object_panel: VBoxContainer
+var _object_list: ItemList
+var _object_count: Label
+var _inspector: PanelContainer
+var _inspector_title: Label
+var _inspector_mode: Label
+var _inspector_tabs: Dictionary = {}
+var _inspector_fields: Dictionary = {}
+var _inspector_baseline: Dictionary = {}
+var _inspector_loaded_serial: int = -1
+var _inspector_object_id: String = ""
+var _inspector_tab: String = "shape"
+var _object_list_ids: Array = []
 var _primary_palette: OptionButton
 var _secondary_palette: OptionButton
 var _temperature: SpinBox
@@ -204,7 +218,7 @@ func _build_ui() -> void:
 	header.add_child(title)
 	_add_button(header, "gallery", "Gallery", func() -> void: _request("gallery"))
 	_add_button(header, "sandbox", "Sandbox", func() -> void: _request("sandbox"))
-	_add_button(header, "tools", "Tools", func() -> void: _toggle_tools())
+	_add_button(header, "tools", "Tools: shown", func() -> void: _toggle_tools())
 	_add_button(header, "menu", "Menu", func() -> void: _request("menu"))
 	var templates: HBoxContainer = HBoxContainer.new()
 	column.add_child(templates)
@@ -242,7 +256,8 @@ func _build_ui() -> void:
 	_overlay.editor = _editor
 	_canvas.add_child(_overlay)
 	_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_build_editor()
+	_build_editor(templates)
+	_build_object_inspector(workspace)
 	_home = Label.new()
 	_home.text = "A world in motion. No player required.\n\nOpen Gallery to watch the materials and bodies interact.\nOpen Sandbox to author an initial scene, then Run."
 	_home.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -348,10 +363,17 @@ func _update_ui() -> void:
 	for key: String in _buttons:
 		var button: Button = _buttons[key]
 		button.disabled = bool(state.menu) and key != "continue"
-		if key.begins_with("tool_") or key.begins_with("material_") or key in ["copy", "cut", "delete", "grid", "cancel_tool", "filled"]:
+		if key.begins_with("tool_") or key.begins_with("material_") or key.begins_with("object_") or key.begins_with("mode_") or key in ["copy", "cut", "delete", "grid", "cancel_tool", "filled"]:
 			button.disabled = button.disabled or not state.ready or state.mode == "fault"
 		if key.begins_with("template_") or key in ["pan_left", "pan_right", "pan_up", "pan_down", "zoom_in", "zoom_out", "fit", "reset", "reset_edit"]:
 			button.disabled = button.disabled or state.entry == "home"
+	_buttons.tools.text = "Tools: shown" if _sidebar.visible else "Tools: hidden"
+	_material_panel.visible = _editor.tool_group == "materials"
+	_object_panel.visible = _editor.tool_group == "objects"
+	_inspector.visible = state.entry != "home" and _sidebar.visible and _editor.tool_group == "objects"
+	_buttons.mode_materials.set_pressed_no_signal(_editor.tool_group == "materials")
+	_buttons.mode_objects.set_pressed_no_signal(_editor.tool_group == "objects")
+	_update_object_ui(state)
 	_buttons.run.visible = state.mode == "edit" and state.entry != "home"
 	_buttons.pause.visible = state.mode == "run"
 	_buttons.pause.text = "Resume" if state.paused else "Pause"
@@ -365,7 +387,7 @@ func _update_ui() -> void:
 	_buttons.redo.disabled = state.menu or state.mode != "edit" or not bool(state.document.get("can_redo", false))
 	_editor_info.text = _editor.notice
 	if not str(state.last_refusal).is_empty():
-		_editor_info.text = "Refused: " + str(state.last_refusal)
+		_editor_info.text = _refusal_label(str(state.last_refusal))
 	if SandfallMaterialTools.in_bounds(_editor.hover):
 		_editor_info.text += "\nCell %d,%d · zoom %.2f×" % [_editor.hover.x, _editor.hover.y, float(_canvas.state().zoom)]
 	for tool_id: String in SandfallEditorController.TOOL_IDS:
@@ -380,17 +402,21 @@ func _update_ui() -> void:
 func observation() -> Dictionary:
 	var result: Dictionary = _session.state()
 	var rendering: Dictionary = _canvas.state()
+	result.native["object_definitions"] = SandfallRapierObjectRegistry.logical_graph(result.native.get("object_definitions", []))
 	var buttons: Dictionary = {}
 	for key: String in _buttons:
 		var button: Button = _buttons[key]
 		if button.is_visible_in_tree():
 			var rect: Rect2 = button.get_global_rect()
 			buttons[key] = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
+	var editor_state: Dictionary = _editor.state()
+	editor_state["object_inspector"] = _object_inspector_observation()
+	editor_state["tools_visible"] = _sidebar.visible
 	result.merge({"schema": "sandfall-host-v1", "app_ready": true, "frame": _frame,
 		"input": {"held_keys": _held_keys.keys(), "pointer_buttons": _pointer_buttons.size(),
 			"gesture_active": _pan_active or _editor.state().gesture_active, "pending_ui_gestures": _button_gestures.size(), "clear_serial": _clear_serial},
 		"actor_count": _count_actor_nodes(get_tree().root), "paint_commands": result.mutation_count,
-		"editor": _editor.state(), "editor_controls": _editor_control_rects(),
+		"editor": editor_state, "editor_controls": _editor_control_rects(),
 		"camera": {"camera_origin": rendering.camera_origin, "view_size": rendering.view_size, "zoom": rendering.zoom},
 		"rendering": rendering, "view": rendering.content_rect,
 		"pending_colliders": result.native.pending_colliders,
@@ -481,11 +507,25 @@ func _editor_button(parent: Node, key: String, label: String, callback: Callable
 	return button
 
 
-func _build_editor() -> void:
-	var panel: VBoxContainer = VBoxContainer.new()
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.add_theme_constant_override("separation", 4)
-	_sidebar.add_child(panel)
+func _build_editor(mode_parent: Node) -> void:
+	var shared: VBoxContainer = VBoxContainer.new()
+	shared.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	shared.add_theme_constant_override("separation", 4)
+	_sidebar.add_child(shared)
+	var modes: HBoxContainer = HBoxContainer.new()
+	mode_parent.add_child(modes)
+	for group: String in ["materials", "objects"]:
+		var choice: String = group
+		var button: Button = _editor_button(modes, "mode_" + group, group.capitalize(), func() -> void:
+			_clear_input("tool_group")
+			_editor.set_tool_group(choice)
+		)
+		button.toggle_mode = true
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_material_panel = VBoxContainer.new()
+	_material_panel.add_theme_constant_override("separation", 4)
+	shared.add_child(_material_panel)
+	var panel: VBoxContainer = _material_panel
 	var search: LineEdit = LineEdit.new()
 	search.name = "MaterialSearch"
 	search.placeholder_text = "Search material / family / ID"
@@ -597,8 +637,9 @@ func _build_editor() -> void:
 			_clear_input("clipboard")
 			_editor.clipboard_action(command)
 		)
+	_build_object_tools(shared)
 	var history_row: HBoxContainer = HBoxContainer.new()
-	panel.add_child(history_row)
+	shared.add_child(history_row)
 	_editor_button(history_row, "undo", "Undo", func() -> void: _request("undo"))
 	_editor_button(history_row, "redo", "Redo", func() -> void: _request("redo"))
 	_editor_button(history_row, "cancel_tool", "Cancel", func() -> void: _session.clear_pending_input("explicit_cancel"))
@@ -606,7 +647,7 @@ func _build_editor() -> void:
 	_editor_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_editor_info.custom_minimum_size.x = 230
 	_editor_info.add_theme_font_size_override("font_size", 14)
-	panel.add_child(_editor_info)
+	shared.add_child(_editor_info)
 	_populate_palettes("")
 	_editor.settings_changed.connect(_sync_editor_settings)
 
@@ -656,4 +697,317 @@ func _editor_control_rects() -> Dictionary:
 		if control.is_visible_in_tree():
 			var rect: Rect2 = control.get_global_rect()
 			out[str(pair[0])] = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
+	for field: String in _inspector_fields:
+		var control: Control = _inspector_fields[field]
+		if control is SpinBox:
+			control = control.get_line_edit()
+		if control.is_visible_in_tree():
+			var rect: Rect2 = control.get_global_rect()
+			out["object_" + field] = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
 	return out
+
+
+func _build_object_tools(parent: Node) -> void:
+	_object_panel = VBoxContainer.new()
+	_object_panel.add_theme_constant_override("separation", 5)
+	parent.add_child(_object_panel)
+	var explanation: Label = Label.new()
+	explanation.text = "Physical objects · Rapier boxes\nDrag to create or manipulate."
+	explanation.add_theme_font_size_override("font_size", 15)
+	_object_panel.add_child(explanation)
+	var grid: GridContainer = GridContainer.new()
+	grid.columns = 3
+	_object_panel.add_child(grid)
+	for tool_id: String in SandfallEditorController.OBJECT_TOOL_IDS:
+		var choice: String = tool_id
+		var button: Button = _editor_button(grid, "object_" + tool_id, tool_id.capitalize(), func() -> void:
+			_clear_input("object_tool")
+			_editor.set_object_tool(choice)
+		)
+		button.toggle_mode = true
+	_editor_button(grid, "object_clear", "Clear", func() -> void:
+		_clear_input("object_deselect")
+		_editor.select_object("")
+	)
+	_object_count = Label.new()
+	_object_count.add_theme_font_size_override("font_size", 15)
+	_object_panel.add_child(_object_count)
+	_object_list = ItemList.new()
+	_object_list.custom_minimum_size = Vector2(230, 150)
+	_object_list.add_theme_font_size_override("font_size", 13)
+	_object_list.item_selected.connect(func(index: int) -> void:
+		_clear_input("object_list")
+		_editor.select_object(str(_object_list.get_item_metadata(index)))
+	)
+	_object_panel.add_child(_object_list)
+	var help: Label = Label.new()
+	help.text = "Boxes stay separate from materials.\nRight inspector: exact values, then Apply.\nEdit history includes object changes."
+	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	help.custom_minimum_size.x = 230
+	help.add_theme_font_size_override("font_size", 14)
+	_object_panel.add_child(help)
+
+
+func _build_object_inspector(parent: Node) -> void:
+	_inspector = PanelContainer.new()
+	_inspector.custom_minimum_size = Vector2(264, 0)
+	_inspector.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_inspector.mouse_filter = Control.MOUSE_FILTER_STOP
+	parent.add_child(_inspector)
+	var margin: MarginContainer = MarginContainer.new()
+	for edge: String in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + edge, 8)
+	_inspector.add_child(margin)
+	var panel: VBoxContainer = VBoxContainer.new()
+	panel.add_theme_constant_override("separation", 5)
+	margin.add_child(panel)
+	_inspector_title = Label.new()
+	_inspector_title.text = "Object inspector"
+	_inspector_title.add_theme_font_size_override("font_size", 16)
+	_inspector_title.clip_text = true
+	panel.add_child(_inspector_title)
+	_inspector_mode = Label.new()
+	_inspector_mode.add_theme_font_size_override("font_size", 13)
+	_inspector_mode.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_inspector_mode.custom_minimum_size.x = 240
+	panel.add_child(_inspector_mode)
+	var actions: HBoxContainer = HBoxContainer.new()
+	panel.add_child(actions)
+	_editor_button(actions, "object_apply", "Apply", _apply_object_inspector)
+	_editor_button(actions, "object_duplicate", "Duplicate", func() -> void:
+		_clear_input("object_duplicate")
+		_editor.object_action("duplicate")
+	)
+	_editor_button(actions, "object_delete", "Delete", func() -> void:
+		_clear_input("object_delete")
+		_editor.object_action("delete")
+	)
+	var tabs: HBoxContainer = HBoxContainer.new()
+	panel.add_child(tabs)
+	for tab: String in ["shape", "physics", "motion"]:
+		var choice: String = tab
+		var button: Button = _editor_button(tabs, "object_tab_" + tab, tab.capitalize(), func() -> void:
+			_clear_input("inspector_tab")
+			_inspector_tab = choice
+		)
+		button.toggle_mode = true
+		var page: VBoxContainer = VBoxContainer.new()
+		page.add_theme_constant_override("separation", 3)
+		_inspector_tabs[tab] = page
+		panel.add_child(page)
+	var shape: VBoxContainer = _inspector_tabs.shape
+	var name_row: HBoxContainer = _inspector_row(shape, "Name")
+	var object_name: LineEdit = LineEdit.new()
+	object_name.max_length = 128
+	object_name.custom_minimum_size.x = 135
+	object_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	object_name.add_theme_font_size_override("font_size", 14)
+	object_name.placeholder_text = "Optional name"
+	name_row.add_child(object_name)
+	_inspector_fields["name"] = object_name
+	object_name.focus_entered.connect(func() -> void: _clear_input("inspector_focus"))
+	_inspector_spin(shape, "x", "X (cells)", 0, 1024, 0.01)
+	_inspector_spin(shape, "y", "Y (cells)", 0, 1024, 0.01)
+	_inspector_spin(shape, "width", "Width (cells)", 1, 256, 0.01)
+	_inspector_spin(shape, "height", "Height (cells)", 1, 256, 0.01)
+	_inspector_spin(shape, "rotation", "Angle (degrees)", -360, 360, 0.01)
+	_inspector_check(shape, "fixed", "Fixed (static collision)")
+	_inspector_check(shape, "frozen", "Frozen (static until released)")
+	var physics: VBoxContainer = _inspector_tabs.physics
+	_inspector_spin(physics, "mass", "Mass (units)", 0.001, 1000000, 0.001)
+	_inspector_spin(physics, "friction", "Friction", 0, 1, 0.01)
+	_inspector_spin(physics, "restitution", "Restitution", 0, 1, 0.01)
+	_inspector_spin(physics, "linear_damping", "Linear damp (s⁻¹)", 0, 100, 0.01)
+	_inspector_spin(physics, "angular_damping", "Angular damp (s⁻¹)", 0, 100, 0.01)
+	_inspector_spin(physics, "gravity_scale", "Gravity scale", 0, 4, 0.001)
+	var motion: VBoxContainer = _inspector_tabs.motion
+	_inspector_spin(motion, "vx", "Velocity X (cells/s)", -4096, 4096, 0.01)
+	_inspector_spin(motion, "vy", "Velocity Y (cells/s)", -4096, 4096, 0.01)
+	_inspector_spin(motion, "angular_velocity", "Spin (degrees/s)", -5729, 5729, 0.01)
+	_inspector_check(motion, "passive_subject", "Passive subject (no controls)")
+	var note: Label = Label.new()
+	note.text = "Edit: initial velocities.\nRun: explicit live intervention.\nNo actor motor or physical rewind."
+	note.add_theme_font_size_override("font_size", 13)
+	motion.add_child(note)
+	_editor_button(panel, "object_refresh", "Refresh observed pose", func() -> void:
+		_clear_input("inspector_refresh")
+		_editor.refresh_object_selection()
+	)
+	_inspector.hide()
+
+
+func _inspector_row(parent: Node, label: String) -> HBoxContainer:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 3)
+	parent.add_child(row)
+	var title: Label = Label.new()
+	title.text = label
+	title.custom_minimum_size.x = 109
+	title.add_theme_font_size_override("font_size", 13)
+	row.add_child(title)
+	return row
+
+
+func _inspector_spin(parent: Node, key: String, label: String, minimum: float, maximum: float, increment: float) -> void:
+	var row: HBoxContainer = _inspector_row(parent, label)
+	var field: SpinBox = SpinBox.new()
+	field.min_value = minimum
+	field.max_value = maximum
+	field.step = increment
+	field.custom_minimum_size.x = 126
+	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	field.add_theme_font_size_override("font_size", 14)
+	row.add_child(field)
+	_inspector_fields[key] = field
+	field.get_line_edit().focus_entered.connect(func() -> void: _clear_input("inspector_focus"))
+
+
+func _inspector_check(parent: Node, key: String, label: String) -> void:
+	var field: CheckBox = CheckBox.new()
+	field.text = label
+	field.add_theme_font_size_override("font_size", 13)
+	field.focus_mode = Control.FOCUS_NONE
+	parent.add_child(field)
+	_inspector_fields[key] = field
+	field.toggled.connect(func(_value: bool) -> void: _clear_input("inspector_flag"))
+
+
+func _update_object_ui(state: Dictionary) -> void:
+	var definitions: Array = _session.object_definitions()
+	var identities: Array = []
+	for definition: Dictionary in definitions:
+		identities.append([str(definition.id), str(definition.get("name", ""))])
+	if identities != _object_list_ids:
+		_object_list_ids = identities.duplicate(true)
+		_object_list.clear()
+		for row: Array in identities:
+			_object_list.add_item(str(row[0]) + (" · " + str(row[1]) if not str(row[1]).is_empty() else ""))
+			_object_list.set_item_metadata(_object_list.item_count - 1, str(row[0]))
+	_object_count.text = "%d / 16 bodies · stable identities" % definitions.size()
+	for index: int in range(_object_list.item_count):
+		if str(_object_list.get_item_metadata(index)) == _editor.selected_object_id:
+			_object_list.select(index)
+		else:
+			_object_list.deselect(index)
+	for tool_id: String in SandfallEditorController.OBJECT_TOOL_IDS:
+		_buttons["object_" + tool_id].set_pressed_no_signal(_editor.object_tool == tool_id)
+	var selected: Dictionary = _editor.selected_object()
+	var has_selection: bool = not selected.is_empty()
+	_inspector_title.text = str(selected.id) if has_selection else "Select a physical box"
+	_inspector_mode.text = "Edit · exact initial definition" if state.mode == "edit" else "Run · staged live intervention"
+	if has_selection:
+		_inspector_mode.text += "\nApply commits one transaction."
+	for key: String in ["object_apply", "object_duplicate", "object_delete", "object_refresh"]:
+		_buttons[key].disabled = _buttons[key].disabled or not has_selection
+	for key: String in _inspector_fields:
+		var field: Control = _inspector_fields[key]
+		if field is SpinBox or field is LineEdit:
+			field.editable = has_selection and state.ready and not state.menu
+		elif field is CheckBox:
+			field.disabled = not has_selection or not state.ready or state.menu
+	for tab: String in _inspector_tabs:
+		_inspector_tabs[tab].visible = tab == _inspector_tab
+		_buttons["object_tab_" + tab].set_pressed_no_signal(tab == _inspector_tab)
+	if _inspector_loaded_serial != _editor.selection_serial:
+		_inspector_loaded_serial = _editor.selection_serial
+		_load_object_inspector(selected, state.mode == "run")
+
+
+func _load_object_inspector(definition: Dictionary, use_live_pose: bool) -> void:
+	_inspector_object_id = str(definition.get("id", ""))
+	_inspector_baseline.clear()
+	if definition.is_empty():
+		return
+	var logical: Dictionary = definition.duplicate(true)
+	if use_live_pose:
+		var observed: Dictionary = _editor.selected_object_view()
+		if not observed.is_empty():
+			logical.position = observed.position
+			logical.rotation = observed.rotation
+			logical.linear_velocity = observed.linear_velocity
+			logical.angular_velocity = observed.angular_velocity
+	var values: Dictionary = {"name": str(logical.name), "x": logical.position.x, "y": logical.position.y,
+		"width": logical.size.x, "height": logical.size.y, "rotation": rad_to_deg(float(logical.rotation)),
+		"mass": logical.mass, "friction": logical.friction, "restitution": logical.restitution,
+		"linear_damping": logical.linear_damp, "angular_damping": logical.angular_damp,
+		"gravity_scale": logical.gravity_scale, "vx": logical.linear_velocity.x, "vy": logical.linear_velocity.y,
+		"angular_velocity": rad_to_deg(float(logical.angular_velocity)), "fixed": logical.fixed,
+		"frozen": logical.frozen, "passive_subject": logical.passive_subject}
+	for key: String in values:
+		var field: Control = _inspector_fields[key]
+		if field is SpinBox:
+			field.set_value_no_signal(float(values[key]))
+		elif field is LineEdit:
+			field.text = str(values[key])
+		else:
+			field.set_pressed_no_signal(bool(values[key]))
+	# The displayed rounded values are the baseline, so touching mass alone
+	# never rounds or resets another physical property or the current pose.
+	_inspector_baseline = _inspector_values()
+
+
+func _inspector_values() -> Dictionary:
+	var values: Dictionary = {}
+	for key: String in _inspector_fields:
+		var field: Control = _inspector_fields[key]
+		if field is SpinBox:
+			values[key] = field.value
+		elif field is LineEdit:
+			values[key] = field.text
+		else:
+			values[key] = field.button_pressed
+	return values
+
+
+func _apply_object_inspector() -> void:
+	_clear_input("inspector_apply")
+	if _inspector_object_id.is_empty() or _inspector_object_id != _editor.selected_object_id:
+		return
+	var current: Dictionary = _inspector_values()
+	var exact: Dictionary = _editor.selected_object_view() if _session.state().mode == "run" else _editor.selected_object()
+	if exact.is_empty():
+		return
+	var desired_position: Vector2 = exact.position
+	var desired_size: Vector2 = exact.size
+	var desired_velocity: Vector2 = exact.linear_velocity
+	# Preserve unedited vector components at full native precision. During Run
+	# the untouched pose/velocity component comes from the current live sample.
+	if current.x != _inspector_baseline.x: desired_position.x = float(current.x)
+	if current.y != _inspector_baseline.y: desired_position.y = float(current.y)
+	if current.width != _inspector_baseline.width: desired_size.x = float(current.width)
+	if current.height != _inspector_baseline.height: desired_size.y = float(current.height)
+	if current.vx != _inspector_baseline.vx: desired_velocity.x = float(current.vx)
+	if current.vy != _inspector_baseline.vy: desired_velocity.y = float(current.vy)
+	var changes: Dictionary = {}
+	for key: String in current:
+		if current[key] == _inspector_baseline.get(key):
+			continue
+		match key:
+			"x", "y": changes["position"] = desired_position
+			"width", "height": changes["size"] = desired_size
+			"rotation": changes["rotation"] = deg_to_rad(float(current.rotation))
+			"vx", "vy": changes["linear_velocity"] = desired_velocity
+			"angular_velocity": changes["angular_velocity"] = deg_to_rad(float(current.angular_velocity))
+			"linear_damping": changes["linear_damp"] = current[key]
+			"angular_damping": changes["angular_damp"] = current[key]
+			_: changes[key] = current[key]
+	if changes.is_empty():
+		_editor.notice = "No changed object values to apply."
+		return
+	_editor.apply_object_changes(changes)
+
+
+func _object_inspector_observation() -> Dictionary:
+	return {"selected_id": _inspector_object_id, "tab": _inspector_tab,
+		"values": _inspector_values(), "baseline": _inspector_baseline.duplicate(true),
+		"visible": _inspector.visible, "units": "cells; Godot/Rapier mass units; seconds; UI degrees converted to radians"}
+
+
+func _refusal_label(reason: String) -> String:
+	match reason:
+		"object_capacity_16": return "Maximum 16 bodies. Delete a box before adding another."
+		"object_transform_outside_world": return "The complete rotated box must fit inside the world."
+		"invalid_object_dimensions": return "Box dimensions must be between 1 and 256 cells."
+		"history_capacity": return "Edit history is full. This change was not applied."
+		"intervention_journal_capacity": return "This Run's intervention journal is full. Reset to begin a new Run."
+		_: return "Refused: " + reason.replace("_", " ")

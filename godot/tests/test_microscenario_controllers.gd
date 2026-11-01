@@ -54,15 +54,52 @@ func _run() -> void:
 	await process_frame
 	var button: Button = desktop.get_node("Layout/ExperimentTowerLauncher")
 	expect(button.focus_mode == Control.FOCUS_NONE, "root Tower button retained keyboard focus")
-	# Send real GUI mouse and Space events through the viewport, not just signals.
+	# The legacy desktop VBox may overflow Sandfall's 1280×800 startup profile.
+	# Exercise the SAME actual button through genuine viewport input; adapt only
+	# its fixture placement if the inherited launcher is outside the viewport.
+	var viewport_rect := Rect2(Vector2.ZERO, Vector2(root.size))
+	if not viewport_rect.encloses(button.get_global_rect()):
+		var layout: VBoxContainer = desktop.get_node("Layout")
+		layout.move_child(button, 1)
+		await process_frame
+	expect(button.is_visible_in_tree()
+		and viewport_rect.encloses(button.get_global_rect())
+		and button.get_global_rect().size.x > 0
+		and button.get_global_rect().size.y > 0,
+		"Legacy Tower input fixture must be visible and within the actual viewport")
+	# Feed the actual GUI through Godot's documented focused-window input
+	# route. Custom Input events use screen coordinates, so compose the root
+	# viewport's screen transform with the Control's canvas transform.
+	# This exercises normal GUI hit-testing and Button state; it does not emit
+	# the pressed signal or call tower_reset directly.
+	var local_center: Vector2 = button.size * 0.5
+	var click_at: Vector2 = (
+		root.get_screen_transform()
+		* button.get_global_transform_with_canvas()
+		* local_center
+	)
+	expect(root.get_visible_rect().has_point(
+		root.get_screen_transform().affine_inverse() * click_at),
+		"transformed Tower input target is outside the root viewport")
+	var received_edges: Array[bool] = []
+	button.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			received_edges.append(event.pressed))
+	var pointer := InputEventMouseMotion.new()
+	pointer.position = click_at
+	pointer.global_position = click_at
+	Input.parse_input_event(pointer)
+	await process_frame
 	for pressed: bool in [true,false]:
 		var mouse := InputEventMouseButton.new()
-		mouse.position = button.get_global_rect().get_center()
-		mouse.global_position = mouse.position
+		mouse.position = click_at
+		mouse.global_position = click_at
 		mouse.button_index = MOUSE_BUTTON_LEFT
 		mouse.pressed = pressed
-		root.push_input(mouse, true)
+		Input.parse_input_event(mouse)
 		await process_frame
+	expect(received_edges == [true,false],
+		"actual Input path did not deliver exactly one mouse press/release to Tower")
 	expect(desktop.reset_calls == 1, "mouse click did not invoke Tower exactly once")
 	expect(root.gui_get_focus_owner() != button, "mouse entry left Tower focusable")
 	for event: InputEventKey in [key(KEY_SPACE,true), key(KEY_SPACE,true,true), key(KEY_SPACE,false)]:

@@ -368,6 +368,13 @@ public:
     [[nodiscard]] std::vector<std::uint8_t> save_physical_state() const;
     [[nodiscard]] static std::unique_ptr<World> restore_physical_state(
         const WorldConfig& execution, std::span<const std::uint8_t> bytes);
+    // Restore-only candidate construction. Rebuild the host-owned dense mask
+    // without waking saved activity/deadlines or changing any physical value.
+    // Ordinary live mask changes must keep using set/clear_transient_obstacles.
+    static constexpr std::size_t kMaximumRestoredTransientCells = 1024U * 1024U;
+    [[nodiscard]] static std::unique_ptr<World> restore_physical_state_with_transient_obstacles(
+        const WorldConfig& execution, std::span<const std::uint8_t> bytes,
+        RectI64 region, std::span<const std::uint16_t> body_ids);
 
     [[nodiscard]] std::size_t dirty_chunk_count() const noexcept;
     [[nodiscard]] std::vector<DirtyChunk> take_dirty_chunks();

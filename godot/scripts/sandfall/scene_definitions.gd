@@ -2,8 +2,9 @@ class_name SandfallSceneDefinitions
 extends RefCounted
 
 # Initial values only. No node, RID, live solver, or input owner is retained here.
-# SF-M1 deliberately retains the established three-body fixture; this is not
-# the general object registry or editor planned for subsequent milestones.
+# The retained three-body fixture now uses the same stable logical identities
+# and versioned defaults as objects authored through the SF-M3 workshop.
+const Registry = preload("res://scripts/sandfall/rapier_object_registry.gd")
 const WORLD_SIZE: Vector2i = Vector2i(1024, 1024)
 const INITIAL_VIEW: Vector2i = Vector2i(480, 270)
 const IDS: Array[String] = ["blank", "material_lab", "physics_pit"]
@@ -26,12 +27,8 @@ static func get_definition(id: String) -> Dictionary:
 		title = "Material Lab" if id == "material_lab" else "Physics Pit"
 	if id == "physics_pit":
 		for x: int in [124, 244, 384]:
-			bodies.append({
-				"position": Vector2(x, 90), "rotation": 0.0,
-				"size": Vector2(8, 14), "mass": 1.0,
-				"gravity_scale": 0.094, "linear_damp": 0.15,
-				"angular_damp": 0.35,
-			})
+			var order: int = bodies.size() + 1
+			bodies.append(Registry.make_box("physics-pit-%d" % order, order, Vector2(x, 90), Vector2(8, 14)))
 	return {
 		"id": id, "title": title, "revision": 1,
 		"world_size": WORLD_SIZE, "initial_view": INITIAL_VIEW,
