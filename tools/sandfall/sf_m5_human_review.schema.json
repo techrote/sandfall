@@ -1,0 +1,552 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sandfall SF-M5 explicit human Gallery review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "candidate",
+    "environment",
+    "reviewer",
+    "scenes",
+    "decision",
+    "overall_notes",
+    "attestation"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "sandfall-sf-m5-human-review-v1"
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "enum": [
+        "pending",
+        "submitted"
+      ]
+    },
+    "candidate": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/candidate"
+        }
+      ]
+    },
+    "environment": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/environment"
+        }
+      ]
+    },
+    "reviewer": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/reviewer"
+        }
+      ]
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "$ref": "#/$defs/scene"
+      }
+    },
+    "decision": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "enum": [
+            "accept",
+            "reject"
+          ]
+        }
+      ]
+    },
+    "overall_notes": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16384,
+          "pattern": "[\\s\\S]*\\S[\\s\\S]*"
+        }
+      ]
+    },
+    "attestation": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/attestation"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "[0-9a-f]{64}"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 134217728
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_commit",
+        "source_tree",
+        "profile",
+        "artifact_directory",
+        "verification"
+      ],
+      "properties": {
+        "source_commit": {
+          "type": "string",
+          "minLength": 40,
+          "maxLength": 40,
+          "pattern": "[0-9a-f]{40}"
+        },
+        "source_tree": {
+          "type": "string",
+          "minLength": 40,
+          "maxLength": 40,
+          "pattern": "[0-9a-f]{40}"
+        },
+        "profile": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "enum": [
+            "compat",
+            "threaded"
+          ]
+        },
+        "artifact_directory": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*"
+        },
+        "verification": {
+          "$ref": "#/$defs/file"
+        }
+      }
+    },
+    "viewport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "height",
+        "dpr"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        },
+        "dpr": {
+          "type": "integer",
+          "enum": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "browser_product",
+        "user_agent",
+        "platform",
+        "viewport",
+        "workers_requested",
+        "workers_configured"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 2048,
+          "pattern": "https?://[^\\s]+"
+        },
+        "browser_product": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 200
+        },
+        "user_agent": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 1024
+        },
+        "platform": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "viewport": {
+          "$ref": "#/$defs/viewport"
+        },
+        "workers_requested": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "enum": [
+            "auto",
+            "1",
+            "2",
+            "4",
+            "6"
+          ]
+        },
+        "workers_configured": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            4,
+            6
+          ]
+        }
+      }
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "mode",
+        "name",
+        "reviewed_at"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "human"
+        },
+        "mode": {
+          "type": "string",
+          "const": "live-browser"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "[^\\r\\n]*\\S[^\\r\\n]*"
+        },
+        "reviewed_at": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 40,
+          "pattern": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z"
+        }
+      }
+    },
+    "criteria": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "visual_legibility",
+        "interaction_navigation",
+        "labels_viewport",
+        "physical_causality",
+        "pacing_responsiveness",
+        "reset_presentation",
+        "errors_refusals"
+      ],
+      "properties": {
+        "visual_legibility": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          ]
+        },
+        "interaction_navigation": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          ]
+        },
+        "labels_viewport": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          ]
+        },
+        "physical_causality": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          ]
+        },
+        "pacing_responsiveness": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          ]
+        },
+        "reset_presentation": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          ]
+        },
+        "errors_refusals": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "scene": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "status",
+        "criteria",
+        "notes",
+        "browser_receipt",
+        "screenshot",
+        "run_evidence"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "enum": [
+            "gravity_cascade",
+            "fluid_messenger",
+            "passive_subject_ride",
+            "endless_kinetic_loop",
+            "intervention",
+            "time_controls",
+            "sixteen_body"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "enum": [
+            "pending",
+            "reviewed"
+          ]
+        },
+        "criteria": {
+          "$ref": "#/$defs/criteria"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16384,
+              "pattern": "[\\s\\S]*\\S[\\s\\S]*"
+            }
+          ]
+        },
+        "browser_receipt": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/file"
+            }
+          ]
+        },
+        "screenshot": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/file"
+            }
+          ]
+        },
+        "run_evidence": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/file"
+            }
+          ]
+        },
+        "browser_verification": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/file"
+            }
+          ]
+        }
+      }
+    },
+    "attestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "origin_kind",
+        "origin_locator",
+        "statement"
+      ],
+      "properties": {
+        "origin_kind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "enum": [
+            "user_message",
+            "review_comment",
+            "signed_file"
+          ]
+        },
+        "origin_locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "statement": {
+          "$ref": "#/$defs/file"
+        }
+      }
+    }
+  }
+}
