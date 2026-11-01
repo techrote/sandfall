@@ -86,7 +86,8 @@ def source_bytes(root: Path, commit: str, path: str) -> bytes:
                                    stderr=subprocess.PIPE)
 
 
-def logical_viewport(root: Path, commit: str, exported_project: bytes) -> dict:
+def logical_viewport(root: Path, commit: str, exported_project: bytes, profile: str = "compat") -> dict:
+    require(profile in {"compat", "threaded"}, "Unknown Web profile")
     project_path = "godot/project.godot"
     builder_path = "tools/build_web.py"
     preset_path = "godot/export_presets.cfg"
@@ -119,7 +120,7 @@ def logical_viewport(root: Path, commit: str, exported_project: bytes) -> dict:
                 project = project.replace(before, after)
                 replacements.append({"before": before, "after": after})
     require(len(replacements) >= 4, "Pinned Web dimension staging cannot be established")
-    project = project.replace("native_worker_threads=0", "native_worker_threads=1\nweb_demo=true")
+    project = project.replace("native_worker_threads=0", f"native_worker_threads={0 if profile == 'threaded' else 1}\nweb_demo=true")
     require(project.encode("utf-8") == exported_project,
             "Exported project settings differ from source-bound Sandfall staging")
     cfg = settings(project)
@@ -129,8 +130,8 @@ def logical_viewport(root: Path, commit: str, exported_project: bytes) -> dict:
     aspect = cfg.get("display/window/stretch/aspect", "keep")
     require((width, height, mode, aspect) == (1280, 800, "canvas_items", "keep"),
             "SF-M1 export does not have the qualified 1280x800 canvas_items/keep layout")
-    require(cfg.get("cybersand/native_worker_threads") == "1",
-            "SF-M1 compatibility staging must use exactly one native worker")
+    require(cfg.get("cybersand/native_worker_threads") == ("0" if profile == "threaded" else "1"),
+            "Native worker staging differs from the explicit export profile")
     preset = settings(source_file(root, commit, preset_path))
     require(preset["preset.0.options/html/canvas_resize_policy"] == "2",
             "Pinned export does not resize its canvas to the browser")
@@ -148,7 +149,10 @@ def logical_viewport(root: Path, commit: str, exported_project: bytes) -> dict:
     }
 
 
-def verify(web_root: Path, repo_root: Path, expected_build_sha: str) -> dict:
+def verify(web_root: Path, repo_root: Path, expected_build_sha: str, profile: str = "compat") -> dict:
+    require(profile in {"compat", "threaded"}, "Unknown Web profile")
+    pins = dict(PINS, profile=profile, native_worker_threads="auto" if profile == "threaded" else 1)
+    native_wasm = "libcybersand_native.web." + ("threads" if profile == "threaded" else "nothreads") + ".wasm"
     require(bool(re.fullmatch(r"[0-9a-f]{40}", expected_build_sha)), "Expected build SHA must be a full lowercase Git commit ID")
     require(git(repo_root, "rev-parse", f"{expected_build_sha}^{{commit}}") == expected_build_sha,
             "Expected build commit is unavailable")
@@ -194,24 +198,24 @@ def verify(web_root: Path, repo_root: Path, expected_build_sha: str) -> dict:
     require(isinstance(info, dict), "Export build-info must be a JSON object")
     require(info.get("source_commit") == expected_build_sha, "Export build source SHA mismatch")
     require(info.get("source_identity_kind") == "git-checkout", "Export is not an identified Git checkout build")
-    for key, value in PINS.items():
+    for key, value in pins.items():
         require(info.get(key) == value, f"Export {key} pin mismatch")
     runtime = info.get("water_runtime", {})
     require(isinstance(runtime, dict), "Native Web runtime receipt must be a JSON object")
     require(runtime.get("source_commit") == expected_build_sha, "Native Web runtime source SHA mismatch")
     require(runtime.get("source_identity_kind") == "git-checkout", "Native Web runtime is not a Git-checkout build")
     for key in ("profile", "godot", "godot_cpp", "emscripten", "native_worker_threads"):
-        require(runtime.get(key) == PINS[key], f"Native Web runtime {key} pin mismatch")
+        require(runtime.get(key) == pins[key], f"Native Web runtime {key} pin mismatch")
     require(runtime.get("status") == "source-built-web-export-unqualified"
             and runtime.get("browser_execution_status") == "not-established-by-export",
             "Export runtime receipt must not claim browser qualification")
     native_name = runtime.get("artifact")
-    require(native_name == NATIVE_WASM, "Native Web runtime artifact name differs from pinned compatibility builder")
+    require(native_name == native_wasm, "Native Web runtime artifact name differs from explicit profile")
     require(native_name in entries, "Native Web runtime missing from manifest")
     require(entries[native_name] == runtime.get("sha256"), "Native Web runtime digest differs from build receipt")
     require((web_root / native_name).stat().st_size == runtime.get("size"), "Native Web runtime size differs from build receipt")
     lock = json.loads(source_file(repo_root, expected_build_sha, "godot/third_party/rapier2d.lock.json"))
-    rapier_digest = lock["web_libraries"]["compat"]["sha256"]
+    rapier_digest = lock["web_libraries"][profile]["sha256"]
     require(info.get("rapier_sha256") == rapier_digest == entries["godot_rapier.wasm"],
             "Rapier Web runtime differs from pinned source lock")
     require(info.get("application_entry") == "sandfall" and info.get("entry_scene") == "res://sandfall_main.tscn",
@@ -220,12 +224,12 @@ def verify(web_root: Path, repo_root: Path, expected_build_sha: str) -> dict:
             "Native runtime receipt does not identify the dedicated Sandfall application")
     require(info.get("staged_project_sha256") == entries["export-project.godot"],
             "Staged project digest differs from build receipt")
-    viewport = logical_viewport(repo_root, expected_build_sha, (web_root / "export-project.godot").read_bytes())
+    viewport = logical_viewport(repo_root, expected_build_sha, (web_root / "export-project.godot").read_bytes(), profile)
     return {
         "schema": "sandfall-sf-m1-web-artifact-verification-v1", "status": "passed",
         "scope": "export identity and source equivalence; browser execution separately required",
         "build_source_commit": expected_build_sha, "harness_source_commit": head,
-        "profile": "compat", "rapier": "0.35.2",
+        "profile": profile, "rapier": "0.35.2",
         "application_entry": "sandfall", "entry_scene": "res://sandfall_main.tscn",
         "manifest_sha256": hashlib.sha256(manifest.read_bytes()).hexdigest(),
         "artifacts": artifacts, "logical_viewport": viewport,

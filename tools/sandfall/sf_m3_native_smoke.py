@@ -57,12 +57,19 @@ def snapshot() -> dict[str, str]:
 
 
 def main() -> int:
+    global reconcile
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "sf-m3-native-focused")
+    parser.add_argument("--source-gate", choices=("sf-m3", "sf-m5"), default="sf-m3",
+                        help="Explicit reviewed source admission; the original M3 default remains strict")
     args = parser.parse_args()
+    if args.source_gate == "sf-m5":
+        from tools.sandfall import sf_m5_reconcile
+        reconcile = sf_m5_reconcile
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=True)
-    record = {"schema": "sandfall-sf-m3-focused-native-v1", "status": "failed",
+    record = {"schema": f"sandfall-{args.source_gate}-focused-native-v1", "status": "failed",
+              "source_gate": args.source_gate,
               "scope": "12 retained focused native tests plus the new restore-only occupancy test and C header/lifecycle/settled checks; not the full suite or Godot/Rapier/browser acceptance",
               "reviewed_base_source": reconcile.BASE, "started_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
               "platform": platform.platform(), "compiler_override": os.environ.get("CXX"),
@@ -87,7 +94,7 @@ def main() -> int:
                 "exact_baseline_tree", "baseline_is_ancestor", "no_untracked_native_sources",
                 "exact_reviewed_native_delta", "unchanged_runtime_payloads_manifests_and_pins",
                 "unchanged_inherited_gates")):
-            raise RuntimeError("Source is not the exact reviewed SF-M3 native delta")
+            raise RuntimeError(f"Source is not the exact reviewed {args.source_gate.upper()} native delta")
         drift = set(paths("diff", "--name-only", "--no-renames", "-z", "HEAD", "--", "native", "Makefile"))
         drift.update(paths("diff", "--cached", "--name-only", "--no-renames", "-z", "HEAD", "--", "native", "Makefile"))
         drift.update(paths("ls-files", "--others", "--exclude-standard", "-z", "--", "native", "Makefile"))

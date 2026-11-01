@@ -1,9 +1,22 @@
 #!/usr/bin/env bash
 # Exact-source SF-M4 source/build gates. M0/M2/M3 reconcilers remain unchanged.
-# This milestone changes no native source; its fresh build uses the exact reviewed M3 admission gate;
-# retained browser/legacy execution delegates to the unchanged M2 runner.
+# Select the exact additive M5 admission only when that source gate exists.
+# Earlier reconcilers remain unchanged and their refusals remain in evidence.
+# Retained browser/legacy execution delegates to the unchanged M2 runner.
 set -euo pipefail
 mode="${1:?source|build|browser|legacy}"
+SOURCE_GATE=sf-m3
+RECONCILER=tools/sandfall/sf_m3_reconcile.py
+if test -f tools/sandfall/sf_m5_reconcile.py; then
+  SOURCE_GATE=sf-m5
+  RECONCILER=tools/sandfall/sf_m5_reconcile.py
+fi
+WEB_PROFILE="${SF_WEB_PROFILE:-compat}"
+case "$WEB_PROFILE" in
+  compat) WEB_ROOT=build/web-sandfall ;;
+  threaded) WEB_ROOT=build/web-sandfall-threaded ;;
+  *) echo 'Unknown explicit Web profile' >&2; exit 2 ;;
+esac
 case "$mode" in
 source)
 echo 'SF_M4_CI Verify frozen history, actual LFS bytes and documented exceptions'
@@ -13,7 +26,7 @@ test "$(git rev-parse '1d376fb38ff5df83691e468baa0639270a5f40e6^{tree}')" = 97eb
 git lfs fetch origin "$(git rev-parse HEAD)"
 git lfs checkout
 python3 tools/ci/check_ci_provider_policy.py
-python3 tools/sandfall/sf_m3_reconcile.py --output sf-m4-evidence/source-reconciliation.json
+python3 "$RECONCILER" --output sf-m4-evidence/source-reconciliation.json
 
 echo 'SF_M4_CI Execute build identity, geometry, pixel and input assertion negatives'
 set -euo pipefail
@@ -43,7 +56,7 @@ assert record['status']=='failed'
 assert record['failures']==['RuntimeError: Native source differs from the retained full-suite baseline'], record['failures']
 assert not record['commands'], 'Original baseline refusal must precede execution'
 PYCODE
-python3 tools/sandfall/sf_m3_native_smoke.py --output-dir sf-m4-evidence/native-focused
+python3 tools/sandfall/sf_m3_native_smoke.py --source-gate "$SOURCE_GATE" --output-dir sf-m4-evidence/native-focused
 
 ;;
 build)
@@ -51,7 +64,7 @@ echo 'SF_M4_CI Restore and verify pinned native and Rapier dependencies'
 set -euo pipefail
 git lfs fetch origin "$(git rev-parse HEAD)"
 git lfs checkout
-python3 tools/sandfall/sf_m3_reconcile.py --output sf-m4-build/reconciliation.json
+python3 "$RECONCILER" --output sf-m4-build/reconciliation.json
 
 echo 'SF_M4_CI Provision pinned Godot, SCons and separate Web/native godot-cpp builds'
 set -euo pipefail
@@ -112,14 +125,45 @@ export SF_M4_TEST_OUTPUT="$PWD/sf-m4-build/project-codec"
 "$RUNNER_TEMP/sf-web-python/bin/python" tools/build_web.py \
   --cpp "$RUNNER_TEMP/godot-cpp-web" --native-cpp "$RUNNER_TEMP/godot-cpp-native" \
   --godot "$GODOT_BIN" --templates "$RUNNER_TEMP/web-templates" \
-  --profile compat --entry sandfall --native-tests \
+  --profile "$WEB_PROFILE" --entry sandfall --native-tests \
   2>&1 | tee sf-m4-build/sandfall-build-and-godot-tests.log
-python3 tools/sandfall/sf_m4_verify_web_artifact.py \
-  --web-root build/web-sandfall --expected-build-sha "$(git rev-parse HEAD)" \
-  --output sf-m4-build/artifact-verification.json
+if test -f tools/sandfall/sf_m5_verify_web_artifact.py; then
+  python3 tools/sandfall/sf_m5_verify_web_artifact.py \
+    --web-root "$WEB_ROOT" --profile "$WEB_PROFILE" --expected-build-sha "$(git rev-parse HEAD)" \
+    --output sf-m4-build/artifact-verification.json
+else
+  test "$WEB_PROFILE" = compat
+  python3 tools/sandfall/sf_m4_verify_web_artifact.py \
+    --web-root "$WEB_ROOT" --expected-build-sha "$(git rev-parse HEAD)" \
+    --output sf-m4-build/artifact-verification.json
+fi
 cp build/web-libs/libcybersand_native.linux.x86_64.so sf-m4-build/libcybersand_native.linux.x86_64.so
 sha256sum sf-m4-build/libcybersand_native.linux.x86_64.so > sf-m4-build/native-gdextension.sha256
 
+if test -f tools/sandfall/sf_m5_extract_science_logs.py; then
+  echo 'SF_M5_B01 Validate original scientific receipts and retained local Golden Run variance'
+  python3 tools/sandfall/sf_m5_extract_science_logs.py \
+    --log sf-m4-build/sandfall-build-and-godot-tests.log --output sf-m4-build/scientific-logs
+  # The scientific reducer requires a completely clean source checkout. Keep
+  # that guard: CI's untracked evidence directories belong outside this read-
+  # only source worktree, while the actual tested stage and runtime stay bound.
+  science_source="$RUNNER_TEMP/sf-m5-science-source"
+  GIT_LFS_SKIP_SMUDGE=1 git worktree add --detach "$science_source" "$(git rev-parse HEAD)"
+  stage="$PWD/build/web-sandfall-project"
+  if test "$WEB_PROFILE" = threaded; then stage="$stage-threaded"; fi
+  logs=()
+  for suite in authoring objects projects gallery scientific; do
+    logs+=(--log "$PWD/sf-m4-build/scientific-logs/$suite.log")
+  done
+  python3 "$science_source/tools/sandfall/sf_m5_science_report.py" "${logs[@]}" \
+    --project "$stage" --godot "$GODOT_BIN" --source-commit "$(git rev-parse HEAD)" \
+    --native-source-commit "$(git rev-parse HEAD)" \
+    --native-sha256 "$(sha256sum sf-m4-build/libcybersand_native.linux.x86_64.so | cut -d' ' -f1)" \
+    --output "$PWD/sf-m4-build/scientific-report.json"
+  git worktree remove "$science_source"
+fi
+
+if test "$WEB_PROFILE" = compat; then
 echo 'SF_M4_CI Export the retained legacy fixture using the same freshly compiled side module'
 set -euo pipefail
 source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
@@ -128,6 +172,7 @@ source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
   --godot "$GODOT_BIN" --templates "$RUNNER_TEMP/web-templates" \
   --profile compat --entry legacy --export-only --native-tests \
   2>&1 | tee sf-m4-build/legacy-export-and-godot-tests.log
+fi
 
 ;;
 browser|legacy)

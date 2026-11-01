@@ -501,6 +501,10 @@ func _update_ui() -> void:
 	else:
 		_status.remove_theme_color_override("font_color")
 	_project_status.text = str(_file_observation.get("message", ""))
+	if bool(state.native.ready):
+		var runtime_label: String = "%s · %d native workers · %s" % [str(state.native.web_profile.get("profile", "native")).capitalize(), int(state.native.workers), "Rapier2D ready" if state.native.rapier_available else "Rapier deferred (empty scene)"]
+		_project_status.text = runtime_label + (" · " + _project_status.text if not _project_status.text.is_empty() else "")
+		_project_status.tooltip_text = runtime_label + "\nObserved native workers in one dispatch: %d" % int(state.native.web_profile.observed_workers_peak)
 
 
 func observation() -> Dictionary:

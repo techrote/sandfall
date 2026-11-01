@@ -218,6 +218,7 @@ void CyberNativeCellWorld::_bind_methods() {
     CYBERSAND_BIND_GETTER(rigid_body_unresolved_last_tick);
     CYBERSAND_BIND_GETTER(simulation_time_ms);
     CYBERSAND_BIND_GETTER(worker_threads);
+    CYBERSAND_BIND_GETTER(worker_threads_observed_last_tick);
     CYBERSAND_BIND_GETTER(backend_name);
     CYBERSAND_BIND_GETTER(last_tick_error);
     CYBERSAND_BIND_GETTER(tick_failure_count);
@@ -2110,6 +2111,9 @@ Array CyberNativeCellWorld::diagnostic_body_metrics() const {
 
 double CyberNativeCellWorld::get_simulation_time_ms() const { return simulation_time_ms_; }
 std::int64_t CyberNativeCellWorld::get_worker_threads() const { return worker_threads_; }
+std::int64_t CyberNativeCellWorld::get_worker_threads_observed_last_tick() const {
+    return static_cast<std::int64_t>(last_stats_.worker_threads_observed);
+}
 String CyberNativeCellWorld::get_backend_name() const { return "native-phased"; }
 String CyberNativeCellWorld::get_last_tick_error() const { return last_tick_error_; }
 std::int64_t CyberNativeCellWorld::get_tick_failure_count() const {

@@ -97,6 +97,7 @@ public:
     [[nodiscard]] std::int64_t get_rigid_body_unresolved_last_tick() const;
     [[nodiscard]] double get_simulation_time_ms() const;
     [[nodiscard]] std::int64_t get_worker_threads() const;
+    [[nodiscard]] std::int64_t get_worker_threads_observed_last_tick() const;
     [[nodiscard]] String get_backend_name() const;
     [[nodiscard]] String get_last_tick_error() const;
     [[nodiscard]] Dictionary get_water_experiment_policy() const;

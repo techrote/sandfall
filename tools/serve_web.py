@@ -15,9 +15,10 @@ class WebHandler(SimpleHTTPRequestHandler):
                       '.wasm': 'application/wasm', '.pck': 'application/octet-stream'}
 
     def end_headers(self):
-        self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
-        self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
-        self.send_header('Cross-Origin-Resource-Policy', 'same-origin')
+        if self.server.isolation:
+            self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
+            self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
+            self.send_header('Cross-Origin-Resource-Policy', 'same-origin')
         self.send_header('Cache-Control', 'no-store')
         super().end_headers()
 
@@ -28,12 +29,15 @@ def main(default_directory: Path | None = None):
     parser.add_argument('--port', type=int, default=8000)
     parser.add_argument('--bind', default='127.0.0.1')
     parser.add_argument('--open', action='store_true')
+    parser.add_argument('--isolation', choices=('on', 'off'), default='on',
+                        help='COOP/COEP headers; off proves compatibility does not require them')
     args = parser.parse_args()
     directory = args.directory.resolve()
     for filename in ('index.html', 'index.js', 'index.wasm', 'index.pck'):
         if not (directory / filename).is_file():
             parser.error(f'Incomplete export: missing {directory / filename}')
     server = ThreadingHTTPServer((args.bind, args.port), partial(WebHandler, directory=str(directory)))
+    server.isolation = args.isolation == 'on'
     url = f'http://{args.bind}:{server.server_port}/'
     print(f'Serving {directory}\n{url}\nPress Ctrl+C to stop.', flush=True)
     if args.open:

@@ -76,6 +76,17 @@ milestones are **not Sandfall assignments**.
 
 - **SF-M3/SF-M4 owner authorization (2026-10-31):** PRs #5 and #6 may be marked ready and merged in that order after independent source review, applicable exact-head native/Godot/actual-browser qualification and provenance gates. Historic `sf_m0_reconcile.py` and `sf_m2_reconcile.py` refusals and stale desktop payload warnings remain retained. The strict `sf_m3_reconcile.py` gate admits only its reviewed source delta for fresh builds; it does not certify old binary payloads. No engine/physical gate may be waived for integration.
 
+SF-M5 engineering PRs are owner-authorized for individual guarded merges after
+independent technical review and all applicable exact-head gates. Preserve the
+accepted M0–M4 functionality, four-way Native architecture, routine browser
+coverage and full 36-job M4 qualification when application changes affect its
+scope. Follow [the M5 Web contract](docs/SF-M5-WEB-QUALIFICATION.md): fresh builds
+use the strict M5 source-delta reconciler, with original M0/M2/M3 refusals retained.
+Actual threaded worker execution, scientific outcomes, measured performance and
+human Gallery acceptance need separately scoped evidence. A skipped or failed
+gate cannot count as a pass. This authorization does not include publishing or
+tagging v1.0; a genuine human Gallery verdict cannot be supplied by an agent.
+
 ## Historical upstream instructions retained below
 
 The following CyberSand guide is retained for native technical invariants,

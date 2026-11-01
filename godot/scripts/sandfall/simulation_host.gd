@@ -38,6 +38,8 @@ var _object_mutating: bool = false
 var _physics_viewport: SubViewport
 var _body_root: Node2D
 var _adopted_container: SandfallSimulationHost
+var _web_profile: Dictionary = {}
+var _workers_observed_peak: int = 0
 var _performance: Variant = PerformanceSampler.new()
 var _tick_started_usec: int = 0
 
@@ -72,6 +74,11 @@ func configure(definition: Dictionary) -> Dictionary:
 	_displaced_total = 0
 	_moves_total = 0
 	_cpp_exception_probe = false
+	_workers_observed_peak = 0
+	_web_profile = SandfallWebProfile.apply_policy()
+	if not bool(_web_profile.get("ok", false)):
+		_enter_fault(str(_web_profile.get("error", "Web worker policy refused")))
+		return state()
 	if not is_inside_tree():
 		_enter_fault("Simulation host must be inside the scene tree")
 		return state()
@@ -100,6 +107,9 @@ func configure(definition: Dictionary) -> Dictionary:
 	_edit_bridge = ClassDB.instantiate(&"SandfallEditBridge")
 	if _native_world == null or _demo_bridge == null or _native_world.has_failed():
 		_enter_fault("Native Sandfall world construction failed")
+		return state()
+	if OS.has_feature("web") and int(_native_world.get_worker_threads()) != int(_web_profile.resolved_workers):
+		_enter_fault("Requested native worker count was not constructed; no threaded fallback is accepted")
 		return state()
 	var built: bool = bool(_demo_bridge.import_level(_native_world, _definition.initial_cells)) if _definition.has("initial_cells") else bool(_demo_bridge.build_world(_native_world, _definition.rectangles))
 	if not built:
@@ -215,6 +225,8 @@ func commit_staged_project(candidate: SandfallSimulationHost) -> Dictionary:
 	_initial_body_states = candidate._initial_body_states
 	_rapier_probe = candidate._rapier_probe
 	_cpp_exception_probe = candidate._cpp_exception_probe
+	_web_profile = candidate._web_profile
+	_workers_observed_peak = candidate._workers_observed_peak
 	_object_registry = candidate._object_registry
 	_object_revision = candidate._object_revision
 	_object_feedback = candidate._object_feedback
@@ -300,6 +312,8 @@ func _advance_native_tick() -> bool:
 
 
 func state(include_material_identity: bool = false) -> Dictionary:
+	var observed_workers: int = int(_native_world.get_worker_threads_observed_last_tick()) if _native_world != null else 0
+	_workers_observed_peak = maxi(_workers_observed_peak, observed_workers)
 	var result: Dictionary = {
 		"ready": _ready and not _fault, "fault": _fault, "error": _error,
 		"native_available": CyberWebCapabilities.native_available(),
@@ -318,6 +332,8 @@ func state(include_material_identity: bool = false) -> Dictionary:
 		"moves_total": _moves_total,
 		"moves_last_tick": int(_native_world.get_moves_last_tick()) if _native_world != null else 0,
 		"workers": int(_native_world.get_worker_threads()) if _native_world != null else 0,
+		"workers_observed_last_tick": observed_workers,
+		"web_profile": SandfallWebProfile.observe(_web_profile, _native_world, _workers_observed_peak),
 		"initial_material_sha256": _initial_material_sha256,
 		"initial_body_states": _initial_body_states.duplicate(true),
 		"body_states": _read_body_states(), "body_sizes": _body_size_values(),

@@ -3,6 +3,7 @@
 // read-only. Every state transition below uses genuine CDP browser input; this
 // harness cannot call a Godot command, edit a tick, or set acceptance success.
 import assert from "node:assert/strict";
+import {configureWebProfile,webProfile,nativeArtifactName} from "./sf_m5_web_profile.mjs";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync, existsSync, renameSync } from "node:fs";
@@ -56,15 +57,13 @@ if (verification.status !== "passed" || !verification.logical_viewport)
 if (verification.application_entry !== "sandfall" || verification.entry_scene !== "res://sandfall_main.tscn")
   throw Error("Verified export is not the dedicated Sandfall application");
 const layout = verification.logical_viewport;
-const query = [...new URL(url).searchParams];
-if (query.length !== 1 || query[0][0] !== "test" || query[0][1] !== "1")
-  throw Error("Ordinary acceptance permits only the read-only ?test=1 observation mode");
+configureWebProfile(verification,url);
 if (![width, height, dpr, timeoutMs].every(x => Number.isFinite(x) && x > 0))
   throw Error("Invalid browser dimensions or timeout");
 const sha256 = bytes => createHash("sha256").update(bytes).digest("hex");
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const copy = value => structuredClone(value);
-const harnessInputs = ["sf_m4_browser.mjs", "sf_m4_browser_assertions.mjs", "sf_m4_archive_fixture.py", "sf_m3_browser_assertions.mjs", "sf_m3_pixels.mjs", "sf_m2_browser_assertions.mjs", "sf_m2_geometry.mjs", "sf_m0_geometry.mjs", "sf_m0_png_stats.mjs"]
+const harnessInputs = ["sf_m5_web_profile.mjs", "sf_m4_browser.mjs", "sf_m4_browser_assertions.mjs", "sf_m4_archive_fixture.py", "sf_m3_browser_assertions.mjs", "sf_m3_pixels.mjs", "sf_m2_browser_assertions.mjs", "sf_m2_geometry.mjs", "sf_m0_geometry.mjs", "sf_m0_png_stats.mjs"]
   .map(path => ({path, sha256:sha256(readFileSync(new URL(path, import.meta.url)))}));
 const repoRoot = fileURLToPath(new URL("../../",import.meta.url));
 const harnessHead = execFileSync("git",["-C",repoRoot,"rev-parse","HEAD"],{encoding:"utf8"}).trim();
@@ -752,7 +751,7 @@ function assertRunReceipt(receipt,observed,initialArchive) {
   assert.equal(e.physical.displacements,observed.displaced_total);
   assert.deepEqual(e.physical.per_object_feedback,observed.native.object_feedback);
   assert.deepEqual(e.physical.body_body_pairs,observed.native.body_body_pairs);
-  assert.equal(e.physical.pending_colliders,0);assert.equal(e.physical.workers,1);
+  assert.equal(e.physical.pending_colliders,0);assert.equal(e.physical.workers,webProfile.expectedWorkers);
   assert.equal(e.interventions.length,observed.intervention_count);
   assert.ok(e.interventions.length<=256&&e.intervention_bytes<=32*1024*1024);
   let sequence=0;
@@ -1114,8 +1113,8 @@ try {
     assert.equal(state.rapier_steps,0);
     assert.equal(state.source_commit,verification.build_source_commit,
       "Runtime source identity differs from the verified application export");
-    const native = verification.artifacts.find(value=>value.path === "libcybersand_native.web.nothreads.wasm");
-    assert.ok(native,"Verified native compatibility WASM receipt is absent");
+    const native = verification.artifacts.find(value=>value.path === nativeArtifactName());
+    assert.ok(native,"Verified native profile WASM receipt is absent");
     assert.equal(state.native_sha256,native.sha256,"Observed native digest differs from verified/served WASM");
   });
   await executeScenario();
@@ -1134,7 +1133,7 @@ try {
       build_source_commit:verification.build_source_commit,harness_source_commit:verification.harness_source_commit,
       source_equivalence:verification.source_equivalence},
     acceptance_mode:"ordinary dedicated Sandfall application; read-only test=1; genuine CDP input only",
-    scope:{compatibility_web:true,threaded_web:false,human_visual_acceptance:false,scenario,gallery_entry:galleryEntry,
+    scope:{compatibility_web:webProfile.profile==="compat",threaded_web:webProfile.profile==="threaded",worker_profile:{...webProfile},human_visual_acceptance:false,scenario,gallery_entry:galleryEntry,
       coupled_body_count:scenario==='projects'?bodyCount:null,capacity_refusal:scenario==='projects'&&bodyCount===16,
       archive_delivery:"real browser chooser/upload and observed Blob download bytes",
       physical_save_restore_and_partial_fault:"Separate Godot backend/session gates; not claimed by this browser receipt"},

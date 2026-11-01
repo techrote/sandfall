@@ -35,9 +35,15 @@ and editable folder. Its [dated audit](audits/2026-10-31-sf-m4-projects-exhibiti
 records branch ownership, original negatives and exact-head qualification.
 The [independent review](audits/2026-10-31-sf-m4-independent-review.md) records
 cross-author findings, corrections and the final evidence boundary.
-SF-M0–M3 are merged. SF-M4 final integration is tracked in the
-[reconciliation audit](audits/2026-11-01-sf-m4-final-reconciliation.md); its
-source-specific qualification and guarded merge remain explicit gates.
+SF-M0–M4 are merged. The accepted M4 merge is `ec94dfa50525135375dd6e35d1c5fca55c412544`;
+its source-specific qualification is retained in the
+[reconciliation audit](audits/2026-11-01-sf-m4-final-reconciliation.md).
+
+The [SF-M5 Web qualification contract](SF-M5-WEB-QUALIFICATION.md) documents
+separate Compatibility and Threaded exports, verified runtime custody, supported
+hosting, actual worker observations and executable browser/CI gates. Both profiles
+require HTTPS or a loopback origin; only Threaded Web requires cross-origin isolation.
+Machine qualification and a genuine human Gallery verdict remain separate release gates.
 
 The [SF-M5 B01 scientific audit](audits/2026-11-01-sf-m5-scientific-acceptance.md)
 records actual five-preset fixed-step tests, chemical/thermal history, repeated

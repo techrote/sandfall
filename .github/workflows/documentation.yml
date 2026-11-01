@@ -55,7 +55,9 @@ jobs:
           # Later milestones deliberately change native inputs. Keep M0/M2
           # admission guards intact; the M3 gate independently pins the exact
           # six-file native patch and retains both earlier refusal records.
-          if test -f tools/sandfall/sf_m3_reconcile.py; then
+          if test -f tools/sandfall/sf_m5_reconcile.py; then
+            python3 tools/sandfall/sf_m5_reconcile.py --output sf-m0-evidence/documentation-reconciliation.json
+          elif test -f tools/sandfall/sf_m3_reconcile.py; then
             python3 tools/sandfall/sf_m3_reconcile.py --output sf-m0-evidence/documentation-reconciliation.json
           elif test -f tools/sandfall/sf_m2_reconcile.py; then
             python3 tools/sandfall/sf_m2_reconcile.py --output sf-m0-evidence/documentation-reconciliation.json
@@ -66,12 +68,30 @@ jobs:
           import json
           from pathlib import Path
           record=json.loads(Path('sf-m0-evidence/documentation-reconciliation.json').read_text())
+          sf_m5=Path('tools/sandfall/sf_m5_reconcile.py').is_file()
           sf_m3=Path('tools/sandfall/sf_m3_reconcile.py').is_file()
           sf_m2=Path('tools/sandfall/sf_m2_reconcile.py').is_file()
           assert record['safe_for_fresh_web_build'] is True
           assert record['current_lfs_count']==18
           assert not record['unexpected_errors'] and not record['missing_expected_errors']
-          if sf_m3:
+          if sf_m5:
+              from tools.sandfall.sf_m5_reconcile import classify, REQUIRED_CHECKS, REVIEWED_NATIVE_PATCH_SHA256
+              assert record['schema']=='sandfall-sf-m5-fresh-build-reconciliation-v1'
+              assert record['expected_checker_error_count']==20
+              assert record['original_m0_disposition']=='refused'
+              assert record['original_m2_disposition']=='refused'
+              assert record['original_m3_disposition']=='refused'
+              previous=record['original_m3_reconciliation']
+              assert previous['safe_for_fresh_web_build'] is False
+              checks=record['source_checks']
+              assert all(checks[key] is True for key in REQUIRED_CHECKS)
+              assert classify(previous,checks)['safe_for_fresh_web_build'] is True
+              assert record['native_patch_record']['sha256']==checks['native_patch_sha256']==REVIEWED_NATIVE_PATCH_SHA256
+              original=previous['original_m2_reconciliation']['original_checker']
+              assert original['status']=='failed'
+              assert len(original['documentation']['errors'])==6 and len(original['errors'])==20
+              print('RETAINED, NOT CLEARED: M0/M2/M3 original refusals, exact checker failures and unchanged dependency/runtime pins. Only the exact reviewed additive M5 getter is admitted for a fresh build.')
+          elif sf_m3:
               assert record['schema']=='sandfall-sf-m3-fresh-build-reconciliation-v1'
               assert record['expected_checker_error_count']==20
               assert record['original_m0_disposition']=='refused'

@@ -19,8 +19,8 @@ except ModuleNotFoundError:
     from tools.sandfall.sf_m1_verify_web_artifact import verify as verify_base, require, git, VerificationError, ROOT
 
 
-def verify(web_root: Path, repo_root: Path, expected_build_sha: str) -> dict:
-    receipt = verify_base(web_root, repo_root, expected_build_sha)
+def verify(web_root: Path, repo_root: Path, expected_build_sha: str, profile: str = "compat") -> dict:
+    receipt = verify_base(web_root, repo_root, expected_build_sha, profile)
     identity_path = web_root / "sandfall_build_identity.json"
     require(identity_path.is_file(), "SF-M4 project/evidence identity is absent")
     identity = json.loads(identity_path.read_text(encoding="utf-8"))
@@ -31,11 +31,11 @@ def verify(web_root: Path, repo_root: Path, expected_build_sha: str) -> dict:
         "source_commit": expected_build_sha,
         "native_source_commit": expected_build_sha,
         "source_tree": git(repo_root, "rev-parse", f"{expected_build_sha}^{{tree}}"),
-        "native_runtime_sha256": entries["libcybersand_native.web.nothreads.wasm"]["sha256"],
+        "native_runtime_sha256": entries["libcybersand_native.web." + ("threads" if profile == "threaded" else "nothreads") + ".wasm"]["sha256"],
         "rapier_version": "0.35.2",
         "rapier_runtime_sha256": entries["godot_rapier.wasm"]["sha256"],
         "godot_version": "4.7.stable.official.5b4e0cb0f",
-        "build_profile": "compat",
+        "build_profile": profile,
     }
     require(identity == expected, "Project identity is not the measured exact-head native/Rapier build")
     require("sandfall_build_identity.json" in entries, "Project identity is outside the export inventory")
