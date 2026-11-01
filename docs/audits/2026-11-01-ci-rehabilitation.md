@@ -401,3 +401,11 @@ Keep the PR draft until all exact-head required checks and review conditions
 are met; re-read `main`, branch protection, competing PR owners and active runs
 immediately before any merge. Leave the PR draft/unmerged if a relevant failure
 remains unresolved. Do not alter branch protection to force the outcome.
+
+## CI recovery follow-up — 1 November 2026, source-only checkpoint
+
+- Retained four-suite parallel Native topology and fail-closed aggregate without redesign.
+- The required `sandfall-current` Godot profile now executes `test_microscenario_web_owner.gd`, extracted from the inherited desktop Tower fixture. This covers synchronous Web-owner definition, refusal, capture, step and reset assertions without requiring the removed `FeatureNavigation` desktop host. The original cross-owner comparison and Tower exactly-once tests remain in diagnostic `full`.
+- Windows portability remains manual, but its cross-built native DLL is now bundled with exact Git source commit/tree and complete native-input hashes, passed as an artifact from the same run and verified on the Windows worker. It no longer exercises the old LFS CyberSand DLL. The workflow uses reviewed `sandfall-current` on Windows; `full` remains selectable for historical diagnostics.
+- Cheap CI validation now runs profile/sharding tests and fresh Windows runtime negative provenance tests.
+- These are implementation claims only. No new exact-head hosted Native, Linux or browser PASS is claimed in this checkpoint; release readiness remains gated on real hosted evidence and independent review.
