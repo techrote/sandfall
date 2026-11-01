@@ -245,13 +245,18 @@ branch before hosted runs:
   or runtime identity errors. Retain the six companion-workspace gaps and stale
   desktop provenance as inherited evidence.
 
-**Hosted implementation result: pending.** Record the PR number, implementation
-SHA, actionlint/CI result, Native exact-source job timestamps and runner-minutes,
-GDExtension Linux aggregate, fresh compatibility Web and browser receipts,
-documentation/provenance check, and final independent-review disposition here.
-Do not merge while any required exact-head result or relevant failure remains
-unresolved. Update this section after controlled qualification and again after
-any fix.
+**Hosted qualification is in progress on draft PR #7.** At initial SHA
+`91c0be96bfa6a7b886c59d2a852730a4b5db0898`, Documentation/provenance passed
+(run `41289878845`). CI validation run `41289878883` exposed ShellCheck SC2094
+in the retained manual M2 fixture: checksum output was written into the same
+directory being scanned. The manifest now writes to `$RUNNER_TEMP` before it
+moves into the fixture directory; rerun on the corrective SHA is pending.
+Native, GDExtension and Web qualification jobs skipped on the draft as intended.
+The exact-source hosted result remains pending; record the corrective SHA,
+actionlint/CI result, Native suite timestamps and runner-minutes, Linux
+GDExtension aggregate, fresh compatibility Web/browser receipts, and final
+independent-review disposition after qualification. Do not merge while any
+required exact-head result or relevant failure remains unresolved.
 
 ## SF-M3/SF-M4 reconciliation checklist
 
