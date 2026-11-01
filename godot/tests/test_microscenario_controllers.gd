@@ -67,15 +67,20 @@ func _run() -> void:
 		and button.get_global_rect().size.x > 0
 		and button.get_global_rect().size.y > 0,
 		"Legacy Tower input fixture must be visible and within the actual viewport")
-	# push_input(..., true) expects viewport-local coordinates. get_global_rect()
-	# is in the canvas' global space and is not necessarily the same space when
-	# canvas_items stretch or the root Window's size changes. Convert the
-	# actual button's local centre using Godot's canvas-to-viewport transform.
-	# This is the genuine GUI input path, not a direct pressed signal.
-	var click_at: Vector2 = button.get_global_transform_with_canvas() * (button.size * 0.5)
-	expect(viewport_rect.has_point(click_at), "transformed Tower input target is outside viewport")
-	expect((button.make_canvas_position_local(click_at) - button.size * 0.5).length() < 0.01,
-		"Tower input transform does not round-trip to the actual button")
+	# Feed the actual GUI through Godot's documented focused-window input
+	# route. Custom Input events use screen coordinates, so compose the root
+	# viewport's screen transform with the Control's canvas transform.
+	# This exercises normal GUI hit-testing and Button state; it does not emit
+	# the pressed signal or call tower_reset directly.
+	var local_center: Vector2 = button.size * 0.5
+	var click_at: Vector2 = (
+		root.get_screen_transform()
+		* button.get_global_transform_with_canvas()
+		* local_center
+	)
+	expect(root.get_visible_rect().has_point(
+		root.get_screen_transform().affine_inverse() * click_at),
+		"transformed Tower input target is outside the root viewport")
 	var received_edges: Array[bool] = []
 	button.gui_input.connect(func(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -83,7 +88,7 @@ func _run() -> void:
 	var pointer := InputEventMouseMotion.new()
 	pointer.position = click_at
 	pointer.global_position = click_at
-	root.push_input(pointer, true)
+	Input.parse_input_event(pointer)
 	await process_frame
 	for pressed: bool in [true,false]:
 		var mouse := InputEventMouseButton.new()
@@ -91,10 +96,10 @@ func _run() -> void:
 		mouse.global_position = click_at
 		mouse.button_index = MOUSE_BUTTON_LEFT
 		mouse.pressed = pressed
-		root.push_input(mouse, true)
+		Input.parse_input_event(mouse)
 		await process_frame
 	expect(received_edges == [true,false],
-		"actual viewport input did not deliver exactly one mouse press/release to Tower")
+		"actual Input path did not deliver exactly one mouse press/release to Tower")
 	expect(desktop.reset_calls == 1, "mouse click did not invoke Tower exactly once")
 	expect(root.gui_get_focus_owner() != button, "mouse entry left Tower focusable")
 	for event: InputEventKey in [key(KEY_SPACE,true), key(KEY_SPACE,true,true), key(KEY_SPACE,false)]:
