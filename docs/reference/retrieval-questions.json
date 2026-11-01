@@ -538,11 +538,11 @@
         "The old check compares current files to M11; strict comparison still reports drift, including unresolved payload pointers. Preserve previous failures.",
         "M11 integrity now checks all 28 original source hashes against the audited Git revision and 18 retained records. Never rewrite historical hashes.",
         "Current checks independently validate documentation, dependency versions and source-bound runtime/LFS identity; identity does not prove execution.",
-        "Web CI/toolchain/template/export provenance contradictions remain separate issue #3 obligations."
+        "The old Emscripten 4.0.11 demo/toolchain workflows are retired; current SF-M2 Web acceptance uses the pinned 4.0.20 toolchain and source-matched browser tests. Remaining local wrapper or runtime-template provenance stays separate."
       ],
       "sources": [
         "../tools/ci/check_m11_consistency.py",
-        "../.github/workflows/web-demo.yml",
+        "audits/2026-11-01-ci-rehabilitation.md",
         "audits/2026-09-08-documentation-audit.md",
         "../tools/ci/check_repository.py"
       ]
