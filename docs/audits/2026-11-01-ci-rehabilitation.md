@@ -153,7 +153,7 @@ SF-M0/M1/M2 history continues to distinguish compatibility, threaded,
 unisolated-hosting and visual evidence. Branch-specific SF-M3/SF-M4 browser
 workflows remain responsible for their exact feature additions; the new
 mainline wrapper skips heads prefixed `sf-m3/` or `sf-m4/` to avoid duplicating
-those matrices. Their current compatibility/threaded results are not proof that
+those matrices. Their current compatibility-only results are not proof that
 this implementation's changed workflow code passed. Confirm release-threaded
 qualification when SF-M5 is admitted.
 
@@ -353,7 +353,7 @@ qualifying or integrating this PR.
    branch; retain the stable `native` aggregate, `ci-validation.yml`, required
    Linux host build/shards, M3's actual-browser tests, and its own fresh export.
    The mainline wrapper intentionally skips the `sf-m3/` head, so M3's own
-   source-matched compatibility/threaded matrices remain its Web acceptance.
+   source-matched compatibility-Web viewport/DPR matrices remain its Web acceptance.
    Re-run Native, CI validation, Documentation/provenance, GDExtension Linux,
    and all M3 browser/export jobs at the final M3 SHA. Owner GDExtension run
    `41288103276` on `744227d` failed Linux shard 0's
@@ -367,7 +367,7 @@ qualifying or integrating this PR.
    the integrated CI changes through the updated M3 stack into
    `sf-m4/projects-exhibitions-20261031`. Resolve the same workflow conflicts;
    keep SF-M4 ZIP/archive/presentation/Gallery browser evidence and its separate
-   compatibility/threaded results. The wrapper skips `sf-m4/` too. Re-run the
+   compatibility-Web viewport/DPR results. The wrapper skips `sf-m4/` too. Re-run the
    same shared gates plus all M4 project/archive/exhibition and actual-browser
    jobs on the final M4 SHA. Owner GDExtension run `41288109464` at `b57738e`
    failed Linux shard 3 on the same five Tower input assertions, and its Windows
@@ -392,7 +392,7 @@ qualifying or integrating this PR.
 
 The independent reviewer found no material blockers after checking inventory
 parity, job dependencies, aggregation, permissions, artifact identity, trigger
-filters, compatibility/threaded labels, stacked heads and runner usage. The
+filters, Web qualification labels, stacked heads and runner usage. The
 first pass identified stale Windows-required acceptance guidance and overly
 broad expensive workflow triggers; both were corrected. The follow-up caught a
 redundant provider-policy test path in the GDExtension filters; it was removed.
@@ -409,3 +409,8 @@ remains unresolved. Do not alter branch protection to force the outcome.
 - Windows portability remains manual, but its cross-built native DLL is now bundled with exact Git source commit/tree and complete native-input hashes, passed as an artifact from the same run and verified on the Windows worker. It no longer exercises the old LFS CyberSand DLL. The workflow uses reviewed `sandfall-current` on Windows; `full` remains selectable for historical diagnostics.
 - Cheap CI validation now runs profile/sharding tests and fresh Windows runtime negative provenance tests.
 - These are implementation claims only. No new exact-head hosted Native, Linux or browser PASS is claimed in this checkpoint; release readiness remains gated on real hosted evidence and independent review.
+
+Correction to the original review disposition: an external read-only review on
+1 November 2026 identified final-head qualification, Windows source integrity,
+legacy-Web-owner coverage and mainline M3/M4 coverage as outstanding. Subsequent
+corrections are documented above; no historical prior-head result is reclassified.
