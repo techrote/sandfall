@@ -336,6 +336,7 @@ def main() -> None:
                       "test_sandfall_archive.gd", "test_sandfall_projects.gd", "test_sandfall_promotion.gd",
                       "test_sandfall_presentation.gd", "test_sandfall_gallery.gd", "test_sandfall_project_input.gd"]
             tests.append("test_sandfall_performance.gd")
+            tests.append("test_sandfall_scientific.gd")
         for name in tests:
             # Seven curated scenes each run twice for 600 real coupled ticks,
             # plus the independent no-water physical control. This sustained

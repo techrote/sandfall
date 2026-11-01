@@ -111,6 +111,7 @@ func _run() -> void:
 	var imported: Dictionary = _app.observation()
 	_check(imported.project_file.import_count == 1 and imported.mode == "edit" and imported.tick == 0 and imported.rapier_steps == 0 and imported.document.undo_depth == 0, "Open confirmation did not install a fresh zero-time project")
 	_check(imported.body_ids == promoted.body_ids and imported.presentation == promoted.presentation and imported.current_hash == promoted.current_hash, "Project UI roundtrip lost exact authored state")
+	await _rapid_file_lease_retirement(encoded.bytes)
 	var save_path: String = ProjectSettings.globalize_path("user://sf-m4-ui-stage-save.bin")
 	_check(_app._write_export_file(save_path, PackedByteArray([1, 2, 3])).ok and FileAccess.get_file_as_bytes(save_path) == PackedByteArray([1, 2, 3]), "Staged desktop write did not publish complete bytes")
 	_check(_app._write_export_file(save_path, PackedByteArray([4, 5, 6, 7])).ok and FileAccess.get_file_as_bytes(save_path) == PackedByteArray([4, 5, 6, 7]), "Staged desktop replacement did not replace complete bytes")
@@ -134,6 +135,103 @@ func _run() -> void:
 	_app.queue_free()
 	await process_frame
 	quit(0 if _failures.is_empty() else 1)
+
+
+func _rapid_file_lease_retirement(bytes: PackedByteArray) -> void:
+	# M5-C01 residual lifecycle coverage. These labelled native injections test
+	# production callback/confirmation owners; actual chooser bytes and trusted
+	# browser delivery remain the separate SF-M4 browser qualification.
+	var baseline: Dictionary = _project_ownership()
+	var rows: Array = []
+	for iteration: int in 4:
+		await _click("file_open")
+		_app._desktop_dialog.hide()
+		var retired: int = int(_app._file_lease.serial)
+		await _click("project_cancel")
+		var closed: Dictionary = _app._file_observation.duplicate(true)
+		_app._on_project_selected(bytes, "retired-after-cancel.sandfall", retired)
+		_app._on_file_refused("late_old_read_failure", retired)
+		_app._on_file_cancelled(retired)
+		_app._file_bridge._receive(["archive_file_read_failed", "old.sandfall", null, retired])
+		_check(_app._file_observation == closed and _app._staged_project.is_empty()
+			and _app._project_dialog_kind.is_empty(), "Cancelled chooser callback revived a project operation")
+		await _click("file_open")
+		_app._desktop_dialog.hide()
+		var current: int = int(_app._file_lease.serial)
+		_check(current > retired, "Replacement chooser did not receive a fresh monotonic serial")
+		var choosing: Dictionary = _app._file_observation.duplicate(true)
+		_app._on_project_selected(bytes, "retired-while-choosing.sandfall", retired)
+		_app._file_bridge._receive(["cancel", "", null, retired])
+		_app._file_bridge._receive(["archive_file_read_failed", "old.sandfall", null, retired])
+		_check(_app._file_observation == choosing and _app._staged_project.is_empty()
+			and _app._file_bridge._active, "Retired bridge callback consumed or replaced the current chooser")
+		_app._on_project_selected(bytes, "current.sandfall", current)
+		var staged: Dictionary = _app._file_observation.duplicate(true)
+		var candidate: Dictionary = _app._staged_project.duplicate(true)
+		_check(bool(staged.staged) and not candidate.is_empty(), "Current chooser did not stage the valid archive")
+		_app._on_project_selected(PackedByteArray([0]), "retired-invalid.sandfall", retired)
+		_app._on_file_refused("late_old_validation_failure", retired)
+		_app._on_file_cancelled(retired)
+		_check(_app._file_observation == staged and _app._staged_project == candidate
+			and _project_ownership() == baseline, "Late retired callback damaged a staged candidate or the live project")
+		await _settled_project_action("project_cancel")
+		await _click("project_cancel")
+		_check(_project_ownership() == baseline,
+			"Rapid chooser cancellation changed native state, objects, RIDs or the authored document")
+		_check(_app._staged_project.is_empty() and _app._project_dialog_kind.is_empty(),
+			"Rapid chooser cancellation did not discard the staged candidate")
+		rows.append({"iteration": iteration, "retired_serial": retired, "current_serial": current,
+			"stale_callbacks_ignored": true, "live_owner_unchanged": true})
+	# A newly pressed confirmation consumes the candidate once. Replaying the
+	# callback or confirmation after adoption cannot install it a second time.
+	await _click("file_open")
+	_app._desktop_dialog.hide()
+	var confirmed_serial: int = int(_app._file_lease.serial)
+	_app._on_project_selected(bytes, "confirmed-once.sandfall", confirmed_serial)
+	var imports: int = int(_app._file_observation.import_count)
+	await _settled_project_action("project_confirm")
+	await _click("project_confirm")
+	var installed: Dictionary = _project_ownership()
+	_check(int(installed.generation) == int(baseline.generation) + 1
+		and int(_app._file_observation.import_count) == imports + 1,
+		"Current explicit confirmation did not install exactly one fresh generation")
+	_app._confirm_project()
+	_app._on_project_selected(bytes, "already-consumed.sandfall", confirmed_serial)
+	_app._on_file_cancelled(confirmed_serial)
+	_check(_project_ownership() == installed and int(_app._file_observation.import_count) == imports + 1
+		and _app._staged_project.is_empty(), "Consumed confirmation or chooser callback installed a second project")
+	_receipts.append({"m5_c01_file_leases": rows, "single_use_confirmation": true,
+		"scope": "native production callback owners with labelled late-callback injections; no browser-delivery claim"})
+
+
+func _settled_project_action(key: String) -> void:
+	# A selected-file callback changes the modal description and queues a
+	# Container layout. Observe its completed geometry before genuine input;
+	# sending a click at the previous chooser layout does not test cancellation.
+	var previous: Rect2 = Rect2()
+	for _frame: int in 30:
+		await process_frame
+		var button: Button = _app._buttons[key]
+		var rect: Rect2 = button.get_global_rect()
+		if button.is_visible_in_tree() and not button.disabled and rect.size.x > 0.0 \
+				and rect.size.y > 0.0 and rect == previous:
+			return
+		previous = rect
+	_check(false, "Project action layout did not become ready: " + key)
+
+
+func _project_ownership() -> Dictionary:
+	# Modal transitions intentionally retire the input epoch. All physical and
+	# authored owners must stay exact until a current explicit confirmation.
+	var physical: Dictionary = _app._host.capture_physical_state()
+	_check(bool(physical.ok), "Cannot snapshot current project ownership")
+	var rids: Array = []
+	for body: RigidBody2D in _app._host._bodies:
+		rids.append(body.get_rid().get_id())
+	var state: Dictionary = _app._session.state()
+	return {"generation": state.generation, "tick": state.tick, "rapier_steps": state.rapier_steps,
+		"mode": state.mode, "pristine": state.pristine, "document": state.document.duplicate(true),
+		"authored": _app._session.authored_project(), "rids": rids, "physical": physical}
 
 
 func _click(key: String) -> void:
