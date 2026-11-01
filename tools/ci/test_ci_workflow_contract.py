@@ -65,6 +65,7 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("startsWith(github.head_ref, 'sf-m3/')", wrapper)
         self.assertIn("startsWith(github.head_ref, 'sf-m4/')", wrapper)
         self.assertIn("workflow_call:", reusable)
+        self.assertIn("branches: ['sf-m3/**']", reusable)
         self.assertIn("if: ${{ !inputs.routine }}", reusable)
         self.assertEqual(
             reusable.count("ref: ${{ github.event.pull_request.head.sha || github.sha }}"),
