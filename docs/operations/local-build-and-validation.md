@@ -4,8 +4,8 @@ status: Current
 document-kind: guide
 scope: Pinned source build entry points, Windows workspace wrappers, platform boundaries and freshness limits
 canonical-for: [build-entry-points, dependency-pins, build-freshness]
-last-reviewed: 2026-10-25
-related-documents: [source-checkpoint-and-recovery.md, testing-validation-and-replay.md, web-threading.md, deepworks-exhibition.md, ../systems/depth-layers-and-parallax.md]
+last-reviewed: 2026-11-01
+related-documents: [source-checkpoint-and-recovery.md, testing-validation-and-replay.md, web-threading.md, deepworks-exhibition.md, ../systems/depth-layers-and-parallax.md, ../audits/2026-11-01-ci-rehabilitation.md]
 ---
 
 # Local build and validation
@@ -404,6 +404,13 @@ which has the same source tree as that PR head, and per-platform runtime hashes.
 
 ## Windows retained-runtime execution
 
+**Optional manual portability qualification:** dispatch `gdextension.yml` with
+`windows_portability=true`. This retained desktop headless lane does not block
+ordinary Sandfall Web PRs. The required Linux host build and regression shards
+remain routine; compatibility-Web/browser acceptance is the product gate. The
+current scope and the Tower input assertions seen on M3/M4 heads are recorded
+in the [CI rehabilitation audit](../audits/2026-11-01-ci-rehabilitation.md).
+
 For intermittent physical actor/usable/flight stalls, use the
 [timeout diagnostic procedure](testing-validation-and-replay.md#physical-regression-timeout-diagnostics).
 The ordinary 180-second case bound is unchanged. Dispatch the full registered
@@ -413,14 +420,14 @@ and raw logs even if the Actions run badge is green or red. The
 [dated audit](../audits/2026-10-24-issue-233-physical-regression-timeouts.md) records
 executions and remaining uncertainties separately from workflow availability.
 
-**Current:** the GDExtension workflow also executes the retained Windows DLL on a
+The optional Windows portability dispatch can execute the retained DLL on a
 GitHub-hosted `windows-2022` runner. This lane is separate from the Windows
 cross-build job. The
 [Windows execution helper](../../tools/ci/run_windows_godot_regressions.py)
 requires an exact workflow checkout, committed LFS bytes, matching runtime
 provenance and complete coverage of the current native source/header input set.
 Any changed or newly added native input requires a matching runtime publication
-before the retained DLL can satisfy this gate. Historical build-input hashes
+before the retained DLL can satisfy this portability check. Historical build-input hashes
 continue to describe their original build.
 
 The helper verifies the pinned official Windows Godot 4.7 archive, executable
@@ -482,7 +489,12 @@ explicit completion marker, and bound execution time. The headless course result
 reports an authored scenario, not visual usability or target-machine performance.
 
 The [automatic Godot suite](../../tools/ci/run_godot_regressions.py) discovers all
-these `test_*.gd` files without a manual registry. It also retains the ACT-004
+these `test_*.gd` files without a manual case registry. Its `full` profile runs
+every discovered case. The required current Sandfall CI selects
+`sandfall-current`, whose two source-documented legacy desktop exclusions and
+replacement evidence live in
+[`godot_regression_profiles.json`](../../tools/ci/godot_regression_profiles.json);
+new cases remain included by default. It also retains the ACT-004
 capacity, articulation, actuation, session, initial-terrain, effects, arena and
 trial regressions. Native tests, ASan/UBSan and TSan establish separate native
 evidence; a disabled leak detector must be reported explicitly. The
@@ -753,17 +765,19 @@ It published only after an explicit request on the implementation branch and rec
 A later native checkpoint must use a newly scoped publisher and fresh execution;
 the historical artifacts qualify their recorded source only.
 
-**Prepared residual checkpoint, 2026-10-24:**
-[`lcb001-shared-contract-runtime-publication.yml`](../../.github/workflows/lcb001-shared-contract-runtime-publication.yml)
-and its [helper](../../tools/ci/lcb001_shared_contract_runtime_publication.py)
-are limited to `codex/lcb001-shared-contract`. Its own explicit request arms
-the immutable source checkpoint; ordinary native edits do not request a build.
-Both target OSes must pass import and all twelve scoped cases, including W-CY,
+**Prepared residual checkpoint, 2026-10-24:** the CyberSand shared-contract
+publisher used the historical
+`.github/workflows/lcb001-shared-contract-runtime-publication.yml` trigger and
+its [helper](../../tools/ci/lcb001_shared_contract_runtime_publication.py).
+It was limited to `codex/lcb001-shared-contract`; an explicit request armed the
+immutable source checkpoint, and ordinary native edits did not request a build.
+Both target OSes had to pass import and all twelve scoped cases, including W-CY,
 pressure, worker, native observation and WEX body-mask controls. The
 [residual audit](../audits/2026-10-24-lcb001-residual-shared-contract.md#resumed-execution-and-fresh-main-integration)
-records guard preparation and actual publication status. Full non-draft
-exact-head gates remain separate. Retire this publisher after its bounded
-checkpoint merges.
+records guard preparation and actual publication status. On 2026-11-01 the
+active Sandfall workflow file was retired because its repository guard points
+to CyberSand; the historical helper, tests and source record remain. See the
+[CI disposition](../audits/2026-11-01-ci-rehabilitation.md#workflow-inventory-and-disposition).
 
 ## Hierarchical generation example and acceptance
 
@@ -808,8 +822,10 @@ produce a valid material proposal with a failed route report; test and report
 both facts without silently erasing the override.
 
 Implementation acceptance additionally requires the repository's exact-head
-Documentation/provenance, Native, GDExtension Linux/Windows and applicable scoped
-apparatus gates. The [dated audit](../audits/2026-10-21-gen004-hierarchical-generation.md)
+Documentation/provenance, Native `native`, GDExtension Linux `linux x86_64`,
+compatibility-Web/browser and applicable scoped apparatus gates. Windows
+cross-build and headless checks are manual portability evidence, not required
+product acceptance. The [dated audit](../audits/2026-10-21-gen004-hierarchical-generation.md)
 records actual commands, source/runtime identities, failures and limits. A
 successful abstract route graph, native compile or inherited runtime binary
 alone does not satisfy these gates.
