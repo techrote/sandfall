@@ -69,7 +69,12 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertNotIn("startsWith(github.head_ref, 'sf-m3/')", wrapper)
         self.assertIn("startsWith(github.head_ref, 'sf-m4/')", wrapper)
         self.assertIn("workflow_call:", reusable)
-        self.assertIn("branches: ['sf-m4/**']", reusable)
+        # D01 changes production instrumentation and must retain full M4
+        # qualification. Admit only that exact additional branch.
+        self.assertEqual(
+            re.findall(r"(?m)^    branches: (.+)$", job_block(reusable, "push")),
+            ["['sf-m4/**', 'sf-m5/d01-qualification']"],
+        )
         self.assertIn("if: ${{ !inputs.routine }}", reusable)
         self.assertEqual(
             reusable.count("ref: ${{ github.event.pull_request.head.sha || github.sha }}"),

@@ -4,10 +4,10 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import selectors
 import subprocess
 import sys
 import tempfile
-import time
 import unittest
 
 from tools.sandfall.sf_m5_bootstrap_ci import sha256, stop_group, verify_export
@@ -39,23 +39,26 @@ class BootstrapCustodyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             marker = Path(directory) / "child.json"
             script = "import pathlib,subprocess,sys,json; child=subprocess.Popen([sys.executable,'-c','import time; time.sleep(60)']); pathlib.Path(sys.argv[1]).write_text(json.dumps({'pid':child.pid}))"
-            controller = subprocess.Popen([sys.executable, "-c", script, str(marker)], start_new_session=True)
+            # A uniquely inherited pipe remains open while the real descendant
+            # is alive. Unlike /proc/<pid>, this evidence cannot accidentally
+            # refer to a host PID when execution uses a different PID namespace.
+            controller = subprocess.Popen([sys.executable, "-c", script, str(marker)],
+                                          stdout=subprocess.PIPE, start_new_session=True)
             try:
                 controller.wait(timeout=5)
                 self.assertEqual(controller.returncode, 0)
                 child_pid = json.loads(marker.read_text())["pid"]
                 self.assertEqual(os.getpgid(child_pid), controller.pid)
                 stop_group(controller)
-                until = time.monotonic() + 5
-                while time.monotonic() < until:
-                    stat = Path(f"/proc/{child_pid}/stat")
-                    if not stat.exists() or stat.read_text().split(")", 1)[1].split()[0] == "Z":
-                        break
-                    time.sleep(0.01)
-                else:
-                    self.fail("Owned child retained live CPU authority after controller-exit cleanup")
+                with selectors.DefaultSelector() as selector:
+                    selector.register(controller.stdout, selectors.EVENT_READ)
+                    self.assertTrue(selector.select(timeout=5),
+                                    "Owned child retained its live pipe after controller-exit cleanup")
+                    self.assertEqual(controller.stdout.read(1), b"",
+                                     "Owned descendant did not close its inherited pipe")
             finally:
                 stop_group(controller)
+                controller.stdout.close()
 
 
 if __name__ == "__main__":
