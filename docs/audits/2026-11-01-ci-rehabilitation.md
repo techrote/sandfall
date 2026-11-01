@@ -215,8 +215,8 @@ introduced. Toolchain assets remain pinned or checksum-verified.
 | `web-acceptance.yml` | Mainline compatibility-Web application acceptance | None existed for ordinary source PRs on `main` | **Add / retain** | Existing SF-M2 acceptance contract; source-matched fresh export | Trigger Web workflow and relevant app/build/test changes; skip M3/M4 heads with their own matrix |
 | `web-demo.yml` | Old CyberSand demo from branch `web-demo-m11` and artifact run `34034700056` | Stale demo branch and pre-Sandfall artifact | **Retire** | Branch-only / manual trigger and obsolete artifact identity | Actual Sandfall browser acceptance now runs from current source |
 | `web-toolchain.yml` | Old Web toolchain builder for `web-demo-m11` | Pins Emscripten 4.0.11, while current Sandfall Web gate pins 4.0.20 | **Retire** | Old branch and toolchain differ from Sandfall build | `sf-m2-web.yml` supplies pinned current exports |
-| `sf-m3-web.yml` (PR #5 branch) | Stable-ID Rapier workshop, 16-body and actual-browser qualification | 10 jobs, peak 8; exact feature branch, not on `main` | **Preserve on branch; reconcile later** | Passing earlier run #9 used 10 jobs; current head changed since it | Keep its feature tests; do not duplicate with wrapper; requalify exact final head |
-| `sf-m4-web.yml` (PR #6 branch) | ZIP projects, exhibitions, promotion and actual-browser qualification | 36 jobs, peak 18 in run #9; queue/active wall highly variable | **Preserve on branch; reconcile later** | #9 20.2m active; #8 109.8m total with 46.6m queue | Keep actual Web coverage; review matrix breadth/runner pressure during M4 owner reconciliation |
+| `sf-m3-web.yml` (PR #5 branch) | Stable-ID Rapier workshop, 16-body and actual-browser qualification | 10 jobs, peak 8; exact feature branch, not on `main` | **Preserve on branch; reconcile later** | Owner-started Web run `41288098937` passed on head `744227d`; Native and GDExtension were still running at this checkpoint | Keep its feature tests; do not duplicate with wrapper; reconcile shared CI after the final M3 head |
+| `sf-m4-web.yml` (PR #6 branch) | ZIP projects, exhibitions, promotion and actual-browser qualification | 36 jobs, peak 18 in run #9; queue/active wall highly variable | **Preserve on branch; reconcile later** | Owner-started Web run `41288106201` failed on head `b57738e`; #9 20.2m active; #8 109.8m total with 46.6m queue | Keep actual Web coverage; preserve the current failure for the M4 owner and review matrix breadth/runner pressure during reconciliation |
 
 Retired configurations are removed from `.github/workflows`; their scripts,
 Git history, audit records and historical run evidence remain. Five LCB
@@ -287,6 +287,11 @@ result or relevant failure remains unresolved.
 4. The historical M4 matrix's 18-runner peak and 110-minute contended example
    should be reviewed with the M4 owner when reconciling; preserve each distinct
    browser acceptance claim while avoiding duplicate current-source matrices.
+5. In owner-started M4 Web run `41288106201` at head `b57738e`, artifact
+   verification passed but the actual 800x450 DPR1 browser stayed on the home
+   screen with `ready=false` and tick 0, then timed out waiting for
+   `Sandbox-blank-Edit-ready`. Keep this feature-head failure with the M4 owner;
+   this CI change did not modify PR #6.
 
 ## Review and guarded integration
 
