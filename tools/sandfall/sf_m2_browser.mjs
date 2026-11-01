@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 import { analyzePng, pngDimensions } from "./sf_m0_png_stats.mjs";
 import { mapGodotRect, cssRectToScreenshotROI } from "./sf_m0_geometry.mjs";
 import {mapWorldCell} from "./sf_m2_geometry.mjs";
+import {sampleControlLayout,sameControlLayout,controlLayoutSettled} from "./sf_m3_browser_assertions.mjs";
 import {
   assertOrdinaryState, assertEdit, assertInputClear, physicalCheckpoint,
   assertPausedStable, assertStep, assertReset, assertGallery600, assertTrustedDelivery,
@@ -43,7 +44,7 @@ if (![width, height, dpr, timeoutMs].every(x => Number.isFinite(x) && x > 0))
 const sha256 = bytes => createHash("sha256").update(bytes).digest("hex");
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const copy = value => structuredClone(value);
-const harnessInputs = ["sf_m5_web_profile.mjs", "sf_m2_browser.mjs", "sf_m2_browser_assertions.mjs", "sf_m2_geometry.mjs", "sf_m0_geometry.mjs", "sf_m0_png_stats.mjs"]
+const harnessInputs = ["sf_m5_web_profile.mjs", "sf_m2_browser.mjs", "sf_m2_browser_assertions.mjs", "sf_m3_browser_assertions.mjs", "sf_m2_geometry.mjs", "sf_m0_geometry.mjs", "sf_m0_png_stats.mjs"]
   .map(path => ({path, sha256:sha256(readFileSync(new URL(path, import.meta.url)))}));
 const repoRoot = fileURLToPath(new URL("../../",import.meta.url));
 const harnessHead = execFileSync("git",["-C",repoRoot,"rev-parse","HEAD"],{encoding:"utf8"}).trim();
@@ -184,13 +185,20 @@ async function input(method, params) {
 }
 
 async function click(name, {holdMs = 100, heldBaseline = null} = {}) {
-  await observe();
-  const rect = state.buttons?.[name] ?? state.editor_controls?.[name];
-  if (!rect) throw Error("No observed Control rectangle for " + name);
-  const mapped = mapGodotRect(rect,metrics,layout);
+  let baseline = null, confirmed = null;
+  await waitFor("control-"+name+"-layout", s => {
+    const current = sampleControlLayout(s,metrics,layout,name);
+    if (controlLayoutSettled(baseline,current)) { confirmed=current; return true; }
+    if (!sameControlLayout(baseline,current) || current?.frame < baseline?.frame) baseline=current;
+    return false;
+  },20000);
+  assert.ok(controlLayoutSettled(baseline,confirmed),"Control layout must settle before one-shot input");
+  const rect = confirmed.geometry.rect;
+  const mapped = confirmed.mapped;
   const {x,y} = mapped.center;
   const startIndex = domInputEvents.length;
-  inputEvents.push({action:name,elapsed_ms:Date.now()-started,godot:rect,mapped,metrics:copy(metrics)});
+  inputEvents.push({action:name,elapsed_ms:Date.now()-started,godot:rect,mapped,metrics:copy(metrics),
+    control_layout:{first_frame:baseline.frame,confirmed_frame:confirmed.frame,geometry:confirmed.geometry}});
   await input("Input.dispatchMouseEvent",{type:"mouseMoved",x,y,buttons:0});
   await input("Input.dispatchMouseEvent",{type:"mousePressed",button:"left",buttons:1,x,y,clickCount:1});
   await sleep(holdMs);
