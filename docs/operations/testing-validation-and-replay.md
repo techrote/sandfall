@@ -4,8 +4,8 @@ status: Current
 document-kind: guide
 scope: Executable test selection and future gates; dated results and save format live in separate references
 canonical-for: [test-inventory, test-selection, future-validation-gates]
-last-reviewed: 2026-10-24
-related-documents: [local-build-and-validation.md, ../reference/validation-evidence.md, ../reference/level-saves-and-replay.md]
+last-reviewed: 2026-11-01
+related-documents: [local-build-and-validation.md, ../reference/validation-evidence.md, ../reference/level-saves-and-replay.md, ../audits/2026-11-01-ci-rehabilitation.md]
 ---
 
 # Testing, validation, and replay
@@ -108,8 +108,10 @@ failures, and records graphical cases as explicitly outside its scope. Its
 `windows-execution.json` includes exact case coverage, tool/source/runtime
 identities, commands, log hashes and drift/completion checks. The
 [Windows execution procedure](local-build-and-validation.md#windows-retained-runtime-execution)
-owns the job bounds and artifact route. This actual execution gate and the
-separate Windows cross-build check must retain their distinct evidence scopes.
+owns the job bounds and artifact route. Windows cross-build/headless runs are
+now manually dispatched portability evidence. Required Linux host tests and
+source-matched compatibility-Web/browser acceptance remain separate gates; the
+Windows result does not replace either.
 
 ## Physical regression timeout diagnostics
 

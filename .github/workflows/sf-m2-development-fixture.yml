@@ -47,7 +47,9 @@ jobs:
           curl -fL --retry 3 'https://downloads.godotengine.org/?flavor=stable&platform=linux.64&slug=linux.x86_64.zip&version=4.7' -o "$out/godot.zip"
           echo "0b1a6c54c2c619c12e169fe9241edda4b81080b519451cec2984bf0d2c6cb73c  $out/godot.zip" | sha256sum -c -
           python3 -m pip download --require-hashes -r tools/requirements-build.txt -d "$out/wheels"
-          (cd "$out"; find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+          sums="$RUNNER_TEMP/sf-m2-fixture-SHA256SUMS"
+          (cd "$out"; find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$sums")
+          mv "$sums" "$out/SHA256SUMS"
           python3 tools/ci/check_ci_provider_policy.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

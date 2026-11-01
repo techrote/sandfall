@@ -401,3 +401,7 @@ and the [dated reconciliation](audits/2026-10-24-lcb000-landed-status-reconcilia
 ## Sandfall SF-M2
 
 [Authored document, exact history and material tools](SF-M2-AUTHORING-HISTORY.md) and [dated source/execution audit](audits/2026-10-31-sf-m2-authoring-history.md). This Sandfall-specific cut does not promote the inherited CyberSand desktop release or broader programme.
+
+## Sandfall CI
+
+The [2026-11-01 CI rehabilitation audit](audits/2026-11-01-ci-rehabilitation.md) owns the current workflow inventory, Native parallel job graph, Web-first acceptance route, Windows portability disposition, hosted qualification and SF-M3/SF-M4 reconciliation checklist.

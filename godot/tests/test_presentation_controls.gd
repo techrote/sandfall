@@ -137,11 +137,12 @@ func _run() -> void:
 	)
 
 	_expect(
-		int(ProjectSettings.get_setting("display/window/size/viewport_width")) == 1920 and
-			int(ProjectSettings.get_setting("display/window/size/viewport_height")) == 1080 and
-			int(ProjectSettings.get_setting("display/window/size/window_width_override")) == 1920 and
-			int(ProjectSettings.get_setting("display/window/size/window_height_override")) == 1080,
-		"project output settings are not 1920x1080"
+		int(ProjectSettings.get_setting("display/window/size/viewport_width")) == 1280 and
+			int(ProjectSettings.get_setting("display/window/size/viewport_height")) == 800 and
+			int(ProjectSettings.get_setting("display/window/size/window_width_override")) == 1280 and
+			int(ProjectSettings.get_setting("display/window/size/window_height_override")) == 800 and
+			str(ProjectSettings.get_setting("display/window/stretch/mode")) == "canvas_items",
+		"project output settings do not match the dedicated Sandfall 1280x800 canvas_items layout"
 	)
 	_expect(
 		not help.text.contains("A/D move") and not help.text.contains("Space jetpack"),
