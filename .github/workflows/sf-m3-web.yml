@@ -1,17 +1,12 @@
 name: Sandfall SF-M3 stable-ID Rapier workshop and actual Web qualification
 
 on:
-  push:
-    branches: ['sf-m3/**']
-    paths:
-      - 'godot/**'
-      - 'native/**'
-      - 'tools/**'
-      - 'docs/SF-M3*'
-      - 'docs/audits/2026-10-31-sf-m3*'
-      - '.github/workflows/sf-m3-web.yml'
-      - 'README.md'
-      - 'AGENTS.md'
+  workflow_call:
+    inputs:
+      routine:
+        type: boolean
+        required: false
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -25,6 +20,7 @@ concurrency:
 jobs:
   full-native:
     name: Fresh full native C++ suite including restored-occupancy regression
+    if: ${{ !inputs.routine }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
@@ -32,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - name: Preserve source identity and execute the complete native target
@@ -63,7 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - run: |
@@ -87,7 +83,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - run: bash tools/sandfall/sf_m3_ci.sh build
@@ -154,7 +150,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
@@ -188,7 +184,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
@@ -258,7 +254,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
           lfs: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
