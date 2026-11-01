@@ -42,6 +42,64 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def require_clean_tracked_source(verification: dict) -> None:
+    """Qualification executes committed harness bytes as well as build inputs."""
+    source = verification.get("source_equivalence")
+    if verification.get("status") != "passed" or not isinstance(source, dict):
+        raise RuntimeError("Missing passing source/artifact verification")
+    for key in ("tracked_dirty_paths", "staged_changed_paths", "unstaged_changed_paths",
+                "build_sensitive_changed_paths"):
+        if source.get(key) != []:
+            raise RuntimeError("Qualification requires clean tracked source: " + key)
+
+
+def compare_verifications(before: dict, after: dict, repo_root: Path, owned_output: Path) -> dict:
+    """Permit only this invocation's newly created, non-source evidence files.
+
+    Both original receipts remain intact. Every other verifier field, including
+    the full artifact inventory/hashes and all outside untracked paths, must be
+    identical. The caller created owned_output with exist_ok=False.
+    """
+    require_clean_tracked_source(before)
+    require_clean_tracked_source(after)
+    try:
+        relative = owned_output.resolve().relative_to(repo_root.resolve()).as_posix()
+    except ValueError:
+        relative = None  # An external output cannot add any repository path.
+    if relative == ".":
+        raise RuntimeError("The repository cannot be its own evidence directory")
+    prefix = relative + "/" if relative is not None else None
+
+    def comparable(receipt: dict) -> tuple[dict, list[str]]:
+        source = receipt["source_equivalence"]
+        paths = source.get("untracked_paths")
+        if not isinstance(paths, list) or any(not isinstance(path, str) for path in paths):
+            raise RuntimeError("Malformed untracked source inventory")
+        owned = [path for path in paths if prefix is not None and path.startswith(prefix)]
+        other = [path for path in paths if path not in owned]
+        return {**receipt, "source_equivalence": {**source, "untracked_paths": other}}, owned
+
+    initial, initial_owned = comparable(before)
+    terminal, terminal_owned = comparable(after)
+    if initial != terminal:
+        raise RuntimeError("Source/artifact verification changed outside this invocation's evidence directory")
+    return {"owned_output_relative": relative, "owned_untracked_before": initial_owned,
+            "owned_untracked_after": terminal_owned, "all_other_verifier_fields_identical": True}
+
+
+def retain_post_verification(path: Path, web_root: Path, repo_root: Path, build_sha: str, profile: str) -> dict:
+    """Retain the terminal verifier result, including a precise failed attempt."""
+    try:
+        result = verify(web_root, repo_root, build_sha, profile)
+    except Exception as exc:
+        path.write_text(json.dumps({"schema": "sandfall-sf-m5-post-verification-failure-v1",
+                                    "status": "failed", "build_source_commit": build_sha, "profile": profile,
+                                    "error": f"{type(exc).__name__}: {exc}"}, indent=2) + "\n")
+        raise
+    path.write_text(json.dumps(result, indent=2) + "\n")
+    return result
+
+
 def stop_group(child: subprocess.Popen | None) -> None:
     if child is None:
         return
@@ -102,6 +160,7 @@ def main() -> int:
         verification_path = out / "artifact-verification.json"
         verification_path.write_text(json.dumps(verification, indent=2) + "\n")
         record["verification_sha256"] = digest(verification_path)
+        require_clean_tracked_source(verification)
         record["harness_head"] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
 
         class Handler(WebHandler):
@@ -159,8 +218,13 @@ def main() -> int:
         browser = json.loads((out / "browser.json").read_text())
         if record["harness_exit"] != 0 or browser.get("status") != "passed":
             raise RuntimeError("Browser oracle failed; original receipt, captures and logs retained")
-        if verification != verify(args.web_root.resolve(), ROOT, args.build_sha, args.profile):
-            raise RuntimeError("Source/artifact verification changed during browser execution")
+        after_path = out / "artifact-verification-after.json"
+        try:
+            after = retain_post_verification(after_path, args.web_root.resolve(), ROOT, args.build_sha, args.profile)
+        finally:
+            if after_path.is_file():
+                record["post_verification_sha256"] = digest(after_path)
+        record["verification_comparison"] = compare_verifications(verification, after, ROOT, out)
         if subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip() != record["harness_head"]:
             raise RuntimeError("Harness source HEAD changed during qualification")
         record.update(status="passed", browser_receipt_sha256=digest(out / "browser.json"))
