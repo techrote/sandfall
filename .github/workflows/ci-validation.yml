@@ -1,0 +1,80 @@
+name: CI configuration and contract validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - 'Makefile'
+      - 'tools/ci/**'
+      - 'tools/requirements-build.txt'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - 'Makefile'
+      - 'tools/ci/**'
+      - 'tools/requirements-build.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-validation-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'routine' }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+jobs:
+  validate:
+    name: workflow syntax, provider policy and Native coverage contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Record tool identity
+        run: |
+          git rev-parse HEAD
+          python3 --version
+
+      - name: Install and verify pinned actionlint
+        run: |
+          set -euo pipefail
+          base='https://github.com/rhysd/actionlint/releases/download/v1.7.12'
+          timeout 2m curl --fail --location --retry 3 \
+            "$base/actionlint_1.7.12_checksums.txt" \
+            -o "$RUNNER_TEMP/actionlint_1.7.12_checksums.txt"
+          timeout 2m curl --fail --location --retry 3 \
+            "$base/actionlint_1.7.12_linux_amd64.tar.gz" \
+            -o "$RUNNER_TEMP/actionlint_1.7.12_linux_amd64.tar.gz"
+          (
+            cd "$RUNNER_TEMP"
+            grep ' actionlint_1.7.12_linux_amd64.tar.gz$' actionlint_1.7.12_checksums.txt \
+              | sha256sum --check --strict
+          )
+          mkdir "$RUNNER_TEMP/actionlint"
+          tar -xzf "$RUNNER_TEMP/actionlint_1.7.12_linux_amd64.tar.gz" \
+            -C "$RUNNER_TEMP/actionlint"
+          echo "$RUNNER_TEMP/actionlint" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/actionlint/actionlint" -version
+
+      - name: Validate every active workflow
+        run: actionlint -color .github/workflows/*.yml
+
+      - name: Check GitHub-hosted provider policy
+        run: python3 tools/ci/check_ci_provider_policy.py
+
+      - name: Check provider-policy contracts
+        run: python3 -m unittest discover -s tools/ci -p test_ci_provider_policy.py
+
+      - name: Check Native inventory, suite aggregation and failure behavior
+        run: python3 -m unittest discover -s tools/ci -p test_native_validation.py
+
+      - name: Check CI triggers, source identity and concurrency contracts
+        run: python3 -m unittest discover -s tools/ci -p test_ci_workflow_contract.py
+
+      - name: Check Godot regression profiles and deterministic sharding
+        run: python3 tools/ci/test_godot_regression_sharding.py
+
+      - name: Check fresh Windows runtime source custody and negative cases
+        run: python3 tools/ci/test_fresh_windows_runtime.py
