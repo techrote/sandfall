@@ -19,11 +19,12 @@
         },
         {
           "case": "test_microscenario_controllers",
-          "reason": "Its desktop half exercises the inherited main.tscn Experiment Tower and actor-capable input host, which Sandfall v1 explicitly excludes from its dedicated zero-player entry.",
+          "reason": "Its desktop half exercises the inherited main.tscn Experiment Tower and actor-capable input host, which Sandfall v1 explicitly excludes from its dedicated zero-player entry. Its shared Web-owner half now runs independently in the required Sandfall profile.",
           "replacements": [
             "test_sandfall_session: verifies current session, lifecycle, and host boundaries",
             "test_sandfall_editor_input: exercises current material editing and Run controls through Godot input dispatch",
-            ".github/workflows/sf-m2-web.yml: actual-browser UI input and legacy 600-tick coupled physics oracle"
+            ".github/workflows/sf-m2-web.yml: actual-browser UI input and legacy 600-tick coupled physics oracle",
+            "test_microscenario_web_owner: required native/Godot synchronous-Web fixture covering definition, refusal, capture, stepping and reset without legacy desktop Tower"
           ]
         }
       ]
