@@ -34,6 +34,8 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("changed_files", native)
         self.assertIn("Incomplete changed-file inventory", native)
         self.assertIn(".github/workflows/gdextension.yml", gdextension)
+        self.assertIn("tools/ci/godot_regression_profiles.json", gdextension)
+        self.assertGreaterEqual(gdextension.count("--profile sandfall-current"), 2)
 
     def test_ci_contract_workflow_covers_workflow_and_ci_script_changes(self):
         text = workflow("ci-validation.yml")
@@ -83,6 +85,7 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("Incomplete changed-file inventory", text)
         self.assertIn("needs.ready_scope.result == 'success'", job_block(text, "linux-build"))
         self.assertIn("needs.ready_scope.result != 'success'", job_block(text, "linux-regression-gate"))
+        self.assertIn("case_profile_manifest_sha256", job_block(text, "linux-regression-gate"))
 
     def test_manual_diagnostics_are_not_cancelled_by_later_dispatch(self):
         for name in (

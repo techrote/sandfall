@@ -110,12 +110,17 @@ because canonical links cross the two repositories. Release hashing separates
 current runtime/provenance manifests from historical records.
 
 Required GDExtension CI builds Linux from current source. Its Linux job installs
-the freshly built extension, checks the ABI floor, then runs every `test_*.gd`,
-two profiles, project import and scene smoke using exact Godot 4.7. It retains
-source/binary identity and logs. The earlier separate Godot workflow, which loaded
-the retained M11 Linux binary and a fixed fixture list, is superseded; Git history
-preserves it. The separate Windows cross-build is an opt-in portability check,
-not a desktop release claim.
+the freshly built extension, checks the ABI floor, then runs the exact Godot 4.7
+`sandfall-current` case profile, two profile probes, project import and scene
+smoke. The profile discovers the full `test_*.gd` inventory but excludes only
+the two documented legacy desktop entry/controller tests; the full profile
+remains available for diagnostics. The manifest maps each exclusion to current
+session/editor and actual-browser replacement evidence. The shards retain
+source, runtime, profile identity and logs. The earlier separate Godot workflow,
+which loaded the retained M11 Linux binary and a fixed fixture list, is
+superseded; Git history preserves it. The separate Windows cross-build and full
+headless regression are opt-in portability diagnostics, not desktop release
+claims.
 
 **Optional Windows portability workflow, 2026-11-01:** dispatch `gdextension.yml`
 with `windows_portability=true` to run the separate Windows cross-build and

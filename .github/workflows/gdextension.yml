@@ -19,6 +19,7 @@ on:
       - 'tools/ci/run_windows_godot_regressions.py'
       - 'tools/ci/test_godot_process_monitor.py'
       - 'tools/ci/test_godot_regression_sharding.py'
+      - 'tools/ci/godot_regression_profiles.json'
       - 'tools/ci/test_godot_timeout_diagnostics.py'
       - 'tools/ci/test_physical_internal_watchdog.py'
       - 'tools/ci/test_physical_progress_watchdog.py'
@@ -48,6 +49,7 @@ on:
       - 'tools/ci/run_windows_godot_regressions.py'
       - 'tools/ci/test_godot_process_monitor.py'
       - 'tools/ci/test_godot_regression_sharding.py'
+      - 'tools/ci/godot_regression_profiles.json'
       - 'tools/ci/test_godot_timeout_diagnostics.py'
       - 'tools/ci/test_physical_internal_watchdog.py'
       - 'tools/ci/test_physical_progress_watchdog.py'
@@ -480,14 +482,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends --yes xvfb xauth libgl1-mesa-dri mesa-utils
 
-      - name: Run isolated regression shard with actual rendered-pixel tests
+      - name: Run isolated Sandfall regression profile with actual rendered-pixel tests
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
           LP_NUM_THREADS: "2"
           GALLIVM_PERF: "nopt"
           CYBERSAND_PRESENTATION_EVIDENCE: ${{ github.workspace }}/build/godot-regressions/shard-${{ matrix.shard }}/presentation
         run: |
-          timeout 30m xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -nolisten tcp" python3 tools/ci/run_godot_regressions.py --godot "$GODOT_BIN" --output "build/godot-regressions/shard-${{ matrix.shard }}" --shard-count 4 --shard-index "${{ matrix.shard }}" --keep-going
+          timeout 30m xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -nolisten tcp" python3 tools/ci/run_godot_regressions.py --godot "$GODOT_BIN" --output "build/godot-regressions/shard-${{ matrix.shard }}" --profile sandfall-current --shard-count 4 --shard-index "${{ matrix.shard }}" --keep-going
           python3 tools/ci/readback_4ly003_development.py --regression-output "build/godot-regressions/shard-${{ matrix.shard }}" --expect-source-sha "$(git rev-parse HEAD)"
           git diff --exit-code -- .             ':!godot/addons/cybersand_native/bin/libcybersand_native.linux.x86_64.so'             ':!godot/addons/godot-rapier2d/bin/libgodot_rapier.linux.x86_64-unknown-linux-gnu.so'
 
@@ -550,14 +552,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends --yes xvfb xauth libgl1-mesa-dri mesa-utils
 
-      - name: Run serial suite with actual rendered-pixel tests
+      - name: Run serial Sandfall regression profile with actual rendered-pixel tests
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
           LP_NUM_THREADS: "2"
           GALLIVM_PERF: "nopt"
           CYBERSAND_PRESENTATION_EVIDENCE: ${{ github.workspace }}/build/godot-regressions/serial/presentation
         run: |
-          timeout 30m xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -nolisten tcp" python3 tools/ci/run_godot_regressions.py --godot "$GODOT_BIN" --output build/godot-regressions/serial --keep-going
+          timeout 30m xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -nolisten tcp" python3 tools/ci/run_godot_regressions.py --godot "$GODOT_BIN" --output build/godot-regressions/serial --profile sandfall-current --keep-going
           python3 tools/ci/readback_4ly003_development.py --regression-output build/godot-regressions/serial --expect-source-sha "$(git rev-parse HEAD)"
           git diff --exit-code -- .             ':!godot/addons/cybersand_native/bin/libcybersand_native.linux.x86_64.so'             ':!godot/addons/godot-rapier2d/bin/libgodot_rapier.linux.x86_64-unknown-linux-gnu.so'
 
@@ -652,7 +654,8 @@ jobs:
 
           serial_identity = serial["identity"]
           for identity in identities:
-              for key in ("source_sha", "godot_version", "cybersand_runtime", "rapier_runtime"):
+              for key in ("source_sha", "godot_version", "case_profile", "case_profile_manifest_sha256",
+                          "cybersand_runtime", "rapier_runtime"):
                   if identity[key] != serial_identity[key]:
                       raise SystemExit(f"Identity mismatch for {key}: {identity[key]} != {serial_identity[key]}")
 

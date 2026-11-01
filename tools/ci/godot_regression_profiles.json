@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "profiles": {
+    "full": {
+      "description": "Every discovered legacy and current Godot regression case.",
+      "exclusions": []
+    },
+    "sandfall-current": {
+      "description": "The full discovered suite except two legacy desktop entry/controller tests outside the active Sandfall product host.",
+      "exclusions": [
+        {
+          "case": "test_feature_launcher",
+          "reason": "The active entry is sandfall_main.tscn and the Sandfall session contract deliberately omits the legacy FeatureNavigation autoload. This test launches the inherited feature menu and requires that removed autoload.",
+          "replacements": [
+            "test_sandfall_session: verifies the dedicated entry and absence of FeatureNavigation authority",
+            "test_sandfall_editor_input: exercises the current Sandfall UI through Godot input dispatch",
+            ".github/workflows/sf-m2-web.yml: fresh source-matched export and actual-browser application acceptance"
+          ]
+        },
+        {
+          "case": "test_microscenario_controllers",
+          "reason": "Its desktop half exercises the inherited main.tscn Experiment Tower and actor-capable input host, which Sandfall v1 explicitly excludes from its dedicated zero-player entry.",
+          "replacements": [
+            "test_sandfall_session: verifies current session, lifecycle, and host boundaries",
+            "test_sandfall_editor_input: exercises current material editing and Run controls through Godot input dispatch",
+            ".github/workflows/sf-m2-web.yml: actual-browser UI input and legacy 600-tick coupled physics oracle"
+          ]
+        }
+      ]
+    }
+  }
+}

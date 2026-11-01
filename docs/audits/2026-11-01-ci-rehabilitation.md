@@ -107,12 +107,30 @@ benchmark execution remain represented.
 
 ### Native requalification results
 
-Baseline is 64m47s/83m14s on one runner. The implementation result must be
-recorded here from an exact-source GitHub-hosted run before claiming an achieved
-critical-path reduction. Report suite job count, peak concurrency, queue delay,
-runner-minutes and total wall separately; do not infer a speedup from the
-historical SF-M3/SF-M4 runs or a local build. **At the implementation checkpoint,
-the CI rehabilitation branch had not yet received hosted qualification.**
+Baseline was 64m47s/83m14s on one runner. On exact implementation head
+`33487fbf9a168dd7c299cd414367aff6d01f0fb4`, hosted Native run
+[`41294046970`](https://github.com/techrote/sandfall/actions/runs/41294046970)
+passed all four suites and the stable `native` aggregate:
+
+| Suite | Actual runner duration | Start to completion |
+|---|---:|---|
+| TSan | 14m41s | 09:39:15–09:53:56 UTC |
+| Core/worldgen/soliding/benchmarks | 11m36s | 09:39:15–09:50:51 UTC |
+| Core and physics CLI ASan/UBSan | 16m55s | 09:39:15–09:56:10 UTC |
+| Worldgen/settled-region/soliding sanitizers | 26m41s | 09:39:16–10:05:57 UTC |
+
+Observed workflow wall was 27m01s (09:39:06–10:06:07 UTC), with the first
+runner starting three seconds after run creation, four heavy jobs overlapping,
+and about 70.1 total runner-minutes including readiness and aggregation. Against
+the recorded 64m47s/83m14s single-job walls, this run's critical path was 58–68%
+shorter. Total runner use remained near the 64.8m lower historical run and below
+the 83.2m run. These are observed hosted runs, not a universal capacity guarantee.
+
+The subsequent CI correction changes only Godot regression scope/cache,
+Godot test expectations and documentation; it does not alter `native.yml`,
+`native/**`, Make targets or the Native inventory. Under the requested stop
+checkpoint, Native was not rerun at the later correction SHA; its latest exact
+source result remains the successful `33487fb` run above.
 
 ## Web-first validation and platform scope
 
@@ -140,14 +158,33 @@ this implementation's changed workflow code passed. Confirm release-threaded
 qualification when SF-M5 is admitted.
 
 The Web acceptance path and native/Linux path serve different evidence roles.
-Linux host-native GDExtension build and four sharded Godot regression groups
-remain required. They build the host-native extension used by the headless Godot
-tests; they are not a Linux desktop release claim.
+The Linux host-native GDExtension build and four sharded Godot regression groups
+remain required. The shards use the machine-readable `sandfall-current` profile:
+all discovered test cases run except two inherited desktop UI cases that conflict
+with Sandfall's approved dedicated zero-player host. The exact exclusions and
+replacement evidence are recorded in
+[`godot_regression_profiles.json`](../../tools/ci/godot_regression_profiles.json);
+unit tests fail if an exclusion becomes stale or a new case is silently omitted.
+The default `full` profile still discovers and runs every legacy/current test.
+These host tests build the extension for actual Godot integration checks; they
+are not a Linux desktop release claim.
 
-Windows cross-compilation and Windows headless execution are preserved behind
-the manual `windows_portability` input on `gdextension.yml`. The regular Linux
-build and Linux aggregate are still routine gates. Windows portability remains
-available by dispatching the workflow with `windows_portability=true`.
+The initial run at `33487fb` established the source drift: the feature-launcher
+test requires the deliberately absent `FeatureNavigation` autoload, and the
+Tower-controller test targets `main.tscn` rather than Sandfall's
+`sandfall_main.tscn`. Both full-profile tests remain available for diagnostic
+use. Their current-product replacements are the Sandfall session/editor-input
+tests and the required fresh browser acceptance with real input. Separate
+source-aligned test fixes update the stale presentation-resolution and
+workbench-main-scene assertions. The Godot 4.7 import also regenerated nine
+tracked Sandfall class entries; that exact generated cache update is committed
+so the strict post-test clean-tree check remains intact.
+
+Windows cross-compilation and the complete Windows headless suite are preserved
+behind the manual `windows_portability` input on `gdextension.yml`. The regular
+Linux build and current Sandfall aggregate are still routine gates. Windows
+portability remains available by dispatching the workflow with
+`windows_portability=true`; it is not a browser-product release obligation.
 
 This is not a deletion of the recent Windows failure. In historical GDExtension
 run #63, Windows cross-compilation succeeded, while the retained desktop
@@ -160,7 +197,10 @@ surface; it is an application/test regression on those feature heads, not a
 runner provisioning defect. Preserve those assertions and their Windows test
 harness. Keep Linux host-native regression truthfully required, and leave the
 feature failure with #5/#6 owners rather than altering their source or making
-Linux failures advisory.
+Linux failures advisory. The profile boundary applies only to Sandfall `main`:
+when reconciling #5/#6, re-include any feature-owner controller/launcher tests
+that their changed product surface still requires, or replace them with the
+feature's actual-browser evidence after the owner resolves the failing test.
 
 ## Triggers, cancellation, artifacts and caching
 
@@ -189,7 +229,7 @@ introduced. Toolchain assets remain pinned or checksum-verified.
 |---|---|---|---|---|---|
 | `ci-validation.yml` | Validate Actions syntax, provider policy and Native contracts | No dedicated workflow syntax/inventory guard | **Add / retain** | Checksummed [actionlint 1.7.12](https://github.com/rhysd/actionlint/releases/tag/v1.7.12); focused unit suite | Runs on workflow, Makefile and CI-tool changes |
 | `documentation.yml` | Frozen ancestry, provenance reconciliation, repository/docs checks | Manual dispatch shared a cancellable same-ref group | **Restructure** | Existing exact-head source/provenance steps | Manual run gets unique group; routine replacement still cancels |
-| `gdextension.yml` | Fresh Linux host extension plus Godot regression shards | Irrelevant Windows desktop run was always routine; manual reruns could be cancelled | **Restructure** | Linux build artifact SHA checks; four Linux shards; run #63 Windows build passed | Keep Linux required; preserve Windows cross-build/headless behind manual input |
+| `gdextension.yml` | Fresh Linux host extension plus Godot regression shards | Windows portability consumed a routine job; inherited launcher/Tower tests no longer match the active Sandfall host | **Restructure** | Linux build artifact SHA checks; four Linux shards; #63 Windows build passed; current profile has two explicit, replacement-backed exclusions | Keep the current Sandfall Linux profile required; preserve the complete Windows/full regression path behind manual input |
 | `issue49-water-apparatus.yml` | Scoped Current-Water/native apparatus acceptance | Manual diagnostic could be cancelled by same-ref run | **Restructure** | Exact path filter and retained apparatus-v2 tests | Preserve suite; unique manual group |
 | `native.yml` | Native correctness, sanitizers and benchmarks | One 65–83 minute serial job | **Restructure** | Runs #62/#63; inventory and aggregation tests | Four parallel suites plus fail-closed stable `native` join |
 | `mat003-c128-timing.yml` | Owner-admitted C128 paired formal timing | Up to 100 minutes and manual admission burden | **Optional / retain** | Manual-only registration and owner-authority inputs | Keep separate from routine product CI |
@@ -245,21 +285,65 @@ branch before hosted runs:
   or runtime identity errors. Retain the six companion-workspace gaps and stale
   desktop provenance as inherited evidence.
 
-**Hosted qualification is in progress on draft PR #7.** At initial SHA
-`91c0be96bfa6a7b886c59d2a852730a4b5db0898`, Documentation/provenance passed
-(run `41289878845`). CI validation run `41289878883` exposed ShellCheck SC2094
-in the retained manual M2 fixture: checksum output was written into the same
-directory being scanned. The manifest now writes to `$RUNNER_TEMP` before it
-moves into the fixture directory. The independent reviewer confirmed the
-correction preserves relative checksum paths. At corrective SHA
-`673fac92eed3aa5e6310b35463efb6a628310691`, CI validation passed (run
-`41289995337`) and Documentation/provenance passed (`41289995343`). Native,
-GDExtension and Web qualification jobs skipped on the draft as intended. The
-exact-source hosted result remains pending; record the final implementation
-SHA, Native suite timestamps and runner-minutes, Linux GDExtension aggregate,
-fresh compatibility Web/browser receipts, and final independent-review
-disposition after qualification. Do not merge while any required exact-head
-result or relevant failure remains unresolved.
+### First ready exact-head regression outcome
+
+At SHA `33487fbf9a168dd7c299cd414367aff6d01f0fb4`, ready-head GDExtension run
+[`41294046979`](https://github.com/techrote/sandfall/actions/runs/41294046979)
+passed the Linux build but failed all four Linux shards and the aggregate. The
+recorded causes were:
+
+- Shard 0's strict dirty-tree check saw the Godot 4.7 import add nine
+  `Sandfall*` classes to tracked `godot/.godot/global_script_class_cache.cfg`.
+- Shard 1 ran `test_presentation_controls` against stale 1920×1080 expectations;
+  Sandfall's committed project/session contract is 1280×800 `canvas_items`.
+- Shard 2 ran `test_worldgen_workbench` against a stale `feature_launcher.tscn`
+  main-scene expectation; the current dedicated entry is `sandfall_main.tscn`.
+- Shard 3 timed out in `test_feature_launcher` because it requires the deliberately
+  absent `FeatureNavigation` autoload, then failed three assertions in the legacy
+  `test_microscenario_controllers` Tower input section.
+
+These failures are preserved as exact evidence, not treated as passing. The two
+source-aligned assertion fixes keep the existing workbench and presentation
+contracts. The profile manifest keeps the two inherited desktop tests in its
+`full` set while replacing them in the required Sandfall profile with current
+session/editor and real-browser tests. The tracked class cache is updated from
+the exact pinned-engine diff, retaining the post-run dirty-tree assertion.
+
+### Latest exact-head hosted results
+
+The following results all ran at exact PR head
+`33487fbf9a168dd7c299cd414367aff6d01f0fb4`:
+
+| Workflow | Run | Result | Detail |
+|---|---:|---|---|
+| Native | [41294046970](https://github.com/techrote/sandfall/actions/runs/41294046970) | **Passed** | Four suites and fail-closed `native` aggregate; 27m01s wall, about 70.1 runner-minutes. Timing detail is recorded under Native requalification above. |
+| CI validation | [41293995107](https://github.com/techrote/sandfall/actions/runs/41293995107) | **Passed** | Workflow syntax, policy and CI contract validation. |
+| Documentation/provenance | [41294046957](https://github.com/techrote/sandfall/actions/runs/41294046957) | **Passed** | Existing six expected-fact source-reference gaps and ten inherited runtime digest gaps remain as baseline findings, not new regressions. |
+| Web acceptance | [41294046982](https://github.com/techrote/sandfall/actions/runs/41294046982) | **Passed** | Fresh compatibility-Web build and actual-browser acceptance. |
+| GDExtension | [41294046979](https://github.com/techrote/sandfall/actions/runs/41294046979) | **Failed** | Linux host build passed; Linux regression shards 0, 1, 2 and 3 failed, so the `linux x86_64` aggregate failed. Windows build/headless, physical stress and serial-equivalence were skipped by their configured opt-in controls. |
+
+The GDExtension log establishes four causes at that source: shard 0 detected
+nine class entries regenerated in the tracked Godot 4.7 global script cache;
+shard 1 found obsolete 1920×1080 presentation expectations against the
+1280×800 `canvas_items` project contract; shard 2 expected the inactive
+`feature_launcher.tscn` instead of `sandfall_main.tscn`; shard 3 timed out on the
+absent `FeatureNavigation` autoload in the inherited launcher test and also
+failed three Tower-input assertions in the inherited microscenario test.
+The first three are directly corrected by the exact cache update and
+source-aligned assertions. The latter two are explicitly excluded only from
+the required `sandfall-current` profile, remain runnable in `full`, and have
+current session/editor-input and real-browser replacements. The reviewer
+endorsed this product-scope boundary. Whether those replacements provide
+sufficient continuing coverage must still be confirmed by the final hosted
+profile run; the legacy Tower input failure's feature-branch mechanism remains
+unresolved with the SF-M3/SF-M4 owners.
+
+The correction commit after `33487fb` contains these test/cache/profile changes,
+but it has not run on hosted CI. Therefore `33487fb` remains the latest
+exact-head evidence, and the correction SHA must not be described as qualified.
+The PR remains draft and unmerged at this checkpoint. Do not start an expensive
+rerun under the stop instruction; record fresh exact-source results before
+qualifying or integrating this PR.
 
 ## SF-M3/SF-M4 reconciliation checklist
 
@@ -279,33 +363,30 @@ result or relevant failure remains unresolved.
    Linux failure. Its Windows headless job also failed on that feature head;
    Native run `41288103233` passed on the same head, and this CI PR contains no
    feature fix.
-6. Owner GDExtension run `41288109464` on M4 head `b57738e` failed Linux shard
-   3 on the same five Tower input assertions, and its Windows headless job also
-   failed. Keep both diagnoses with the M4 owner and preserve Linux as required
-   during reconciliation.
-7. Owner M4 Native run `41288109405` passed on `b57738e`. Its Web run
-   `41288106201` failed ordinary UI 800x450 DPR1 while waiting for
-   `Sandbox-blank-Edit-ready`; other workshop body sizes and Gallery cases
-   passed. Preserve the single failed browser receipt for the M4 owner rather
-   than treating the matrix as fully green.
 2. **SF-M4 / PR #6 second:** only after #5's final merge SHA is its base, bring
    the integrated CI changes through the updated M3 stack into
    `sf-m4/projects-exhibitions-20261031`. Resolve the same workflow conflicts;
    keep SF-M4 ZIP/archive/presentation/Gallery browser evidence and its separate
    compatibility/threaded results. The wrapper skips `sf-m4/` too. Re-run the
    same shared gates plus all M4 project/archive/exhibition and actual-browser
-   jobs on the final M4 SHA.
-3. Recheck open reviews, target/base SHAs and active Actions before each
+   jobs on the final M4 SHA. Owner GDExtension run `41288109464` at `b57738e`
+   failed Linux shard 3 on the same five Tower input assertions, and its Windows
+   headless job also failed. Owner M4 Native run `41288109405` passed on that
+   source. Its Web run `41288106201` failed ordinary UI 800×450 DPR1 while
+   waiting for `Sandbox-blank-Edit-ready`; other workshop body sizes and Gallery
+   cases passed. Preserve both failures for the M4 owner.
+3. The `sandfall-current` profile applies to main's approved dedicated Sandfall
+   host. Do not copy its two legacy desktop exclusions blindly into #5/#6:
+   those branches must explicitly re-include relevant changed controller or
+   launcher tests, or replace them with feature-specific current-browser tests.
+   Their five-failure Tower result remains a required feature-branch blocker
+   until the owner resolves it.
+4. Recheck open reviews, target/base SHAs and active Actions before each
    integration. Do not copy SF-M3/SF-M4 application changes into this CI PR or
-   mark a failed Linux regression as optional.
-4. The historical M4 matrix's 18-runner peak and 110-minute contended example
+   make the required Linux gate advisory.
+5. The historical M4 matrix's 18-runner peak and 110-minute contended example
    should be reviewed with the M4 owner when reconciling; preserve each distinct
    browser acceptance claim while avoiding duplicate current-source matrices.
-5. In owner-started M4 Web run `41288106201` at head `b57738e`, artifact
-   verification passed but the actual 800x450 DPR1 browser stayed on the home
-   screen with `ready=false` and tick 0, then timed out waiting for
-   `Sandbox-blank-Edit-ready`. Keep this feature-head failure with the M4 owner;
-   this CI change did not modify PR #6.
 
 ## Review and guarded integration
 

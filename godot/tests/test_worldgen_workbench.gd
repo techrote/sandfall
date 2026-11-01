@@ -97,7 +97,7 @@ func material_at(app: CyberWorldGenerationWorkbench, x: int, y: int) -> int:
 	return int(packet.cells[(y - coordinate.y * size) * size + x - coordinate.x * size])
 
 func check_workbench() -> void:
-	expect(str(ProjectSettings.get_setting("application/run/main_scene")) == "res://feature_launcher.tscn", "Workbench must remain opt-in behind the combined desktop launcher")
+	expect(str(ProjectSettings.get_setting("application/run/main_scene")) == "res://sandfall_main.tscn", "Workbench must remain separate from Sandfall's dedicated application entry")
 	root.size = Vector2i(1600, 1000)
 	var app: CyberWorldGenerationWorkbench = WorkbenchScene.instantiate()
 	root.add_child(app)

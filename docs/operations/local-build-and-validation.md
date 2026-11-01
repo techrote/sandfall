@@ -489,7 +489,12 @@ explicit completion marker, and bound execution time. The headless course result
 reports an authored scenario, not visual usability or target-machine performance.
 
 The [automatic Godot suite](../../tools/ci/run_godot_regressions.py) discovers all
-these `test_*.gd` files without a manual registry. It also retains the ACT-004
+these `test_*.gd` files without a manual case registry. Its `full` profile runs
+every discovered case. The required current Sandfall CI selects
+`sandfall-current`, whose two source-documented legacy desktop exclusions and
+replacement evidence live in
+[`godot_regression_profiles.json`](../../tools/ci/godot_regression_profiles.json);
+new cases remain included by default. It also retains the ACT-004
 capacity, articulation, actuation, session, initial-terrain, effects, arena and
 trial regressions. Native tests, ASan/UBSan and TSan establish separate native
 evidence; a disabled leak detector must be reported explicitly. The
