@@ -4,7 +4,7 @@ status: Current
 document-kind: navigation
 scope: Question-to-canonical-document routes; detailed answers belong to the linked contracts
 canonical-for: []
-last-reviewed: 2026-10-25
+last-reviewed: 2026-11-01
 related-documents: [../README.md, retrieval-corpus.json, ../operations/documentation-maintenance.md, ../operations/architecture-programme-water-feel-addendum.md, ../operations/microscenarios-programme.md, ../operations/water-hybrid-pressure-extension-programme.md, ../architecture/pressure-optimization.md]
 ---
 
@@ -15,6 +15,8 @@ related-documents: [../README.md, retrieval-corpus.json, ../operations/documenta
 - [Final application source union and exact default namespaces](../architecture/liquid-prepared-setup-and-receipts.md#final-application-source-union): published Water admission, immutable legacy fixture, separately keyed capability hashes, CY/IN future-source refusal and strict unarmed host/native-Web evidence; final platforms, constructors and scientific gates stay separate.
 
 - [Synchronous supported-body Water Feel](../architecture/liquid-prepared-setup-and-receipts.md#synchronous-supported-body-water-feel): original y90 poses, checked recipe/actions/player, fixed Water view with retained quality, private frozen readiness/native receipt, actual source/transport identity, refusal/Restart and family-readback evidence limits.
+
+- [Current Sandfall CI decisions and exact-source qualification](../audits/2026-11-01-ci-rehabilitation.md): Native job decomposition and inventory, compatibility-Web/browser route, separate threaded-Web scope, platform/workflow dispositions and M3/M4 reconciliation.
 
 - [Synchronous Physics Pit reference bodies](../architecture/liquid-prepared-setup-and-receipts.md#synchronous-physics-pit-reference-bodies): original authored poses, copied pending request/token, bounded frozen readiness and retained refusal/Restart; native Windows execution is not final Wasm/visual qualification.
 
