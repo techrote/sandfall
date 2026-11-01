@@ -150,3 +150,26 @@ test('Control input waits for unchanged measured geometry on genuinely newer God
   assert.equal(controlLayoutSettled({frame:153},{frame:155}),false);
   assert.equal(controlLayoutSettled({frame:153,geometry:{}},{frame:155,geometry:{}}),false);
 });
+
+test('SF-M1 frame-zero Sandbox trace requires settled geometry in both viewport profiles',()=>{
+  const layout={width:1280,height:800,stretch_mode:'canvas_items',stretch_aspect:'keep'};
+  const home={app_ready:true,frame:0,generation:0,entry:'home',mode:'edit',menu:false,
+    viewport:[1280,800],buttons:{sandbox:[0,0,88,40]}};
+  for(const [width,height,dpr,expectedX,expectedY] of [[800,450,1,429.8125,20.25],[640,400,2,346.5,18]]) {
+    const metrics={canvas:{x:0,y:0,width,height},backing:{width:width*dpr,height:height*dpr},
+      viewport:{width,height},devicePixelRatio:dpr,canvasStyle:{transform:'none'},
+      visualViewport:{width,height,offsetLeft:0,offsetTop:0,scale:1}};
+    const sample=s=>sampleControlLayout(s,metrics,layout,'sandbox');
+    const provisional=sample(home);
+    assert.ok(provisional);
+    assert.equal(controlLayoutSettled(provisional,sample(home)),false,'Repeated frame-zero DOM reads cannot authorize input');
+    const settled={...home,frame:3,buttons:{sandbox:[649,16,88,40]}};
+    const baseline=sample(settled);
+    assert.equal(controlLayoutSettled(provisional,baseline),false,'Container reflow invalidates provisional coordinates');
+    assert.equal(controlLayoutSettled(baseline,sample({...settled,frame:4})),false);
+    const confirmed=sample({...settled,frame:5});
+    assert.equal(controlLayoutSettled(baseline,confirmed),true);
+    assert.equal(confirmed.mapped.center.x,expectedX);
+    assert.equal(confirmed.mapped.center.y,expectedY);
+  }
+});

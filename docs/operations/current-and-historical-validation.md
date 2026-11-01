@@ -4,8 +4,8 @@ status: Current
 document-kind: guide
 scope: Separate current source and runtime acceptance from immutable historical M11 evidence
 canonical-for: [current-validation-gates, m11-retention-policy]
-last-reviewed: 2026-10-20
-related-documents: [local-build-and-validation.md, github-development-and-release.md, ../reference/validation-evidence.md]
+last-reviewed: 2026-11-01
+related-documents: [local-build-and-validation.md, github-development-and-release.md, ../reference/validation-evidence.md, ../audits/2026-11-01-ci-rehabilitation.md]
 ---
 
 # Current validation and retained M11 integrity
@@ -109,23 +109,35 @@ contracts and both retrieval sets. It checks out the pinned companion workspace
 because canonical links cross the two repositories. Release hashing separates
 current runtime/provenance manifests from historical records.
 
-GDExtension CI builds Linux and Windows from current source. Its Linux job installs
-the freshly built extension, checks the ABI floor, then runs every `test_*.gd`,
-two profiles, project import and scene smoke using exact Godot 4.7. It retains
-source/binary identity and logs. The earlier separate Godot workflow, which loaded
-the retained M11 Linux binary and a fixed fixture list, is superseded; Git history
-preserves it. Windows cross-compilation is not Windows execution.
+Required GDExtension CI builds Linux from current source. Its Linux job installs
+the freshly built extension, checks the ABI floor, then runs the exact Godot 4.7
+`sandfall-current` case profile, two profile probes, project import and scene
+smoke. The profile discovers the full `test_*.gd` inventory but excludes only
+the two documented legacy desktop entry/controller tests; the full profile
+remains available for diagnostics. The manifest maps each exclusion to current
+session/editor and actual-browser replacement evidence. The shards retain
+source, runtime, profile identity and logs. The earlier separate Godot workflow,
+which loaded the retained M11 Linux binary and a fixed fixture list, is
+superseded; Git history preserves it. The separate Windows cross-build and full
+headless regression are opt-in portability diagnostics, not desktop release
+claims.
 
-**Current workflow extension, 2026-10-20:** a separate Windows job now executes
-every applicable headless case using the retained, source-matched Windows DLL
-and pinned Windows Godot 4.7. Its harness checks the complete native input set,
-committed LFS/provenance identity, exact case coverage and source drift. See
-[Windows retained-runtime execution](local-build-and-validation.md#windows-retained-runtime-execution).
-The build-only Windows job remains a separate check; neither its success nor
-Linux execution substitutes for actual Windows execution. Linux graphical
-shards retain ownership of display-dependent pixel checks.
+**Optional Windows portability workflow, 2026-11-01:** dispatch `gdextension.yml`
+with `windows_portability=true` to run the separate Windows cross-build and
+retained-runtime headless test. The harness checks the native input set,
+committed LFS/provenance identity, exact case coverage and source drift. Neither
+this desktop lane nor Linux execution substitutes for actual Web acceptance.
+Linux graphical shards retain ownership of display-dependent pixel checks. See
+[Windows retained-runtime execution](local-build-and-validation.md#windows-retained-runtime-execution)
+and the [workflow disposition](../audits/2026-11-01-ci-rehabilitation.md#workflow-inventory-and-disposition).
 
-**Planned, still tracked by issue #3:** Web producer/consumer toolchain alignment,
-real CI runtime coverage and current export/template provenance. Local browser
-acceptance for issues #1/#2 has its own recorded artifact identity. No historical
-hash reconciliation settles these separate Web obligations.
+The mainline product gate is the fresh source-matched compatibility-Web export
+and real browser acceptance. Threaded Web remains a separate profile requiring
+cross-origin isolation; the specification schedules full compatibility plus
+threaded qualification in SF-M5. Do not describe a compatibility run as threaded.
+
+The earlier Web producer/consumer toolchain conflict has been retired with its
+obsolete demo workflows. Current source-matched compatibility-Web and browser
+acceptance are covered by the [CI rehabilitation audit](../audits/2026-11-01-ci-rehabilitation.md).
+Remaining local wrapper/export-template provenance and threaded release coverage
+stay separate. No historical hash reconciliation settles those obligations.

@@ -71,6 +71,38 @@ class ShardingTests(unittest.TestCase):
         # New fixtures can legitimately move this case under weighted scheduling.
         self.assertEqual(len(parity_shards), 1)
 
+    def test_sandfall_profile_excludes_only_documented_legacy_desktop_cases(self):
+        discovered = subject.discover_cases()
+        selected, exclusions = subject.select_cases(discovered, "sandfall-current")
+        excluded_names = {entry["case"] for entry in exclusions}
+        self.assertEqual(
+            excluded_names,
+            {"test_feature_launcher", "test_microscenario_controllers"},
+        )
+        self.assertEqual(
+            {case.name for case in discovered} - {case.name for case in selected},
+            excluded_names,
+        )
+        self.assertTrue(all(entry["reason"] and entry["replacements"] for entry in exclusions))
+        selected_names = {case.name for case in selected}
+        self.assertTrue({"test_sandfall_session", "test_sandfall_editor_input"} <= selected_names)
+        self.assertEqual(len(selected), len(discovered) - 2)
+
+    def test_new_cases_are_included_in_sandfall_profile_by_default(self):
+        cases = [
+            fake("test_feature_launcher", 1),
+            fake("test_microscenario_controllers", 1),
+            fake("test_new_sandfall_feature", 1),
+        ]
+        selected, _ = subject.select_cases(cases, "sandfall-current")
+        self.assertEqual([case.name for case in selected], ["test_new_sandfall_feature"])
+
+    def test_full_profile_retains_every_discovered_case(self):
+        cases = subject.discover_cases()
+        selected, exclusions = subject.select_cases(cases, "full")
+        self.assertEqual(selected, cases)
+        self.assertEqual(exclusions, [])
+
     def test_new_render_cases_are_automatically_graphical(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

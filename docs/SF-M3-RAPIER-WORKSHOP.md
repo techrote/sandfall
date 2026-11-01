@@ -15,8 +15,8 @@ remains the product authority. This contract extends the existing SF-M2
 document, session and Godot Control editor. It does not replace the native
 solver, introduce an actor controller or implement portable project archives.
 The [dated audit](audits/2026-10-31-sf-m3-rapier-workshop.md) separates source,
-native/Godot, actual browser and platform evidence. **The SF-M3 pull request
-must remain draft and unmerged.** Dependency integration is separately owned.
+native/Godot, actual browser and platform evidence. SF-M3 integration is
+source-pinned and subject to exact-head qualification and guarded merge.
 
 ## Stable logical objects and supported units
 

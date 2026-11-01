@@ -136,16 +136,13 @@ func _run() -> void:
 		"circle preview does not describe the configured footprint"
 	)
 
-	var startup_scene: String = str(ProjectSettings.get_setting("application/run/main_scene"))
-	var expected_size := Vector2i(1280, 800) if startup_scene == "res://sandfall_main.tscn" else Vector2i(1920, 1080)
-	_expect(startup_scene in ["res://feature_launcher.tscn", "res://sandfall_main.tscn"],
-		"Unexpected desktop/Sandfall default application scene")
 	_expect(
-		int(ProjectSettings.get_setting("display/window/size/viewport_width")) == expected_size.x and
-			int(ProjectSettings.get_setting("display/window/size/viewport_height")) == expected_size.y and
-			int(ProjectSettings.get_setting("display/window/size/window_width_override")) == expected_size.x and
-			int(ProjectSettings.get_setting("display/window/size/window_height_override")) == expected_size.y,
-		"Project output settings differ from the exact selected application profile " + str(expected_size)
+		int(ProjectSettings.get_setting("display/window/size/viewport_width")) == 1280 and
+			int(ProjectSettings.get_setting("display/window/size/viewport_height")) == 800 and
+			int(ProjectSettings.get_setting("display/window/size/window_width_override")) == 1280 and
+			int(ProjectSettings.get_setting("display/window/size/window_height_override")) == 800 and
+			str(ProjectSettings.get_setting("display/window/stretch/mode")) == "canvas_items",
+		"project output settings do not match the dedicated Sandfall 1280x800 canvas_items layout"
 	)
 	_expect(
 		not help.text.contains("A/D move") and not help.text.contains("Space jetpack"),

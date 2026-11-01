@@ -1,0 +1,53 @@
+name: Sandfall Web application acceptance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/web-acceptance.yml'
+      - '.github/workflows/sf-m4-web.yml'
+      - 'godot/**'
+      - 'native/**'
+      - 'third_party/**'
+      - 'tools/build_web.py'
+      - 'tools/requirements-build.txt'
+      - 'tools/serve_web.py'
+      - 'tools/sandfall/**'
+      - 'tools/ci/test_feature_web_staging.py'
+      - 'project.godot'
+      - 'export_presets.cfg'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+    paths:
+      - '.github/workflows/web-acceptance.yml'
+      - '.github/workflows/sf-m4-web.yml'
+      - 'godot/**'
+      - 'native/**'
+      - 'third_party/**'
+      - 'tools/build_web.py'
+      - 'tools/requirements-build.txt'
+      - 'tools/serve_web.py'
+      - 'tools/sandfall/**'
+      - 'tools/ci/test_feature_web_staging.py'
+      - 'project.godot'
+      - 'export_presets.cfg'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: web-acceptance-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'routine' }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+jobs:
+  compatibility-web:
+    name: SF-M3 workshop, SF-M4 projects and Gallery, compatibility browser and legacy coupling
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.draft == false &&
+       !startsWith(github.head_ref, 'sf-m4/'))
+    uses: ./.github/workflows/sf-m4-web.yml
+    with:
+      routine: true

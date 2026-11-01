@@ -21,6 +21,7 @@ import godot_timeout_diagnostics as diagnostics
 import godot_process_monitor as process_monitor
 
 ROOT = Path(__file__).resolve().parents[2]
+REGRESSION_PROFILES_PATH = Path(__file__).with_name("godot_regression_profiles.json")
 DEFAULT_UNKNOWN_WEIGHT_SECONDS = 5.0
 
 # Approximate weights from the 2026-09-19 Linux CI run. They are scheduling hints,
@@ -128,6 +129,59 @@ def discover_cases(root: Path = ROOT) -> list[Case]:
         duplicates = sorted(name for name, count in Counter(names).items() if count > 1)
         raise RuntimeError(f"Duplicate Godot regression case names: {duplicates}")
     return cases
+
+
+def regression_profile_names(profile_path: Path = REGRESSION_PROFILES_PATH) -> tuple[str, ...]:
+    payload = json.loads(profile_path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != 1 or not isinstance(payload.get("profiles"), dict):
+        raise ValueError("Unexpected Godot regression profile manifest schema")
+    return tuple(sorted(payload["profiles"]))
+
+
+def select_cases(
+    cases: list[Case],
+    profile_name: str,
+    profile_path: Path = REGRESSION_PROFILES_PATH,
+) -> tuple[list[Case], list[dict]]:
+    payload = json.loads(profile_path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != 1 or not isinstance(payload.get("profiles"), dict):
+        raise ValueError("Unexpected Godot regression profile manifest schema")
+    profiles = payload["profiles"]
+    if profile_name not in profiles:
+        raise ValueError(
+            f"Unknown Godot regression profile {profile_name!r}; available={sorted(profiles)}"
+        )
+    profile = profiles[profile_name]
+    exclusions = profile.get("exclusions", [])
+    if not isinstance(exclusions, list):
+        raise ValueError(f"Godot regression profile {profile_name!r} exclusions must be a list")
+    excluded_names: list[str] = []
+    for entry in exclusions:
+        if (
+            not isinstance(entry, dict)
+            or not isinstance(entry.get("case"), str)
+            or not entry["case"]
+            or not isinstance(entry.get("reason"), str)
+            or not entry["reason"]
+            or not isinstance(entry.get("replacements"), list)
+            or not entry["replacements"]
+            or any(not isinstance(item, str) or not item for item in entry["replacements"])
+        ):
+            raise ValueError(f"Invalid documented exclusion in Godot regression profile {profile_name!r}")
+        excluded_names.append(entry["case"])
+    if len(excluded_names) != len(set(excluded_names)):
+        raise ValueError(f"Godot regression profile {profile_name!r} has duplicate exclusions")
+    available_names = [case.name for case in cases]
+    if len(available_names) != len(set(available_names)):
+        raise ValueError("Godot regression case inventory contains duplicate names")
+    missing = sorted(set(excluded_names) - set(available_names))
+    if missing:
+        raise ValueError(
+            f"Godot regression profile {profile_name!r} excludes undiscovered cases: {missing}"
+        )
+    excluded_set = set(excluded_names)
+    selected = [case for case in cases if case.name not in excluded_set]
+    return selected, exclusions
 
 
 def build_shard_plan(cases: list[Case], shard_count: int) -> tuple[list[list[Case]], list[float]]:
@@ -569,6 +623,10 @@ def main() -> int:
     parser.add_argument("--shard-count", type=int, default=1)
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument(
+        "--profile", choices=regression_profile_names(), default="full",
+        help="Select all historical cases or the documented current Sandfall product scope",
+    )
+    parser.add_argument(
         "--keep-going", action="store_true",
         help="Run every assigned case after a test failure; import still fails immediately",
     )
@@ -588,9 +646,13 @@ def main() -> int:
 
     source_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     godot_version = subprocess.check_output([args.godot, "--version"], text=True).strip()
+    discovered_cases = discover_cases()
+    cases, profile_exclusions = select_cases(discovered_cases, args.profile)
     identity = {
         "source_sha": source_sha,
         "godot_version": godot_version,
+        "case_profile": args.profile,
+        "case_profile_manifest_sha256": sha256(REGRESSION_PROFILES_PATH),
         "cybersand_runtime": {
             "path": str(runtime.relative_to(ROOT)),
             "sha256": sha256(runtime),
@@ -607,13 +669,19 @@ def main() -> int:
         source_sha + "\n"
         + identity["cybersand_runtime"]["sha256"] + "  " + identity["cybersand_runtime"]["path"] + "\n"
         + identity["rapier_runtime"]["sha256"] + "  " + identity["rapier_runtime"]["path"] + "\n"
-        + godot_version + "\n",
+        + godot_version + "\n"
+        + "case_profile: " + args.profile + "\n"
+        + "case_profile_manifest_sha256: " + identity["case_profile_manifest_sha256"] + "\n",
         encoding="utf-8",
     )
 
-    cases = discover_cases()
     shards, totals = build_shard_plan(cases, args.shard_count)
     plan = {
+        "case_profile": args.profile,
+        "profile_manifest_sha256": identity["case_profile_manifest_sha256"],
+        "discovered_case_count": len(discovered_cases),
+        "excluded_cases": profile_exclusions,
+        "selected_case_count": len(cases),
         "shard_count": args.shard_count,
         "default_unknown_weight_seconds": DEFAULT_UNKNOWN_WEIGHT_SECONDS,
         "all_case_count": len(cases),
@@ -627,6 +695,11 @@ def main() -> int:
         ],
     }
     write_json(args.output / "shard-plan.json", plan)
+    print(
+        f"Case profile {args.profile}: {len(cases)}/{len(discovered_cases)} discovered cases; "
+        f"explicit exclusions={','.join(item['case'] for item in profile_exclusions) or 'none'}",
+        flush=True,
+    )
     assigned = shards[args.shard_index]
     print(
         f"Shard {args.shard_index + 1}/{args.shard_count}: "
@@ -643,6 +716,9 @@ def main() -> int:
     results: list[dict] = []
     timing = {
         "identity": identity,
+        "excluded_cases": profile_exclusions,
+        "discovered_case_count": len(discovered_cases),
+        "selected_case_count": len(cases),
         "assigned_cases": [case.name for case in assigned],
         "status": "running",
         "completed": False,

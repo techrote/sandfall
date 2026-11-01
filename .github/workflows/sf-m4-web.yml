@@ -1,6 +1,13 @@
 name: Sandfall SF-M4 portable projects, exhibitions and actual Web qualification
 
 on:
+  workflow_call:
+    inputs:
+      routine:
+        description: Run representative mainline coverage; the dedicated invocation retains all 36 jobs
+        type: boolean
+        required: false
+        default: false
   push:
     branches: ['sf-m4/**']
     paths:
@@ -25,6 +32,8 @@ concurrency:
 jobs:
   full-native:
     name: Fresh full native C++ suite including restored-occupancy regression
+    # The four required Native suites own routine native coverage.
+    if: ${{ !inputs.routine }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
@@ -32,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - name: Preserve source identity and execute the complete native target
@@ -64,7 +73,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - run: |
@@ -89,10 +98,13 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - run: bash tools/sandfall/sf_m4_ci.sh build
+      - name: Qualify the repaired M1 profile, then both profiles, before the full matrix
+        if: ${{ !inputs.routine }}
+        run: bash tools/sandfall/sf_m1_layout_preflight.sh
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -156,7 +168,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
@@ -190,7 +202,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
@@ -260,7 +272,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
           lfs: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
@@ -284,7 +296,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        bodies: [0, 1, 3, 8, 16]
+        # Routine coverage keeps the distinct empty-world and full-capacity
+        # paths, including hostile imports, body-17 refusal and safe promotion.
+        bodies: ${{ fromJSON(inputs.routine && '[0,16]' || '[0,1,3,8,16]') }}
         profile:
           - {width: 800, height: 450, dpr: 1}
           - {width: 640, height: 400, dpr: 2}
@@ -296,7 +310,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
@@ -331,7 +345,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
@@ -353,6 +367,9 @@ jobs:
   # a terminal viewport PNG without sending any later input after capture.
   exhibition-portraits:
     name: Gallery viewport ${{ matrix.entry }} ${{ matrix.profile.width }}x${{ matrix.profile.height }} DPR${{ matrix.profile.dpr }}
+    # Both complete Gallery-navigation workloads remain required in routine CI.
+    # Individual terminal portraits remain part of full milestone qualification.
+    if: ${{ !inputs.routine }}
     needs: web-export
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -371,7 +388,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           lfs: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093

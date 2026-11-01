@@ -222,4 +222,18 @@ unmatched or script errors remain failures. This is not a general error allowlis
 
 Threaded Web, alternate hosting, broad desktop release qualification and human
 Gallery legibility/pacing remain SF-M5 or separately authorized evidence. The
-draft SF-M4 PR is not a full-v1 release declaration.
+SF-M4 integration is not a full-v1 release declaration.
+
+
+### Reconciled mainline regression route
+
+The [final reconciliation audit](audits/2026-11-01-sf-m4-final-reconciliation.md)
+records accepted SF-M3 ancestry, original feature preservation and the measured
+M1 layout-race correction. `web-acceptance.yml` calls the source-matched M4
+workflow in routine mode: fifteen substantive jobs retain both ordinary input
+profiles, all M3 workshop capacities, empty/full-capacity project ZIP/promotion
+checks, complete Gallery navigation and the unchanged legacy physical oracle.
+The targeted route retains its full thirty-six jobs and separately qualifies
+the repaired M1 geometry before the matrix. Routine omissions remain explicit;
+Windows, serial equivalence and physical stress keep their documented optional
+contracts. Actual qualification is tied to the tested source and artifacts.

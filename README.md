@@ -1,13 +1,13 @@
 # Sandfall
 
-**Status: SF-M0/M1/M2 are merged. SF-M3's source-matched compatibility-Web
-workshop is on draft, unmerged [PR #5](https://github.com/techrote/sandfall/pull/5).
-[SF-M4 projects and exhibitions](docs/SF-M4-PROJECTS-EXHIBITIONS.md) now implement
-portable initial projects, transactional import, presentation, Gallery, run
-evidence and confirmed intervention promotion on `sf-m4/projects-exhibitions-20261031`.
-The [dated audit](docs/audits/2026-10-31-sf-m4-projects-exhibitions.md) separates
-source/development checks from exact-head native and actual-browser qualification.
-SF-M4 also remains draft and unmerged.**
+**Status: SF-M0–M3 are merged, including the stable-ID 0–16-body Rapier
+workshop. [SF-M4 projects and exhibitions](docs/SF-M4-PROJECTS-EXHIBITIONS.md)
+implement portable initial projects, transactional import, presentation,
+Gallery, Run evidence and confirmed intervention promotion on
+[PR #6](https://github.com/techrote/sandfall/pull/6). Its final reconciliation
+is subject to exact-head qualification, independent review and guarded merge.
+The [original dated audit](docs/audits/2026-10-31-sf-m4-projects-exhibitions.md)
+retains source-specific development and compatibility-Web evidence.**
 
 Sandfall is a Web-native, interactive, **zero-player cellular + Rapier physics exhibition and editor** derived from CyberSand. “Zero-player” removes player/actor movement and action controls, **not** painting, object creation, time control or camera interaction.
 

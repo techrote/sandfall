@@ -2,10 +2,10 @@
 title: Repository development and release
 status: Current
 document-kind: guide
-scope: Local repository policy and unresolved remote CI and release prerequisites
+scope: Local repository policy, current CI workflow decisions and release prerequisites
 canonical-for: [repository-policy, ci-contradictions, release-prerequisites]
-last-reviewed: 2026-09-24
-related-documents: [source-checkpoint-and-recovery.md, local-build-and-validation.md, documentation-maintenance.md, ../audits/2026-09-19-runner-routing-weekend-benchmark.md]
+last-reviewed: 2026-11-01
+related-documents: [source-checkpoint-and-recovery.md, local-build-and-validation.md, documentation-maintenance.md, ../audits/2026-09-19-runner-routing-weekend-benchmark.md, ../audits/2026-11-01-ci-rehabilitation.md]
 ---
 
 # Repository development and release
@@ -101,12 +101,16 @@ Rulesets** (or the equivalent branch-protection UI):
 4. Require the universal check **`Documentation and provenance / consistency`**.
    It has no path filter and therefore does not deadlock workflow-only changes.
 5. Do **not** globally require the Native, GDExtension or Issue49 job names yet.
-   Native/GDExtension intentionally suppress workflow-only/draft work, while
-   Issue49 is path-scoped; making those names unconditional required checks can
-   leave unrelated PRs permanently pending.
+   Native and GDExtension are source/path-scoped and suppress draft work, while
+   Issue49 is apparatus-path-scoped; making those names unconditional required
+   checks can leave unrelated PRs permanently pending.
 6. For implementation/behavior PRs, the procedural final gate remains the
-   exact-head Native `native` job, GDExtension `windows x86_64` plus aggregate
-   `linux x86_64` job, and any applicable path-scoped apparatus workflow.
+   exact-head Native `native` job, GDExtension Linux `linux x86_64` aggregate,
+   mandatory source-matched compatibility-Web/browser gate and any applicable
+   scoped apparatus workflow. Windows cross-build/headless tests are manual
+   portability evidence (`windows_portability=true`), not a routine Sandfall
+   product or required merge gate. Threaded-Web evidence remains separate
+   release qualification.
 7. Keep only repository-owner/administrator emergency bypass. Any bypass is an
    incident/recovery action and must be recorded; it is not the normal merge path.
 8. After saving the rule, verify the branch page reports `main` protected and
@@ -127,14 +131,16 @@ this CI/provider rule does not duplicate that schema.
 
 | Conflict | Source evidence | Required next checkpoint |
 |---|---|---|
-| Web CI chooses Emscripten 4.0.11; builder requires 4.0.20 | [web-toolchain.yml](../../.github/workflows/web-toolchain.yml), [web-demo.yml](../../.github/workflows/web-demo.yml), [build_web.py](../../tools/build_web.py) | Align pinned toolchain and artifact producer/consumer, then execute CI |
-| Workflow passes `--native-tests` without separate `--native-cpp` | Same builder argument validation and Web workflow | Supply isolated native bindings; confirm intended host support |
-| `--compile-only --native-tests` does not run runtime fixtures/export | Builder returns after compilation before those stages | Choose explicit coverage and test that the workflow actually executes it |
+| Retired CyberSand Web jobs selected Emscripten 4.0.11; the Sandfall builder uses 4.0.20 | [CI rehabilitation audit](../audits/2026-11-01-ci-rehabilitation.md#workflow-inventory-and-disposition), [build_web.py](../../tools/build_web.py) | Resolved for active CI: `web-demo.yml` and `web-toolchain.yml` were retired; the current `sf-m2-web.yml` caller pins 4.0.20 and runs the actual compatibility browser matrix |
+| The retired demo caller passed `--native-tests` without separate `--native-cpp` | Historical Web workflows in the [CI disposition](../audits/2026-11-01-ci-rehabilitation.md#workflow-inventory-and-disposition) | Resolved for active CI: the source-matched SF-M2 builder supplies separate native bindings; verify exact-head Web acceptance in the dated audit |
+| `--compile-only --native-tests` does not run runtime fixtures/export | [build_web.py](../../tools/build_web.py); the obsolete caller is listed in the [CI disposition](../audits/2026-11-01-ci-rehabilitation.md#workflow-inventory-and-disposition) | Retain this builder semantic as a warning for future callers; no active Sandfall Web acceptance job uses compile-only as browser evidence |
 | Runtime lock says templates absent; local export uses exact retained templates | [runtime lock](../../third_party/godot-runtime.lock.json) and local setup report | Create current export provenance; preserve historical lock scope |
 | Wrapper export `source_commit` remains acquisition base | Companion `C:/kybersand/tools/dev.py::web_command`; builder's `--source-commit` | Bind builds to actual HEAD plus local changes and artifact hashes |
 
-These Web changes remain **Planned**, tracked by issue #3. Current source/runtime
-identity, retained historical integrity and fresh Linux Godot CI are now
+The first three rows describe the retired inherited workflow shape, not the
+current Sandfall gate. Remaining local wrapper/runtime questions stay separate
+from product acceptance. Current source/runtime identity, retained historical
+integrity and fresh Linux Godot CI are now
 [separate validation gates](current-and-historical-validation.md). This resolves
 the M11/current gate conflict without changing historical hashes. Native and
 sanitizer execution is recorded in the [dated reconciliation](../audits/2026-09-08-validation-reconciliation.md);

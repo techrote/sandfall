@@ -3,22 +3,32 @@ name: Native C++ validation
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - '.github/workflows/**'
-      - 'docs/**'
-      - 'AGENTS.md'
-      - '.github/pull_request_template.md'
-      - 'tools/ci/check_ci_provider_policy.py'
-      - 'tools/ci/test_ci_provider_policy.py'
+    paths:
+      - '.github/workflows/native.yml'
+      # The targeted M4 workflow owns the complete native qualification gate.
+      - '.github/workflows/sf-m4-web.yml'
+      - 'Makefile'
+      - 'native/**'
+      - 'tools/ci/native_aggregate.py'
+      - 'tools/ci/native_validation_inventory.json'
+      - 'tools/ci/test_native_validation.py'
+      - 'tools/physics/test_characterisation_cli.py'
+      - 'tools/experiments/test_stage3b_validation.py'
+      - 'tools/experiments/stage3b_validation.py'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
-    paths-ignore:
-      - '.github/workflows/**'
-      - 'docs/**'
-      - 'AGENTS.md'
-      - '.github/pull_request_template.md'
-      - 'tools/ci/check_ci_provider_policy.py'
-      - 'tools/ci/test_ci_provider_policy.py'
+    paths:
+      - '.github/workflows/native.yml'
+      # The targeted M4 workflow owns the complete native qualification gate.
+      - '.github/workflows/sf-m4-web.yml'
+      - 'Makefile'
+      - 'native/**'
+      - 'tools/ci/native_aggregate.py'
+      - 'tools/ci/native_validation_inventory.json'
+      - 'tools/ci/test_native_validation.py'
+      - 'tools/physics/test_characterisation_cli.py'
+      - 'tools/experiments/test_stage3b_validation.py'
+      - 'tools/experiments/stage3b_validation.py'
   workflow_dispatch:
 
 permissions:
@@ -26,8 +36,12 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: native-${{ github.ref }}
-  cancel-in-progress: true
+  group: native-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'routine' }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   ready_scope:
@@ -50,13 +64,29 @@ jobs:
           import os
           import urllib.request
 
-          ignored_prefixes = (".github/workflows/", "docs/")
+          ignored_prefixes = ("docs/",)
           ignored_exact = {
               "AGENTS.md",
               ".github/pull_request_template.md",
               "tools/ci/check_ci_provider_policy.py",
               "tools/ci/test_ci_provider_policy.py",
           }
+
+          api_headers = {
+              "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+          pull_url = (
+              f"https://api.github.com/repos/{os.environ['REPOSITORY']}"
+              f"/pulls/{os.environ['PR_NUMBER']}"
+          )
+          with urllib.request.urlopen(
+              urllib.request.Request(pull_url, headers=api_headers)
+          ) as response:
+              expected_file_count = json.load(response).get("changed_files")
+          if not isinstance(expected_file_count, int):
+              raise RuntimeError("Pull request metadata did not include changed_files")
 
           files = []
           page = 1
@@ -67,11 +97,7 @@ jobs:
               )
               request = urllib.request.Request(
                   url,
-                  headers={
-                      "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
-                      "Accept": "application/vnd.github+json",
-                      "X-GitHub-Api-Version": "2022-11-28",
-                  },
+                  headers=api_headers,
               )
               with urllib.request.urlopen(request) as response:
                   batch = json.load(response)
@@ -79,6 +105,14 @@ jobs:
               if len(batch) < 100:
                   break
               page += 1
+
+          if len(files) != expected_file_count:
+              raise RuntimeError(
+                  "Incomplete changed-file inventory: "
+                  f"fetched {len(files)} of {expected_file_count}"
+              )
+          if len(set(files)) != expected_file_count:
+              raise RuntimeError("Changed-file inventory contains duplicate paths")
 
           def ignored(path):
               return path in ignored_exact or path.startswith(ignored_prefixes)
@@ -93,19 +127,18 @@ jobs:
           print("\n".join(files))
           PY
 
-  native:
+  native-core:
+    name: core native, worldgen, soliding and benchmarks
     needs: [ready_scope]
     if: >-
       always() &&
       (github.event_name != 'pull_request' ||
        (github.event.pull_request.draft == false &&
         (github.event.action != 'ready_for_review' ||
-         needs.ready_scope.outputs.required == 'true')))
+         (needs.ready_scope.result == 'success' &&
+          needs.ready_scope.outputs.required == 'true'))))
     runs-on: ubuntu-24.04
-    # The combined sanitizer builds can consume more than 40 minutes before
-    # the final shared-library/benchmark gate begins. Keep their existing
-    # per-command bounds and allow the full required job to finish.
-    timeout-minutes: 90
+    timeout-minutes: 60
     env:
       CC: gcc-13
       CXX: g++-13
@@ -113,26 +146,99 @@ jobs:
       - name: Check out source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Record compiler and linker identity
+      - name: Record exact source and compiler/linker identity
         run: |
+          git rev-parse HEAD
+          git status --porcelain=v2
           gcc-13 --version
           g++-13 --version
           ld --version
           make --version
 
-      # Check shared-worker ownership before the longer independent sanitizer builds.
-      - name: Compile and run TSan
+      - name: Validate the C API and ordinary native suite
         run: |
-          timeout 15m make build/tests_tsan
-          timeout 15m env TSAN_OPTIONS=halt_on_error=1 ./build/tests_tsan
+          timeout 20m make c-header-check
+          timeout 30m make build/tests
+          timeout 30m ./build/tests
 
-      - name: Compile C API and native tests
+      - name: Run ordinary world generation tests
+        run: timeout 25m make worldgen-test
+
+      - name: Run soliding contract and settled-region regressions
+        run: timeout 25m make soliding-test
+
+      - name: Smoke-test isolated discovery characterization
+        run: timeout 15m make soliding-benchmark-smoke
+
+      - name: Validate the Stage-3B preregistration apparatus
+        run: timeout 15m make soliding-stage3b-validation-apparatus-test
+
+      - name: Smoke-test retained Stage-3 benchmark lineage
+        run: timeout 15m make soliding-stage3-cost-smoke
+
+      - name: Build the shared library and run the required benchmark
         run: |
-          timeout 5m make c-header-check
-          timeout 15m make build/tests
+          timeout 25m make shared
+          timeout 25m make build/benchmark
+          timeout 15m ./build/benchmark
 
-      - name: Run native behavioral and integration suite
-        run: timeout 15m ./build/tests
+  native-thread-safety:
+    name: thread sanitizer
+    needs: [ready_scope]
+    if: >-
+      always() &&
+      (github.event_name != 'pull_request' ||
+       (github.event.pull_request.draft == false &&
+        (github.event.action != 'ready_for_review' ||
+         (needs.ready_scope.result == 'success' &&
+          needs.ready_scope.outputs.required == 'true'))))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CC: gcc-13
+      CXX: g++-13
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Record exact source and compiler/linker identity
+        run: |
+          git rev-parse HEAD
+          gcc-13 --version
+          g++-13 --version
+          ld --version
+
+      - name: Compile the full native suite with ThreadSanitizer
+        run: timeout 30m make build/tests_tsan
+
+      - name: Run the full native suite with ThreadSanitizer
+        run: timeout 30m env TSAN_OPTIONS=halt_on_error=1 ./build/tests_tsan
+
+  native-general-sanitizers:
+    name: core and physics CLI sanitizers
+    needs: [ready_scope]
+    if: >-
+      always() &&
+      (github.event_name != 'pull_request' ||
+       (github.event.pull_request.draft == false &&
+        (github.event.action != 'ready_for_review' ||
+         (needs.ready_scope.result == 'success' &&
+          needs.ready_scope.outputs.required == 'true'))))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CC: gcc-13
+      CXX: g++-13
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Record exact source and compiler/linker identity
+        run: |
+          git rev-parse HEAD
+          gcc-13 --version
+          g++-13 --version
+          ld --version
 
       - name: Sanitize physics CLI material admission and sampled accounting
         env:
@@ -141,7 +247,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/physics-cli-validation
-          timeout 5m make physics-characterisation-sanitize 2>&1 | tee build/physics-cli-validation/validation.log
+          timeout 20m make physics-characterisation-sanitize 2>&1 \
+            | tee build/physics-cli-validation/validation.log
 
       - name: Retain physics CLI results and sanitizer logs
         if: always()
@@ -152,49 +259,93 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Validate procedural generation candidates and fresh chunk admission
-        run: timeout 5m make worldgen-test
+      - name: Compile the ordinary native suite with ASan and UBSan
+        run: timeout 30m make build/tests_sanitized
+
+      - name: Run the ordinary native suite with ASan and UBSan
+        run: >-
+          timeout 30m env ASAN_OPTIONS=detect_leaks=0:strict_string_checks=1
+          UBSAN_OPTIONS=halt_on_error=1 ./build/tests_sanitized
+
+  native-specialized-sanitizers:
+    name: worldgen, settled-region and soliding sanitizers
+    needs: [ready_scope]
+    if: >-
+      always() &&
+      (github.event_name != 'pull_request' ||
+       (github.event.pull_request.draft == false &&
+        (github.event.action != 'ready_for_review' ||
+         (needs.ready_scope.result == 'success' &&
+          needs.ready_scope.outputs.required == 'true'))))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      CC: gcc-13
+      CXX: g++-13
+      ASAN_OPTIONS: detect_leaks=0:strict_string_checks=1
+      UBSAN_OPTIONS: halt_on_error=1
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Record exact source and compiler/linker identity
+        run: |
+          git rev-parse HEAD
+          gcc-13 --version
+          g++-13 --version
+          ld --version
 
       - name: Sanitize procedural generation and chunk admission
-        run: timeout 10m env ASAN_OPTIONS=detect_leaks=0:strict_string_checks=1 UBSAN_OPTIONS=halt_on_error=1 make worldgen-sanitize
+        run: timeout 35m make worldgen-sanitize
 
-      - name: Run soliding contract regressions
-        run: timeout 5m make soliding-test
-
-      - name: Smoke-test isolated discovery characterization
-        run: timeout 2m make soliding-benchmark-smoke
-
-      - name: Validate Stage-3B preregistration apparatus
-        run: timeout 3m make soliding-stage3b-validation-apparatus-test
-
-      - name: Smoke-test retained Stage-3 benchmark lineage
-        run: timeout 3m make soliding-stage3-cost-smoke
-
-      - name: Compile and run ASan plus UBSan
+      - name: Build and characterize the sanitized settled-region regression
         run: |
-          timeout 15m make build/tests_sanitized
-          timeout 15m env ASAN_OPTIONS=detect_leaks=0:strict_string_checks=1 UBSAN_OPTIONS=halt_on_error=1 ./build/tests_sanitized
+          set -euo pipefail
+          mkdir -p build/native-diagnostics
+          timeout 35m /usr/bin/time -v make build/test_settled_regions_sanitized \
+            2>&1 | tee build/native-diagnostics/settled-region-build.log
 
-      - name: Build and characterize sanitized settled-regions regression
-        run: timeout 20m /usr/bin/time -v make build/test_settled_regions_sanitized
+      - name: Compile and run the complete soliding sanitizer set
+        run: timeout 45m make soliding-sanitize
 
-      - name: Compile soliding contract sanitizer executables
-        run: |
-          timeout 20m make \
-            build/test_soliding_lifecycle_sanitized \
-            build/test_settled_discovery_sanitized \
-            build/test_settled_regions_sanitized \
-            build/test_settled_world_discovery_sanitized \
-            build/test_stage3b_runtime_storage_sanitized \
-            build/test_stage3b_bounded_spatial_index_sanitized \
-            build/test_stage3b_sparse_mutation_witness_sanitized \
-            build/test_stage3b_sparse_activity_deadline_sanitized
+      - name: Retain specialized sanitizer diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-specialized-sanitizers-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/native-diagnostics/
+          if-no-files-found: warn
+          retention-days: 30
 
-      - name: Sanitize soliding contract regressions
-        run: timeout 10m env ASAN_OPTIONS=detect_leaks=0:strict_string_checks=1 UBSAN_OPTIONS=halt_on_error=1 make soliding-sanitize
+  native:
+    name: native
+    needs:
+      - ready_scope
+      - native-core
+      - native-thread-safety
+      - native-general-sanitizers
+      - native-specialized-sanitizers
+    if: >-
+      always() &&
+      (github.event_name != 'pull_request' ||
+       (github.event.pull_request.draft == false &&
+        (github.event.action != 'ready_for_review' ||
+         needs.ready_scope.result != 'success' ||
+         needs.ready_scope.outputs.required != 'false')))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Compile shared library and benchmark
-        run: |
-          timeout 15m make shared
-          timeout 15m make build/benchmark
-          timeout 10m ./build/benchmark
+      - name: Fail closed on incomplete or failed Native coverage
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ACTION: ${{ github.event.action }}
+          READY_SCOPE_RESULT: ${{ needs.ready_scope.result }}
+          READY_SCOPE_REQUIRED: ${{ needs.ready_scope.outputs.required }}
+          CORE_RESULT: ${{ needs.native-core.result }}
+          THREAD_SAFETY_RESULT: ${{ needs.native-thread-safety.result }}
+          GENERAL_SANITIZERS_RESULT: ${{ needs.native-general-sanitizers.result }}
+          SPECIALIZED_SANITIZERS_RESULT: ${{ needs.native-specialized-sanitizers.result }}
+        run: python3 tools/ci/native_aggregate.py
