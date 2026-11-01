@@ -67,15 +67,34 @@ func _run() -> void:
 		and button.get_global_rect().size.x > 0
 		and button.get_global_rect().size.y > 0,
 		"Legacy Tower input fixture must be visible and within the actual viewport")
-	# Send real GUI mouse and Space events through the viewport, not just signals.
+	# push_input(..., true) expects viewport-local coordinates. get_global_rect()
+	# is in the canvas' global space and is not necessarily the same space when
+	# canvas_items stretch or the root Window's size changes. Convert the
+	# actual button's local centre using Godot's canvas-to-viewport transform.
+	# This is the genuine GUI input path, not a direct pressed signal.
+	var click_at: Vector2 = button.get_global_transform_with_canvas() * (button.size * 0.5)
+	expect(viewport_rect.has_point(click_at), "transformed Tower input target is outside viewport")
+	expect((button.make_canvas_position_local(click_at) - button.size * 0.5).length() < 0.01,
+		"Tower input transform does not round-trip to the actual button")
+	var received_edges: Array[bool] = []
+	button.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			received_edges.append(event.pressed))
+	var pointer := InputEventMouseMotion.new()
+	pointer.position = click_at
+	pointer.global_position = click_at
+	root.push_input(pointer, true)
+	await process_frame
 	for pressed: bool in [true,false]:
 		var mouse := InputEventMouseButton.new()
-		mouse.position = button.get_global_rect().get_center()
-		mouse.global_position = mouse.position
+		mouse.position = click_at
+		mouse.global_position = click_at
 		mouse.button_index = MOUSE_BUTTON_LEFT
 		mouse.pressed = pressed
 		root.push_input(mouse, true)
 		await process_frame
+	expect(received_edges == [true,false],
+		"actual viewport input did not deliver exactly one mouse press/release to Tower")
 	expect(desktop.reset_calls == 1, "mouse click did not invoke Tower exactly once")
 	expect(root.gui_get_focus_owner() != button, "mouse entry left Tower focusable")
 	for event: InputEventKey in [key(KEY_SPACE,true), key(KEY_SPACE,true,true), key(KEY_SPACE,false)]:
