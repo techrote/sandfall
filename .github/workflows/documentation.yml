@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: sandfall-documentation-${{ github.ref }}
-  cancel-in-progress: true
+  group: sandfall-documentation-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'routine' }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:
   consistency:
