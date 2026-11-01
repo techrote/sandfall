@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import platform
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -28,7 +29,8 @@ GODOT_SHA512 = (
 )
 INPUT_SCOPES = (
     "godot", "native/include", "native/src", "tools/ci/run_godot_regressions.py",
-    "tools/ci/run_windows_godot_regressions.py", "tools/ci/godot_timeout_diagnostics.py",
+    "tools/ci/run_windows_godot_regressions.py", "tools/ci/fresh_windows_runtime.py",
+    "tools/ci/godot_timeout_diagnostics.py",
     "tools/ci/godot_process_monitor.py", "tools/ci/physical_progress_watchdog.py",
     ".github/workflows/gdextension.yml",
     "third_party/godot-runtime.lock.json", "third_party/native-toolchain.lock.json",
@@ -116,6 +118,35 @@ def verify_retained_runtime(root: Path, *, rapier_build: Path | None = None) -> 
     }
 
 
+def verify_fresh_windows_runtime(root: Path, bundle: Path, source: str) -> dict:
+    """Verify source-matched cross-build; retain the independent pinned Rapier check."""
+    import fresh_windows_runtime
+    from check_repository import verify_rapier_overrides
+
+    identity = fresh_windows_runtime.verify(root, bundle, source)
+    rapier_lock = json.loads((root / "godot/third_party/rapier2d.lock.json").read_text(encoding="utf-8"))
+    errors = verify_rapier_overrides(root, rapier_lock)
+    if errors:
+        raise RuntimeError("Selected Windows Rapier runtime provenance failed: " + "; ".join(errors))
+    pointer = git(root, "show", "HEAD:" + RAPIER)
+    match = re.fullmatch(
+        rb"version https://git-lfs.github.com/spec/v1\noid sha256:([0-9a-f]{64})\nsize ([0-9]+)\n", pointer
+    )
+    if match is None:
+        raise RuntimeError("Windows Rapier runtime must retain its canonical LFS pointer")
+    data = (root / RAPIER).read_bytes()
+    if (not data.startswith(b"MZ") or len(data) != int(match[2])
+            or hashlib.sha256(data).hexdigest() != match[1].decode()
+            or hashlib.sha256(data).hexdigest() != RAPIER_SHA256):
+        raise RuntimeError("Materialized Windows Rapier DLL differs from pinned bytes")
+    identity["rapier_runtime"] = {"path": RAPIER, "sha256": RAPIER_SHA256, "size": len(data)}
+    # The bundle remains immutable, while the staged path is intentionally a
+    # runtime output, not the historical tracked LFS DLL or manifest.
+    shutil.copyfile(bundle / fresh_windows_runtime.DLL_NAME, root / NATIVE)
+    if hashlib.sha256((root / NATIVE).read_bytes()).hexdigest() != identity["cybersand_runtime"]["sha256"]:
+        raise RuntimeError("Fresh Windows runtime staging changed DLL bytes")
+    return identity
+
 def prepare_godot(archive: Path) -> tuple[Path, dict]:
     data = archive.read_bytes()
     digest = hashlib.sha512(data).hexdigest()
@@ -199,6 +230,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--godot-archive", required=True, type=Path)
     parser.add_argument("--expected-source-sha", required=True)
+    parser.add_argument("--profile", choices=runner.regression_profile_names(), default="full")
+    parser.add_argument("--fresh-windows-runtime", type=Path, default=None)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     output = args.output.resolve()
@@ -217,14 +250,25 @@ def main() -> int:
         if source != args.expected_source_sha:
             raise RuntimeError("Windows checkout differs from the workflow's tested Git commit")
         report.update({"source_commit": source, "source_tree": git(ROOT, "rev-parse", "HEAD^{tree}").decode().strip()})
-        report.update(verify_retained_runtime(ROOT))
-        (output / "runtime-provenance.json").write_bytes((ROOT / PROVENANCE).read_bytes())
-        git(ROOT, "diff", "--exit-code", "HEAD", "--", *INPUT_SCOPES, ":!godot/.godot")
+        if args.fresh_windows_runtime is not None:
+            fresh_bundle = args.fresh_windows_runtime.resolve()
+            report.update(verify_fresh_windows_runtime(ROOT, fresh_bundle, source))
+            (output / "runtime-provenance.json").write_bytes((fresh_bundle / "manifest.json").read_bytes())
+        else:
+            report.update(verify_retained_runtime(ROOT))
+            (output / "runtime-provenance.json").write_bytes((ROOT / PROVENANCE).read_bytes())
+        excludes = [":!godot/.godot"]
+        if args.fresh_windows_runtime is not None:
+            excludes.append(":!" + NATIVE)
+        git(ROOT, "diff", "--exit-code", "HEAD", "--", *INPUT_SCOPES, *excludes)
         report["tested_inputs"] = tested_inputs(ROOT)
         godot, report["godot_identity"] = prepare_godot(args.godot_archive.resolve())
         report["godot_version"] = report["godot_identity"]["version"]
         os.environ["CYBERSAND_SOURCE_REVISION"] = source
-        execute_cases(str(godot), output, report, runner.discover_cases())
+        cases, exclusions = runner.select_cases(runner.discover_cases(), args.profile)
+        report["case_profile"] = args.profile
+        report["case_profile_exclusions"] = exclusions
+        execute_cases(str(godot), output, report, cases)
         after = tested_inputs(ROOT)
         report["source_drift"] = sorted(
             relative for relative in report["tested_inputs"].keys() | after.keys()
