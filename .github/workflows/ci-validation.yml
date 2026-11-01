@@ -72,3 +72,9 @@ jobs:
 
       - name: Check CI triggers, source identity and concurrency contracts
         run: python3 -m unittest discover -s tools/ci -p test_ci_workflow_contract.py
+
+      - name: Check Godot regression profiles and deterministic sharding
+        run: python3 tools/ci/test_godot_regression_sharding.py
+
+      - name: Check fresh Windows runtime source custody and negative cases
+        run: python3 tools/ci/test_fresh_windows_runtime.py
