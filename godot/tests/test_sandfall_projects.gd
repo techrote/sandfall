@@ -391,6 +391,9 @@ func _atomic_candidate_failures() -> void:
 	var before: Dictionary = _snapshot(session, host)
 	var stale: Dictionary = session.import_project(initial, session.state().generation - 1, session.state().input_epoch)
 	_check(not stale.ok and _snapshot(session, host) == before, "Stale import replaced current session")
+	var stale_input: Dictionary = session.import_project(initial, session.state().generation, session.state().input_epoch - 1)
+	_check(not stale_input.ok and stale_input.error == "retired_project_import"
+		and _snapshot(session, host) == before, "Stale input-epoch import replaced current physical/document ownership")
 	var invalid: Dictionary = initial.duplicate(true)
 	invalid.bodies[0].mass = NAN
 	_check(not session.import_project(invalid, session.state().generation, session.state().input_epoch).ok
@@ -419,7 +422,7 @@ func _atomic_candidate_failures() -> void:
 	_command(session, "step")
 	_check(session.advance() and session.state().tick == 8 and session.state().rapier_steps == 8,
 		"Old coupled scene stopped functioning after rejected imports")
-	_receipts.atomic_refusals = {"stale_generation": true, "nonfinite_mass": true, "body17": true,
+	_receipts.atomic_refusals = {"stale_generation": true, "stale_input_epoch": true, "nonfinite_mass": true, "body17": true,
 		"readiness_failures": 3, "discarded_isolated_candidate": true, "old_scene_continues": true}
 	host.free()
 	await process_frame
