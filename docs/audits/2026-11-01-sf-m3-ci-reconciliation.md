@@ -9,10 +9,15 @@ The original full SF-M3 milestone head is
 both descend from common Sandfall baseline
 `4a01a00d1f457576e1d911ef08c45b4c0aaf3347`.
 
-The existing SF-M3 branch has been reconciled through ordinary file commits,
-without rebasing, force-updating or changing the SF-M4 dependent branch.
-This preserves all original SF-M3 implementation and audit history. It is
-not yet a merge into `main`.
+The existing SF-M3 branch was first reconciled through ordinary file commits,
+without rebasing or force-updating the SF-M4 dependent branch. The accepted CI
+history was then added by [technical PR #8](https://github.com/techrote/sandfall/pull/8),
+which merged at `dd1134ac6df23336623b1d082f640d7d034e40c3`.
+That transport merge had exactly identical source trees before and after
+(`9581ee501447d50a3c4dc2bfee0d662855be186c`), so it was an
+**ancestry correction only**. The SF-M3-specific five-file source combinations
+were restored immediately afterward and are subject to new exact-head CI.
+No production `main` merge or SF-M4 branch modification occurred.
 
 ## Explicit overlap resolution
 
