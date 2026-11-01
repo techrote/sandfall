@@ -47,17 +47,16 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("test_native_validation.py", text)
         self.assertIn("test_ci_workflow_contract.py", text)
 
-    def test_mainline_web_gate_reuses_source_matched_m3_workshop(self):
+    def test_mainline_web_gate_reuses_source_matched_compatibility_acceptance(self):
         wrapper = workflow("web-acceptance.yml")
-        reusable = workflow("sf-m3-web.yml")
-        build_script = (ROOT / "tools/sandfall/sf_m3_ci.sh").read_text(
+        reusable = workflow("sf-m2-web.yml")
+        build_script = (ROOT / "tools/sandfall/sf_m2_ci.sh").read_text(
             encoding="utf-8"
         )
         self.assertIn(".github/workflows/web-acceptance.yml", wrapper)
-        self.assertIn(".github/workflows/sf-m3-web.yml", wrapper)
+        self.assertIn(".github/workflows/sf-m2-web.yml", wrapper)
         self.assertNotIn(".github/workflows/**", wrapper)
-        self.assertIn("uses: ./.github/workflows/sf-m3-web.yml", wrapper)
-        self.assertIn("routine: true", wrapper)
+        self.assertIn("uses: ./.github/workflows/sf-m2-web.yml", wrapper)
         self.assertIn("github.event.pull_request.draft == false", wrapper)
         self.assertIn("tools/build_web.py", wrapper)
         self.assertIn("tools/sandfall/**", wrapper)
@@ -65,18 +64,11 @@ class CiWorkflowContractTests(unittest.TestCase):
         self.assertIn("startsWith(github.head_ref, 'sf-m3/')", wrapper)
         self.assertIn("startsWith(github.head_ref, 'sf-m4/')", wrapper)
         self.assertIn("workflow_call:", reusable)
-        self.assertIn("if: ${{ !inputs.routine }}", reusable)
-        self.assertEqual(
-            reusable.count("ref: ${{ github.event.pull_request.head.sha || github.sha }}"),
-            6,
-        )
+        self.assertEqual(reusable.count("ref: ${{ github.event.pull_request.head.sha || github.sha }}"), 4)
         self.assertNotIn("ref: ${{ github.sha }}", reusable)
-        self.assertIn("for bodies in 0 1 3 8 16", reusable)
-        self.assertIn("sf_m1_browser, sf_m2_browser", reusable)
         self.assertIn("--profile compat", build_script)
         self.assertIn("--native-cpp", build_script)
-        self.assertIn("sf_m3_reconcile.py", build_script)
-        self.assertIn("sf_m2_ci.sh", build_script)
+        self.assertIn("sf_m0_browser_probe.mjs", build_script)
 
     def test_windows_portability_requires_explicit_manual_input(self):
         text = workflow("gdextension.yml")
