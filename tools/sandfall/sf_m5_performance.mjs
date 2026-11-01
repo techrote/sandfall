@@ -220,7 +220,7 @@ try{
   assert.equal(state.source_commit,verification.build_source_commit);
   const native=verification.artifacts.find(f=>f.path===`libcybersand_native.web.${profile==='threaded'?'threads':'nothreads'}.wasm`);
   assert.ok(native,'Missing profile-specific native module');assert.equal(state.native_sha256,native.sha256);
-  assert.equal(state.provenance.profile,profile);
+  assert.equal(state.provenance.build_profile,profile);
   if(profile==='threaded'){
     assert.equal(metrics.secure,true);assert.equal(metrics.isolated,true);
     assert.equal(metrics.sharedArrayBuffer,true);assert.equal(metrics.worker,true);
