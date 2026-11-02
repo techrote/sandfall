@@ -70,14 +70,14 @@ class ChromiumActivePortReadinessTests(unittest.TestCase):
         cases = (
             ("", None),
             ("23456", None),
-            ("23456\\n", None),
-            ("23456\\n/devtools/browser/", None),
-            ("not-a-port\\n/devtools/browser/ready", None),
-            ("0\\n/devtools/browser/ready", None),
-            ("65536\\n/devtools/browser/ready", None),
-            ("23456\\n/devtools/other/ready", None),
-            ("23456\\n/devtools/browser/ready", 23456),
-            ("23456\\n/devtools/browser/ready\\n", 23456),
+            ("23456\n", None),
+            ("23456\n/devtools/browser/", None),
+            ("not-a-port\n/devtools/browser/ready", None),
+            ("0\n/devtools/browser/ready", None),
+            ("65536\n/devtools/browser/ready", None),
+            ("23456\n/devtools/other/ready", None),
+            ("23456\n/devtools/browser/ready", 23456),
+            ("23456\n/devtools/browser/ready\n", 23456),
         )
         for read_port in (bootstrap_cdp_port, browser_cdp_port):
             with self.subTest(reader=read_port.__module__):
