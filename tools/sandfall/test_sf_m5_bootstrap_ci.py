@@ -10,7 +10,8 @@ import sys
 import tempfile
 import unittest
 
-from tools.sandfall.sf_m5_bootstrap_ci import sha256, stop_group, verify_export
+from tools.sandfall.sf_m5_bootstrap_ci import read_cdp_port as bootstrap_cdp_port, sha256, stop_group, verify_export
+from tools.sandfall.sf_m5_browser_ci import read_cdp_port as browser_cdp_port
 
 
 class BootstrapCustodyTests(unittest.TestCase):
@@ -60,6 +61,34 @@ class BootstrapCustodyTests(unittest.TestCase):
                 stop_group(controller)
                 controller.stdout.close()
 
+
+
+class ChromiumActivePortReadinessTests(unittest.TestCase):
+    def test_incomplete_or_invalid_publication_is_not_a_cdp_port(self) -> None:
+        # Chromium can create the file before writing its first line; both M5
+        # launchers must wait instead of raising IndexError or using a partial port.
+        cases = (
+            ("", None),
+            ("23456", None),
+            ("23456\\n", None),
+            ("23456\\n/devtools/browser/", None),
+            ("not-a-port\\n/devtools/browser/ready", None),
+            ("0\\n/devtools/browser/ready", None),
+            ("65536\\n/devtools/browser/ready", None),
+            ("23456\\n/devtools/other/ready", None),
+            ("23456\\n/devtools/browser/ready", 23456),
+            ("23456\\n/devtools/browser/ready\\n", 23456),
+        )
+        for read_port in (bootstrap_cdp_port, browser_cdp_port):
+            with self.subTest(reader=read_port.__module__):
+                with tempfile.TemporaryDirectory() as directory:
+                    path = Path(directory) / "DevToolsActivePort"
+                    self.assertIsNone(read_port(path))  # Not yet created.
+                    for contents, expected in cases:
+                        path.write_text(contents)
+                        self.assertEqual(read_port(path), expected, contents)
+                    path.unlink()
+                    self.assertIsNone(read_port(path))  # Removed while polling.
 
 if __name__ == "__main__":
     unittest.main()

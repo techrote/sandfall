@@ -120,6 +120,24 @@ def stop_group(child: subprocess.Popen | None) -> None:
     child.wait(timeout=5)
 
 
+
+def read_cdp_port(active: Path) -> int | None:
+    """Ignore Chromium's incomplete DevToolsActivePort writes until both lines exist.
+
+    Seeing the file is not sufficient: Chromium can expose it before writing
+    the port or browser endpoint. Do not bypass the existing 30-second deadline.
+    """
+    try:
+        lines = active.read_text().splitlines()
+    except FileNotFoundError:
+        return None
+    prefix = "/devtools/browser/"
+    if (len(lines) < 2 or not lines[0].isascii() or not lines[0].isdecimal()
+            or not lines[1].startswith(prefix) or len(lines[1]) == len(prefix)):
+        return None
+    port = int(lines[0])
+    return port if 1 <= port <= 65535 else None
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--web-root", type=Path, required=True)
@@ -184,9 +202,8 @@ def main() -> int:
             chrome = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
         deadline = time.monotonic() + 30
         while True:
-            active = chrome_profile / "DevToolsActivePort"
-            if active.is_file():
-                port = int(active.read_text().splitlines()[0])
+            port = read_cdp_port(chrome_profile / "DevToolsActivePort")
+            if port is not None:
                 break
             if chrome.poll() is not None:
                 raise RuntimeError("Browser exited before exposing its isolated CDP port")
