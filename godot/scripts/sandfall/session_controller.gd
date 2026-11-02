@@ -139,6 +139,15 @@ func advance_frame() -> int:
 	return completed
 
 
+func performance_pacing() -> Dictionary:
+	# A bounded read-only scheduling view; performance sampling never changes
+	# credit, pending Step ownership or fixed solver dt.
+	return {"mode": _mode, "paused": _paused, "menu": _menu, "tool_busy": _tool_hold,
+		"speed": _speed, "pending_steps": _pending_steps, "tick_credit": _tick_credit,
+		"requested_ticks_per_second": 60.0 * _speed,
+		"active": _mode == "run" and not _paused and not _menu and not _tool_hold}
+
+
 func clear_pending_input(reason: String) -> void:
 	_tool_hold = false
 	_tick_credit = 0.0

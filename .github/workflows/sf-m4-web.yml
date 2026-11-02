@@ -9,7 +9,8 @@ on:
         required: false
         default: false
   push:
-    branches: ['sf-m4/**']
+    # D01 changes runtime instrumentation; retain the complete 36-job scope.
+    branches: ['sf-m4/**', 'sf-m5/d01-qualification']
     paths:
       - 'godot/**'
       - 'native/**'

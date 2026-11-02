@@ -39,6 +39,10 @@ var _button_gestures: Dictionary = {}
 var _pan_active: bool = false
 var _clear_serial: int = 0
 var _frame: int = 0
+var _performance: Variant = SandfallPerformanceSampler.new()
+var _previous_frame_usec: int = 0
+var _scheduled_ticks: float = 0.0
+var _completed_ticks: int = 0
 var _observer_enabled: bool = false
 var _last_observation_ms: int = -1000
 var _provenance: Dictionary = {}
@@ -104,14 +108,28 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	if _session == null:
 		return
+	var callback_start_usec: int = Time.get_ticks_usec()
 	_session.process_commands()
+	var pacing: Dictionary = _session.performance_pacing()
+	if bool(pacing.active):
+		_scheduled_ticks += float(pacing.speed)
+	elif int(pacing.pending_steps) > 0 and bool(pacing.paused):
+		_performance.count("pending_step_callbacks")
 	# Pacing selects zero to four unchanged 1/60 solver requests per callback.
 	# A paused Step remains exactly one; counters always report actual work.
-	if _session.advance_frame() > 0:
+	var advanced: int = _session.advance_frame()
+	_completed_ticks += advanced
+	if advanced > 0:
 		_canvas.publish()
+	_performance.count("physics_callbacks")
+	_performance.record("physics_callback_ms", float(Time.get_ticks_usec() - callback_start_usec) / 1000.0)
 
 
 func _process(_delta: float) -> void:
+	var frame_usec: int = Time.get_ticks_usec()
+	if _previous_frame_usec > 0:
+		_performance.record("frame_interval_ms", float(frame_usec - _previous_frame_usec) / 1000.0)
+	_previous_frame_usec = frame_usec
 	_frame += 1
 	if _session == null:
 		return
@@ -512,6 +530,7 @@ func observation() -> Dictionary:
 		"editor": editor_state, "editor_controls": _editor_control_rects(),
 		"camera": {"camera_origin": rendering.camera_origin, "view_size": rendering.view_size, "zoom": rendering.zoom},
 		"rendering": rendering, "view": rendering.content_rect,
+		"performance": performance_observation(),
 		"pending_colliders": result.native.pending_colliders,
 		"render_rejections": int(rendering.render_rejections), "buttons": buttons,
 		"viewport": [get_viewport_rect().size.x, get_viewport_rect().size.y],
@@ -523,6 +542,22 @@ func observation() -> Dictionary:
 		"promotion": _promotion_preview.duplicate(true), "promotion_preview": _promotion_preview.duplicate(true),
 		"gallery": {"query": _gallery_search.text, "visible_ids": _gallery_ids.duplicate(), "selected": str(result.scene_id), "entries": SandfallGallery.entries()},
 	}, true)
+	return result
+
+
+func performance_observation(force: bool = false) -> Dictionary:
+	var result: Dictionary = _performance.snapshot(force)
+	result["host"] = _host.performance_snapshot(force)
+	result["render"] = _canvas.performance_snapshot(force)
+	result["pacing"] = _session.performance_pacing()
+	result["scheduled_tick_credits"] = _scheduled_ticks
+	result["completed_callback_ticks"] = _completed_ticks
+	# These are Godot allocator monitors, not the browser's total process RSS,
+	# WASM linear-memory capacity or a measurement of CPU utilisation.
+	result["godot_memory_static_bytes"] = int(Performance.get_monitor(Performance.MEMORY_STATIC))
+	result["godot_memory_static_max_bytes"] = int(Performance.get_monitor(Performance.MEMORY_STATIC_MAX))
+	result["godot_memory_static_available"] = int(result.godot_memory_static_bytes) > 0
+	result["processor_count_reported"] = OS.get_processor_count()
 	return result
 
 
@@ -1372,6 +1407,7 @@ func _save_evidence() -> void:
 	_clear_input("run_evidence_export")
 	var evidence: Dictionary = _session.run_evidence()
 	evidence["application"] = {"version": "sandfall-run-evidence-v1", "rendering": _canvas.state(),
+		"performance": performance_observation(true),
 		"actor_count": _count_actor_nodes(get_tree().root), "input": {"actor_controls": "absent", "held_ui_keys": _held_keys.keys()},
 		"gallery_entry": SandfallGallery.entry(str(_session.state().scene_id)),
 		"evidence_limits": ["Run evidence is not a portable initial project", "No mid-run continuation or whole-stack bitwise replay guarantee", "Human exhibition acceptance is separate"]}
