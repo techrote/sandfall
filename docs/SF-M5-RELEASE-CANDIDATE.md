@@ -11,10 +11,38 @@ related-documents: [SF-M5-RELEASE-LEDGER.md, SF-M5-WEB-QUALIFICATION.md, SF-M5-H
 # Sandfall v1.0 candidate — draft release notes
 
 **Unpublished and untagged. This draft is not a v1.0 release announcement.**
-The candidate decision is **NO-GO**. D01 and A01/A02 exact-head qualification and repeated Web-profile measurements have passed, but final combined D02/R01 qualification, source-bound release artifacts and genuine human Gallery acceptance remain open.
+The v1.0 publication decision remains **NO-GO**. Final-main RC1 Web artifacts are now independently verified and durably preserved at the immutable source identified below. Genuine human Gallery acceptance, the retained licensing/distribution gate and separate owner publication authorization remain outstanding. Earlier dated checkpoints below retain their original scope.
 The [release ledger](SF-M5-RELEASE-LEDGER.md) owns the exact evidence and current
 integration state. Publication or a v1.0 tag requires separate explicit owner
 authorization after those gates are resolved.
+
+## RC1 artifact custody checkpoint — 2 November 2026
+
+**RC1 ARTIFACTS QUALIFIED**, at runtime source
+`a0363cda2f2508289fd0a75fe529dbeba1d6df52`, tree
+`fa0bdb721949000fe5130da0e0e002cd4e77a09b`. The reviewed pre-merge
+`4972dfd5bf7c7e9058a055eeb053bf68110acda9` has the same source tree.
+This documentation update does not relabel either already-built runtime.
+
+The [dated packaging audit](audits/2026-11-02-sf-m5-rc1-packaging.md) and
+[machine-readable custody summary](audits/2026-11-02-sf-m5-rc1-artifacts.json)
+record both original GitHub artifact identities, complete 23-file inventories,
+original-to-final byte equality, strict M5 verification, independent review,
+20 exact expected integrity refusals and confirmed durable readbacks. The
+[two distribution checksums](audits/2026-11-02-sf-m5-rc1-checksums.sha256)
+identify the unpublished final archives.
+
+Compatibility is `Sandfall-v1.0-rc1-a0363cda-compat.zip`; Threaded is
+`Sandfall-v1.0-rc1-a0363cda-threaded.zip`. Both original transport ZIPs and
+finished packages are preserved outside Actions retention. Personal storage
+identifiers and the full evidence dossier remain in owner-authorized storage;
+no large binary archives are committed here.
+
+This checkpoint supersedes the historical pending final-artifact/integration
+slots later in this document. It does not supply human acceptance or permission
+to publish/tag/deploy v1.0. Newly attempted local browser smoke was unavailable
+because browser provisioning failed; actual loopback HTTP checks and the
+previous exact-source browser CI remain separately identified evidence.
 
 ## What the candidate contains
 
