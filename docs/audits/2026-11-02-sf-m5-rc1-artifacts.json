@@ -1,0 +1,458 @@
+{
+  "claim_limits": [
+    "No GitHub Release, v1.0 tag or public deployment",
+    "No human acceptance submitted or authenticated",
+    "No new local browser startup or browser runtime-refusal pass",
+    "HTTP/source audits do not certify a public Caddy deployment or a custom restrictive CSP",
+    "No real-user performance, Firefox/WebKit, whole-stack determinism or desktop qualification claim",
+    "Archive checksums and source custody are not a digital signature or WORM storage guarantee"
+  ],
+  "complete_owner_custody_inventory_sha256": "688a9815971f9b0a4af7e48ea7b21f9613f6ffe4b23c46064e6a872e7dc83f92",
+  "cross_profile_comparison": {
+    "common_path_count": 22,
+    "compat_only": [
+      "libcybersand_native.web.nothreads.wasm"
+    ],
+    "different_files_at_common_paths": [
+      "Caddyfile.example",
+      "SHA256SUMS",
+      "build-info.json",
+      "export-project.godot",
+      "godot_rapier.wasm",
+      "index.html",
+      "index.js",
+      "index.pck",
+      "index.side.wasm",
+      "index.wasm",
+      "sandfall_build_identity.json",
+      "startup-contract.json"
+    ],
+    "identical_files": [
+      "LICENSE_STATUS.md",
+      "RAPIER_LICENSE.txt",
+      "RAPIER_THIRDPARTY.txt",
+      "THIRD_PARTY_NOTICES.md",
+      "index.apple-touch-icon.png",
+      "index.audio.position.worklet.js",
+      "index.audio.worklet.js",
+      "index.icon.png",
+      "index.png",
+      "serve_web.py"
+    ],
+    "threaded_only": [
+      "libcybersand_native.web.threads.wasm"
+    ]
+  },
+  "durable_preservation": {
+    "independent_pinned_version_readback": "all four sizes, SHA-256 and complete bytes match",
+    "location": "Owner-authorized persistent files outside GitHub Actions retention; personal file IDs and local paths intentionally remain in the private custody dossier.",
+    "original_and_final_archives": 4,
+    "private_record_sha256": "2b13026b5e436547a2d41d00d78dede2f80ccce326584ee873c2b236e560a31d",
+    "status": "confirmed"
+  },
+  "profiles": {
+    "compat": {
+      "artifact_id": 13124205206,
+      "artifact_name": "sandfall-sf-m4-fresh-web",
+      "distribution_archive": {
+        "file_name": "Sandfall-v1.0-rc1-a0363cda-compat.zip",
+        "sha256": "bbf2928c34c91328f5888aa7a978235dd975e5025d18819ea3e98401d1b475a6",
+        "size_bytes": 17323974
+      },
+      "file_count": 23,
+      "files": [
+        {
+          "path": "Caddyfile.example",
+          "sha256": "9c2030431c86cb09de00083e67e32d4e91ea69d5b1cee28ed3d52629f8708092",
+          "size_bytes": 243
+        },
+        {
+          "path": "LICENSE_STATUS.md",
+          "sha256": "3bfb7c5ddd1418ab38621d1e5b841c9e9c4845e9166a196143c8a71f3cd46b70",
+          "size_bytes": 780
+        },
+        {
+          "path": "RAPIER_LICENSE.txt",
+          "sha256": "b876a61b43cc648b56428d56a484784a88d4231809e4d7f4fd8dbdb6772400e8",
+          "size_bytes": 1102
+        },
+        {
+          "path": "RAPIER_THIRDPARTY.txt",
+          "sha256": "63405a03af6a0a85dace7cc08001b34f28e8792dd2b7fb4de09137a6b58392df",
+          "size_bytes": 15824
+        },
+        {
+          "path": "SHA256SUMS",
+          "sha256": "bffe3d4be584f387b2551cacf7349d31afae38e96ada8ac3ca16e99df2315872",
+          "size_bytes": 1874
+        },
+        {
+          "path": "THIRD_PARTY_NOTICES.md",
+          "sha256": "df8aa85bb2be5b09eb92b1660f03db12484cf685ffc44ee8802c7334180e0c6c",
+          "size_bytes": 4729
+        },
+        {
+          "path": "build-info.json",
+          "sha256": "7e67033f0e390845fe0be1df84918a03eacd8f0d35edb712d11e79dad175e972",
+          "size_bytes": 1943
+        },
+        {
+          "path": "export-project.godot",
+          "sha256": "7f080b0acefa15421f7008d097f3e759724a4709e06d87afcd7cca7f3f464de7",
+          "size_bytes": 859
+        },
+        {
+          "path": "godot_rapier.wasm",
+          "sha256": "5ff6933670c1377c24dcbac30d67758a307165eacdcbd33b25bf01669577c4c2",
+          "size_bytes": 2751606
+        },
+        {
+          "path": "index.apple-touch-icon.png",
+          "sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5",
+          "size_bytes": 11944
+        },
+        {
+          "path": "index.audio.position.worklet.js",
+          "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
+          "size_bytes": 2973
+        },
+        {
+          "path": "index.audio.worklet.js",
+          "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
+          "size_bytes": 7298
+        },
+        {
+          "path": "index.html",
+          "sha256": "067f86bdaa13c2a164797fd88c85759649f7b09d174f967ec9b114f783494e9f",
+          "size_bytes": 16915
+        },
+        {
+          "path": "index.icon.png",
+          "sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5",
+          "size_bytes": 5700
+        },
+        {
+          "path": "index.js",
+          "sha256": "631bbecee5e5136b5f29ed7dedb31a5d022d65da4b639b6e52a48d0c5e3d3154",
+          "size_bytes": 2859484
+        },
+        {
+          "path": "index.pck",
+          "sha256": "369c4757586aeefa032e06907eab85de451c0a20b9ff8ed129fe860ba10d4329",
+          "size_bytes": 4852716
+        },
+        {
+          "path": "index.png",
+          "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e",
+          "size_bytes": 21443
+        },
+        {
+          "path": "index.side.wasm",
+          "sha256": "85473bead1cf62c408d034189fae423594c45fef403fc0707a72bb8e2b87a6d2",
+          "size_bytes": 44072184
+        },
+        {
+          "path": "index.wasm",
+          "sha256": "d37e06f7126849a81fa099f1cf89f0d8ccbb87502b8c857492490dff66fad95a",
+          "size_bytes": 1508095
+        },
+        {
+          "path": "libcybersand_native.web.nothreads.wasm",
+          "sha256": "0bc4570b9dd48c9be593a8e0cb5a803c6d9c4a0dfd9d459ca7238c8863206d6b",
+          "size_bytes": 4286215
+        },
+        {
+          "path": "sandfall_build_identity.json",
+          "sha256": "0563dfd99ef628c4a9d95fcc5f8e988e39bf3a428ba29a352afbf83b7f62428d",
+          "size_bytes": 498
+        },
+        {
+          "path": "serve_web.py",
+          "sha256": "a096373568f8f3f8f66f41753c7968ec4b44ea4892866ba699172e851636603e",
+          "size_bytes": 2245
+        },
+        {
+          "path": "startup-contract.json",
+          "sha256": "600051fb93d1c41db336cb04425624708a6faa16676021aadf0f87c656ae8fdc",
+          "size_bytes": 1910
+        }
+      ],
+      "manifest": {
+        "entries": 22,
+        "file_name": "SHA256SUMS",
+        "self_hash_recorded_separately": true,
+        "sha256": "bffe3d4be584f387b2551cacf7349d31afae38e96ada8ac3ca16e99df2315872"
+      },
+      "original_archive": {
+        "file_name": "sandfall-original-run-41405111535-artifact-13124205206-compat.zip",
+        "sha256": "ac249e4b7a1b7fa94963c2cf5dc28aa4dba7caf37aed02329838e52439ff0ca1",
+        "size_bytes": 17493136
+      },
+      "project_identity": {
+        "build_profile": "compat",
+        "godot_version": "4.7.stable.official.5b4e0cb0f",
+        "native_runtime_sha256": "0bc4570b9dd48c9be593a8e0cb5a803c6d9c4a0dfd9d459ca7238c8863206d6b",
+        "native_source_commit": "a0363cda2f2508289fd0a75fe529dbeba1d6df52",
+        "rapier_runtime_sha256": "5ff6933670c1377c24dcbac30d67758a307165eacdcbd33b25bf01669577c4c2",
+        "rapier_version": "0.35.2",
+        "source_commit": "a0363cda2f2508289fd0a75fe529dbeba1d6df52",
+        "source_tree": "fa0bdb721949000fe5130da0e0e002cd4e77a09b"
+      },
+      "run_id": 41405111535,
+      "total_uncompressed_file_bytes": 60428580
+    },
+    "threaded": {
+      "artifact_id": 13123202848,
+      "artifact_name": "sandfall-sf-m5-threaded-web",
+      "distribution_archive": {
+        "file_name": "Sandfall-v1.0-rc1-a0363cda-threaded.zip",
+        "sha256": "a55146dbdcf40e5092c40303afef4d341adfd8169cf31a9abdbce7c047599b88",
+        "size_bytes": 17344073
+      },
+      "file_count": 23,
+      "files": [
+        {
+          "path": "Caddyfile.example",
+          "sha256": "7d05721cc81580d9eec95dee0758066b8224764fb8cb7f0e478659ca8bd8b663",
+          "size_bytes": 408
+        },
+        {
+          "path": "LICENSE_STATUS.md",
+          "sha256": "3bfb7c5ddd1418ab38621d1e5b841c9e9c4845e9166a196143c8a71f3cd46b70",
+          "size_bytes": 780
+        },
+        {
+          "path": "RAPIER_LICENSE.txt",
+          "sha256": "b876a61b43cc648b56428d56a484784a88d4231809e4d7f4fd8dbdb6772400e8",
+          "size_bytes": 1102
+        },
+        {
+          "path": "RAPIER_THIRDPARTY.txt",
+          "sha256": "63405a03af6a0a85dace7cc08001b34f28e8792dd2b7fb4de09137a6b58392df",
+          "size_bytes": 15824
+        },
+        {
+          "path": "SHA256SUMS",
+          "sha256": "35e14f4257fb16c6ce8ce48575ae629bd1629c7518fa3e7a6e9721dca577d5bc",
+          "size_bytes": 1872
+        },
+        {
+          "path": "THIRD_PARTY_NOTICES.md",
+          "sha256": "df8aa85bb2be5b09eb92b1660f03db12484cf685ffc44ee8802c7334180e0c6c",
+          "size_bytes": 4729
+        },
+        {
+          "path": "build-info.json",
+          "sha256": "9e791e91af8c22b8bcc0eb8a578af0e6a49df6c2606c748a713a8ab0ab1ef025",
+          "size_bytes": 1959
+        },
+        {
+          "path": "export-project.godot",
+          "sha256": "df8a7c07ea9b2db5f670b121612b9fa979d0bcb56720a38e24ee96c473d9a555",
+          "size_bytes": 859
+        },
+        {
+          "path": "godot_rapier.wasm",
+          "sha256": "b4020962f6ff6c5f2c07436a94cdbf7b5e2096a5fc5832e4ff5526378ce88528",
+          "size_bytes": 2754113
+        },
+        {
+          "path": "index.apple-touch-icon.png",
+          "sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5",
+          "size_bytes": 11944
+        },
+        {
+          "path": "index.audio.position.worklet.js",
+          "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
+          "size_bytes": 2973
+        },
+        {
+          "path": "index.audio.worklet.js",
+          "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
+          "size_bytes": 7298
+        },
+        {
+          "path": "index.html",
+          "sha256": "71a6596892891694793d73bf16e433bdf503ae92503f622c27a84f9b09217d40",
+          "size_bytes": 16941
+        },
+        {
+          "path": "index.icon.png",
+          "sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5",
+          "size_bytes": 5700
+        },
+        {
+          "path": "index.js",
+          "sha256": "878c9ae7fb3c27ce886faea8da0670dc1a97fb93930fac4b433a1bb56e662d3a",
+          "size_bytes": 2958897
+        },
+        {
+          "path": "index.pck",
+          "sha256": "5a3800ca2efb0c83d14570251f36e7dda714e5eface457710b23d120ccd2afda",
+          "size_bytes": 4852716
+        },
+        {
+          "path": "index.png",
+          "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e",
+          "size_bytes": 21443
+        },
+        {
+          "path": "index.side.wasm",
+          "sha256": "c31b395d905c5b632780b19f597b8ea0f329d6f9f6ed979c60732fdbae731a7e",
+          "size_bytes": 43268615
+        },
+        {
+          "path": "index.wasm",
+          "sha256": "eb7ab9dcb2c2c484f4dca0acaad466b7fd8448fb86a0a552b5c3e5291952115f",
+          "size_bytes": 1601069
+        },
+        {
+          "path": "libcybersand_native.web.threads.wasm",
+          "sha256": "b35255bc984ec523f62dedb15c574471c83f26255bc87123a2c1afa61713289d",
+          "size_bytes": 4290988
+        },
+        {
+          "path": "sandfall_build_identity.json",
+          "sha256": "fda6d2afb43f9c49e4d938ed1470ddabeab1397c06aaf116d4d354fb5ba63914",
+          "size_bytes": 500
+        },
+        {
+          "path": "serve_web.py",
+          "sha256": "a096373568f8f3f8f66f41753c7968ec4b44ea4892866ba699172e851636603e",
+          "size_bytes": 2245
+        },
+        {
+          "path": "startup-contract.json",
+          "sha256": "c3640fc827e64ce089b52a2a5ef85b82f31a511e8bfc8c8c0cff7813d166e574",
+          "size_bytes": 1942
+        }
+      ],
+      "manifest": {
+        "entries": 22,
+        "file_name": "SHA256SUMS",
+        "self_hash_recorded_separately": true,
+        "sha256": "35e14f4257fb16c6ce8ce48575ae629bd1629c7518fa3e7a6e9721dca577d5bc"
+      },
+      "original_archive": {
+        "file_name": "sandfall-original-run-41405111530-artifact-13123202848-threaded.zip",
+        "sha256": "676fce179c712690dd29045f354f73ce487357b6927a1315b7fb13f55e86c4da",
+        "size_bytes": 17513892
+      },
+      "project_identity": {
+        "build_profile": "threaded",
+        "godot_version": "4.7.stable.official.5b4e0cb0f",
+        "native_runtime_sha256": "b35255bc984ec523f62dedb15c574471c83f26255bc87123a2c1afa61713289d",
+        "native_source_commit": "a0363cda2f2508289fd0a75fe529dbeba1d6df52",
+        "rapier_runtime_sha256": "b4020962f6ff6c5f2c07436a94cdbf7b5e2096a5fc5832e4ff5526378ce88528",
+        "rapier_version": "0.35.2",
+        "source_commit": "a0363cda2f2508289fd0a75fe529dbeba1d6df52",
+        "source_tree": "fa0bdb721949000fe5130da0e0e002cd4e77a09b"
+      },
+      "run_id": 41405111530,
+      "total_uncompressed_file_bytes": 59824917
+    }
+  },
+  "publication_status": "NO-GO",
+  "qualification_runs": [
+    {
+      "conclusion": "success",
+      "job_conclusions": {
+        "success": 71
+      },
+      "jobs_total": 71,
+      "raw_jobs": "evidence/github/jobs-41401276654.json",
+      "raw_metadata": "evidence/github/run-41401276654.json",
+      "run_attempt": 1,
+      "run_id": 41401276654,
+      "source_commit": "4972dfd5bf7c7e9058a055eeb053bf68110acda9",
+      "url": "https://github.com/techrote/sandfall/actions/runs/41401276654",
+      "workflow_path": ".github/workflows/sf-m5-web.yml"
+    },
+    {
+      "conclusion": "success",
+      "job_conclusions": {
+        "skipped": 4,
+        "success": 5
+      },
+      "jobs_total": 9,
+      "raw_jobs": "evidence/github/jobs-41405111530.json",
+      "raw_metadata": "evidence/github/run-41405111530.json",
+      "run_attempt": 1,
+      "run_id": 41405111530,
+      "source_commit": "a0363cda2f2508289fd0a75fe529dbeba1d6df52",
+      "url": "https://github.com/techrote/sandfall/actions/runs/41405111530",
+      "workflow_path": ".github/workflows/sf-m5-web.yml"
+    },
+    {
+      "conclusion": "success",
+      "job_conclusions": {
+        "skipped": 2,
+        "success": 15
+      },
+      "jobs_total": 17,
+      "raw_jobs": "evidence/github/jobs-41405111535.json",
+      "raw_metadata": "evidence/github/run-41405111535.json",
+      "run_attempt": 1,
+      "run_id": 41405111535,
+      "source_commit": "a0363cda2f2508289fd0a75fe529dbeba1d6df52",
+      "url": "https://github.com/techrote/sandfall/actions/runs/41405111535",
+      "workflow_path": ".github/workflows/web-acceptance.yml"
+    },
+    {
+      "conclusion": "success",
+      "job_conclusions": {
+        "success": 1
+      },
+      "jobs_total": 1,
+      "raw_jobs": "evidence/github/jobs-41405111592.json",
+      "raw_metadata": "evidence/github/run-41405111592.json",
+      "run_attempt": 1,
+      "run_id": 41405111592,
+      "source_commit": "a0363cda2f2508289fd0a75fe529dbeba1d6df52",
+      "url": "https://github.com/techrote/sandfall/actions/runs/41405111592",
+      "workflow_path": ".github/workflows/documentation.yml"
+    }
+  ],
+  "remaining_release_gates": [
+    "Genuine seven-scene human Gallery acceptance, including owner verification of origin",
+    "Resolve retained LICENSE_STATUS.md project-license/contributor/third-party release gate",
+    "Separate explicit owner authorization to publish/tag/deploy v1.0"
+  ],
+  "schema": "sandfall-rc1-public-custody-summary-v1",
+  "source": {
+    "commit": "a0363cda2f2508289fd0a75fe529dbeba1d6df52",
+    "frozen_reference_kind": "full immutable commit SHA",
+    "live_main_at_final_check": "a0363cda2f2508289fd0a75fe529dbeba1d6df52",
+    "parents": [
+      "d40c55d3fc15cbbacb3bd158524f791db9f319b8",
+      "4972dfd5bf7c7e9058a055eeb053bf68110acda9"
+    ],
+    "premerge_tree_identical": true,
+    "qualified_premerge_commit": "4972dfd5bf7c7e9058a055eeb053bf68110acda9",
+    "qualified_premerge_tree": "fa0bdb721949000fe5130da0e0e002cd4e77a09b",
+    "repository": "https://github.com/techrote/sandfall",
+    "source_checkout_clean": true,
+    "tree": "fa0bdb721949000fe5130da0e0e002cd4e77a09b"
+  },
+  "status": "RC1 ARTIFACTS QUALIFIED",
+  "toolchain_pins": {
+    "emscripten": "4.0.20",
+    "godot": "4.7.stable.official.5b4e0cb0f",
+    "godot_cpp": "101ae38034304346a46ea9ea84ae156d3e860496",
+    "rapier2d_crate": "0.35.1",
+    "rapier_addon": "0.35.2",
+    "scons": "4.10.1",
+    "scons_evidence_limit": "Frozen requirement and CI command pin; no standalone measured SCons-version receipt was present."
+  },
+  "verification_summary": {
+    "existing_ci_browser_evidence": "Separate retained successful runs at exact source or identical reviewed tree; no new full matrix campaign",
+    "full_inventory": "23 files/profile, 22 payload manifest entries plus manifest self-hash",
+    "independent_final_byte_correspondence": "passed for both",
+    "loopback_http": "4cases, 92asset GETs,100 HTTP requests total passed",
+    "negative_integrity_checks": "20/20 exact expected refusals",
+    "new_local_browser_startup": "UNAVAILABLE: browser provisioning failed; not a runtime failure or browser pass",
+    "original_download_hashes_match_github": true,
+    "strict_m5_original_and_final": "passed for both",
+    "supplemental_source_host_checks": "68/68 passed"
+  }
+}
