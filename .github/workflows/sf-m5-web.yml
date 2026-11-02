@@ -1,0 +1,351 @@
+name: Sandfall SF-M5 release qualification
+
+on:
+  push:
+    branches: [main, 'sf-m5/a01-*']
+    paths:
+      - '.github/workflows/sf-m5-web.yml'
+      - '.github/workflows/sf-m4-web.yml'
+      - 'godot/**'
+      - 'native/**'
+      - 'third_party/**'
+      - 'Makefile'
+      - '.gitattributes'
+      - '.gitmodules'
+      - 'tools/build_web.py'
+      - 'tools/requirements-build.txt'
+      - 'tools/web/**'
+      - 'tools/sandfall/**'
+      - 'tools/ci/test_feature_web_staging.py'
+      - 'tools/serve_web.py'
+      - 'THIRD_PARTY_NOTICES.md'
+      - 'LICENSE_STATUS.md'
+  workflow_dispatch:
+    inputs:
+      full:
+        description: Full release matrix and repeated performance, including all 36 M4 jobs
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sandfall-sf-m5-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'routine' }}
+  cancel-in-progress: false
+
+jobs:
+  compatibility-full:
+    name: Preserved complete 36-job M4 compatibility qualification
+    if: ${{ github.ref != 'refs/heads/main' || inputs.full == true }}
+    uses: ./.github/workflows/sf-m4-web.yml
+    with:
+      routine: false
+
+  threaded-export:
+    name: Pinned-source threaded native, Rapier and Godot export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 85
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+      SCONS_JOBS: '2'
+      SF_WEB_PROFILE: threaded
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+      - run: bash tools/sandfall/sf_m4_ci.sh build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m5-threaded-web
+          path: build/web-sandfall-threaded/
+          retention-days: 30
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m5-threaded-build-evidence
+          path: sf-m4-build/
+          retention-days: 30
+          if-no-files-found: warn
+
+  threaded-startup:
+    name: Actual threaded workers and chemistry ${{ matrix.width }}x${{ matrix.height }} DPR${{ matrix.dpr }}
+    needs: threaded-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {width: 800, height: 450, dpr: 1}
+          - {width: 640, height: 400, dpr: 2}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m5-threaded-web
+          path: build/web-sandfall-threaded
+      - name: Real one-worker control, multiworker execution and chemical/thermal changes
+        env:
+          WIDTH: ${{ matrix.width }}
+          HEIGHT: ${{ matrix.height }}
+          DPR: ${{ matrix.dpr }}
+        run: |
+          set -euo pipefail
+          mkdir -p sf-m5-startup
+          python3 tools/sandfall/sf_m5_verify_web_artifact.py --profile threaded \
+            --web-root build/web-sandfall-threaded --expected-build-sha "$(git rev-parse HEAD)" \
+            --output sf-m5-startup/verification.json
+          chrome="$(command -v google-chrome-stable || command -v google-chrome)"
+          failed=0
+          for workers in 1 2; do
+            python3 tools/sandfall/sf_m5_bootstrap_ci.py --web-root build/web-sandfall-threaded \
+              --verification sf-m5-startup/verification.json --chrome "$chrome" \
+              --workers "$workers" --width "$WIDTH" --height "$HEIGHT" --dpr "$DPR" \
+              --case positive --output "sf-m5-startup/workers-$workers" || failed=1
+          done
+          python3 tools/sandfall/sf_m5_browser_ci.py --web-root build/web-sandfall-threaded \
+            --build-sha "$(git rev-parse HEAD)" --profile threaded --workers 2 --chrome "$chrome" \
+            --suite science --width "$WIDTH" --height "$HEIGHT" --dpr "$DPR" \
+            --output sf-m5-startup/science || failed=1
+          exit "$failed"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m5-startup-${{ matrix.width }}x${{ matrix.height }}-dpr${{ matrix.dpr }}
+          path: sf-m5-startup/
+          retention-days: 30
+          if-no-files-found: warn
+
+  adverse-hosts:
+    name: Actual browser isolation, runtime corruption and consumed-byte custody
+    needs: threaded-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m5-threaded-web
+          path: build/web-sandfall-threaded
+      - name: Strict host refusals and nested-path second-response corruption
+        run: |
+          set -euo pipefail
+          mkdir -p sf-m5-hosts
+          python3 tools/sandfall/sf_m5_verify_web_artifact.py --profile threaded \
+            --web-root build/web-sandfall-threaded --expected-build-sha "$(git rev-parse HEAD)" \
+            --output sf-m5-hosts/verification.json
+          chrome="$(command -v google-chrome-stable || command -v google-chrome)"
+          failed=0
+          for case in no-isolation no-coop no-coep insecure-origin missing-rapier corrupt-rapier \
+            missing-worker corrupt-worker missing-pck corrupt-pck hash-rapier hash-worker hash-pck \
+            bad-mime worker-blocked invalid-workers duplicate-workers toctou; do
+            workers=2
+            if test "$case" = invalid-workers; then workers=3; fi
+            python3 tools/sandfall/sf_m5_bootstrap_ci.py --web-root build/web-sandfall-threaded \
+              --verification sf-m5-hosts/verification.json --chrome "$chrome" --workers "$workers" \
+              --case "$case" --path-prefix release/sandfall --output "sf-m5-hosts/$case" || failed=1
+          done
+          exit "$failed"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m5-adverse-hosts
+          path: sf-m5-hosts/
+          retention-days: 30
+          if-no-files-found: warn
+
+  threaded-regressions:
+    name: Threaded ${{ matrix.suite }} bodies=${{ matrix.bodies }} ${{ matrix.view.width }}x${{ matrix.view.height }} DPR${{ matrix.view.dpr }}
+    if: ${{ github.ref != 'refs/heads/main' || inputs.full == true }}
+    needs: threaded-export
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [m1, m2, gallery]
+        bodies: [16]
+        view:
+          - {width: 800, height: 450, dpr: 1}
+          - {width: 640, height: 400, dpr: 2}
+        include:
+          - {suite: workshop, bodies: 0, view: {width: 800, height: 450, dpr: 1}}
+          - {suite: workshop, bodies: 1, view: {width: 800, height: 450, dpr: 1}}
+          - {suite: workshop, bodies: 3, view: {width: 800, height: 450, dpr: 1}}
+          - {suite: workshop, bodies: 8, view: {width: 800, height: 450, dpr: 1}}
+          - {suite: workshop, bodies: 16, view: {width: 800, height: 450, dpr: 1}}
+          - {suite: workshop, bodies: 0, view: {width: 640, height: 400, dpr: 2}}
+          - {suite: workshop, bodies: 1, view: {width: 640, height: 400, dpr: 2}}
+          - {suite: workshop, bodies: 3, view: {width: 640, height: 400, dpr: 2}}
+          - {suite: workshop, bodies: 8, view: {width: 640, height: 400, dpr: 2}}
+          - {suite: workshop, bodies: 16, view: {width: 640, height: 400, dpr: 2}}
+          - {suite: projects, bodies: 0, view: {width: 800, height: 450, dpr: 1}}
+          - {suite: projects, bodies: 1, view: {width: 800, height: 450, dpr: 1}}
+          - {suite: projects, bodies: 3, view: {width: 800, height: 450, dpr: 1}}
+          - {suite: projects, bodies: 8, view: {width: 800, height: 450, dpr: 1}}
+          - {suite: projects, bodies: 16, view: {width: 800, height: 450, dpr: 1}}
+          - {suite: projects, bodies: 0, view: {width: 640, height: 400, dpr: 2}}
+          - {suite: projects, bodies: 1, view: {width: 640, height: 400, dpr: 2}}
+          - {suite: projects, bodies: 3, view: {width: 640, height: 400, dpr: 2}}
+          - {suite: projects, bodies: 8, view: {width: 640, height: 400, dpr: 2}}
+          - {suite: projects, bodies: 16, view: {width: 640, height: 400, dpr: 2}}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m5-threaded-web
+          path: build/web-sandfall-threaded
+      - name: Preserve the ordinary M1–M4 physical, input, archive and pixel oracles
+        env:
+          SUITE: ${{ matrix.suite }}
+          BODIES: ${{ matrix.bodies }}
+          WIDTH: ${{ matrix.view.width }}
+          HEIGHT: ${{ matrix.view.height }}
+          DPR: ${{ matrix.view.dpr }}
+        run: |
+          python3 tools/sandfall/sf_m5_browser_ci.py --web-root build/web-sandfall-threaded \
+            --build-sha "$(git rev-parse HEAD)" --profile threaded --workers 2 \
+            --chrome "$(command -v google-chrome-stable || command -v google-chrome)" \
+            --suite "$SUITE" --bodies "$BODIES" --width "$WIDTH" --height "$HEIGHT" --dpr "$DPR" \
+            --output sf-m5-regression
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m5-${{ matrix.suite }}-${{ matrix.bodies }}-${{ matrix.view.width }}x${{ matrix.view.height }}-dpr${{ matrix.view.dpr }}
+          path: sf-m5-regression/
+          retention-days: 30
+          if-no-files-found: warn
+
+  compatibility-science:
+    name: Compatibility chemistry, loopback/no isolation and insecure-origin refusal ${{ matrix.width }}x${{ matrix.height }} DPR${{ matrix.dpr }}
+    if: ${{ github.ref != 'refs/heads/main' || inputs.full == true }}
+    needs: compatibility-full
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {width: 800, height: 450, dpr: 1}
+          - {width: 640, height: 400, dpr: 2}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: sandfall-sf-m4-fresh-web
+          path: build/web-sandfall
+      - name: Genuine chemistry, no-isolation success and insecure-origin refusal
+        env:
+          WIDTH: ${{ matrix.width }}
+          HEIGHT: ${{ matrix.height }}
+          DPR: ${{ matrix.dpr }}
+        run: |
+          set -euo pipefail
+          chrome="$(command -v google-chrome-stable || command -v google-chrome)"
+          mkdir -p sf-m5-compatibility
+          python3 tools/sandfall/sf_m5_verify_web_artifact.py --profile compat \
+            --web-root build/web-sandfall --expected-build-sha "$(git rev-parse HEAD)" \
+            --output sf-m5-compatibility/verification.json
+          failed=0
+          for case in compat-no-isolation insecure-origin; do
+            python3 tools/sandfall/sf_m5_bootstrap_ci.py --web-root build/web-sandfall \
+              --verification sf-m5-compatibility/verification.json --chrome "$chrome" --workers 1 \
+              --width "$WIDTH" --height "$HEIGHT" --dpr "$DPR" --case "$case" \
+              --output "sf-m5-compatibility/$case" || failed=1
+          done
+          python3 tools/sandfall/sf_m5_browser_ci.py --web-root build/web-sandfall \
+            --build-sha "$(git rev-parse HEAD)" --profile compat --workers 1 --chrome "$chrome" \
+            --suite science --width "$WIDTH" --height "$HEIGHT" --dpr "$DPR" \
+            --output sf-m5-compatibility/science || failed=1
+          exit "$failed"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m5-compatibility-${{ matrix.width }}x${{ matrix.height }}-dpr${{ matrix.dpr }}
+          path: sf-m5-compatibility/
+          retention-days: 30
+          if-no-files-found: warn
+
+  performance:
+    name: Repeated production performance ${{ matrix.profile }}
+    if: ${{ github.ref != 'refs/heads/main' || inputs.full == true }}
+    needs: [compatibility-full, threaded-export]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {profile: compat, workers: 1, artifact: sandfall-sf-m4-fresh-web, root: build/web-sandfall}
+          - {profile: threaded, workers: 2, artifact: sandfall-sf-m5-threaded-web, root: build/web-sandfall-threaded}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.root }}
+      - name: Three independent 30-second runs of each production workload
+        env:
+          PROFILE: ${{ matrix.profile }}
+          WORKERS: ${{ matrix.workers }}
+          WEB_ROOT: ${{ matrix.root }}
+        run: |
+          set -euo pipefail
+          chrome="$(command -v google-chrome-stable || command -v google-chrome)"
+          mkdir -p sf-m5-performance
+          failed=0
+          for workload in blank material_lab sixteen_body; do
+            for repetition in 1 2 3; do
+              python3 tools/sandfall/sf_m5_browser_ci.py --web-root "$WEB_ROOT" \
+                --build-sha "$(git rev-parse HEAD)" --profile "$PROFILE" --workers "$WORKERS" --chrome "$chrome" \
+                --suite performance --workload "$workload" --duration-ms 30000 --repetition "$repetition" \
+                --width 800 --height 450 --dpr 1 --output "sf-m5-performance/$workload-$repetition" || failed=1
+            done
+          done
+          python3 tools/sandfall/sf_m5_performance_summary.py sf-m5-performance/*/browser.json \
+            --minimum-repetitions 3 --output sf-m5-performance/summary.json || failed=1
+          exit "$failed"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sandfall-sf-m5-performance-${{ matrix.profile }}
+          path: sf-m5-performance/
+          retention-days: 30
+          if-no-files-found: warn
+
+  release-machine-gates:
+    name: SF-M5 machine qualification aggregate
+    if: always()
+    needs: [compatibility-full, threaded-export, threaded-startup, adverse-hosts, threaded-regressions, compatibility-science, performance]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          lfs: false
+      - name: Fail closed on every applicable job result; human acceptance remains separate
+        env:
+          FULL: ${{ github.ref != 'refs/heads/main' || inputs.full == true }}
+          RESULTS: ${{ toJSON(needs) }}
+        run: python3 tools/sandfall/sf_m5_ci_aggregate.py

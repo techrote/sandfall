@@ -47,7 +47,8 @@ jobs:
     if: >-
       github.event_name != 'pull_request' ||
       (github.event.pull_request.draft == false &&
-       !startsWith(github.head_ref, 'sf-m4/'))
+       !startsWith(github.head_ref, 'sf-m4/') &&
+       !startsWith(github.head_ref, 'sf-m5/a01-'))
     uses: ./.github/workflows/sf-m4-web.yml
     with:
       routine: true

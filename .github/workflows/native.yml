@@ -7,6 +7,7 @@ on:
       - '.github/workflows/native.yml'
       # The targeted M4 workflow owns the complete native qualification gate.
       - '.github/workflows/sf-m4-web.yml'
+      - '.github/workflows/sf-m5-web.yml'
       - 'Makefile'
       - 'native/**'
       - 'tools/ci/native_aggregate.py'
@@ -21,6 +22,7 @@ on:
       - '.github/workflows/native.yml'
       # The targeted M4 workflow owns the complete native qualification gate.
       - '.github/workflows/sf-m4-web.yml'
+      - '.github/workflows/sf-m5-web.yml'
       - 'Makefile'
       - 'native/**'
       - 'tools/ci/native_aggregate.py'

@@ -2,6 +2,7 @@
 // invoke application code or modify state. Their unit tests qualify the oracle,
 // not Godot: only a source-matched browser run is application evidence.
 import assert from "node:assert/strict";
+import {assertWorkerProfile} from "./sf_m5_web_profile.mjs";
 
 const clone = value => structuredClone(value);
 const integer = (value, label) => assert.ok(Number.isSafeInteger(value) && value >= 0,
@@ -36,7 +37,7 @@ export function assertOrdinaryState(state, { requireReady = true } = {}) {
   assert.equal(Object.keys(state.rapier_test ?? {}).length, 0, "Special Rapier acceptance fixture is active");
   if (requireReady) {
     assert.equal(state.ready, true, "Session is not ready");
-    assert.equal(state.workers, 1, "This receipt qualifies compatibility Web with exactly one native worker");
+    assertWorkerProfile(state);
     integer(state.tick, "native tick");
     integer(state.rapier_steps, "Rapier step");
     integer(state.native?.native_revision, "live native revision");

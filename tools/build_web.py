@@ -371,7 +371,8 @@ def main() -> None:
                 "godot": GODOT_VERSION, "godot_cpp": CPP_REV,
                 "emscripten": "4.0.20", "profile": args.profile,
                 "native_worker_threads": "auto" if threaded else 1,
-                "auto_worker_policy": "logical<4:2; logical<12:4; otherwise:6",
+                "auto_worker_policy": ("logical<2:1; logical<4:2; logical<12:4; otherwise:6" if args.entry == "sandfall"
+                                       else "logical<4:2; logical<12:4; otherwise:6"),
                 "rapier": "disabled" if args.cellular_only else "0.35.2",
                 "rapier_sha256": None if args.cellular_only else artifact["sha256"],
                 "application_entry": args.entry,
@@ -383,6 +384,10 @@ def main() -> None:
         shutil.copy2(stage / "sandfall_build_identity.json", output_dir / "sandfall_build_identity.json")
         identity["sandfall_identity"] = sandfall_identity
     (output_dir / "build-info.json").write_text(json.dumps(identity, indent=2) + "\n")
+    if args.entry == "sandfall":
+        from web.sandfall_export import install_preflight, write_host_contract
+        install_preflight(output_dir, ROOT, identity)
+        write_host_contract(output_dir, args.profile)
     (output_dir / "SHA256SUMS").write_text("".join(
         f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}\n"
         for p in sorted(output_dir.iterdir()) if p.is_file() and p.name != "SHA256SUMS"))
