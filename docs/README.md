@@ -38,6 +38,13 @@ cross-author findings, corrections and the final evidence boundary.
 SF-M0–M4 are merged. The accepted M4 merge is `ec94dfa50525135375dd6e35d1c5fca55c412544`;
 its source-specific qualification is retained in the
 [reconciliation audit](audits/2026-11-01-sf-m4-final-reconciliation.md).
+The [SF-M5 release ledger](SF-M5-RELEASE-LEDGER.md) maps all twelve normative
+requirements to exact evidence scopes, current integration checkpoints and
+remaining release gates.
+The [candidate release notes](SF-M5-RELEASE-CANDIDATE.md) remain an unpublished,
+untagged draft with explicit unfilled final artifact and acceptance slots.
+The [M5 independent review audit](audits/2026-11-01-sf-m5-independent-review.md)
+retains commit-bound peer findings, original failures and incomplete gates.
 
 The [SF-M5 Web qualification contract](SF-M5-WEB-QUALIFICATION.md) documents
 separate Compatibility and Threaded exports, verified runtime custody, supported
@@ -54,6 +61,12 @@ The [SF-M5 C01 archive/lifecycle audit](audits/2026-11-01-sf-m5-c01-archive-life
 verifies the merged-M4 baseline, retains its archive attack/interoperability
 coverage, and adds bounded stale chooser/input-lease regressions without changing
 the archive implementation or claiming full release acceptance.
+
+The [SF-M5 human Gallery acceptance protocol](SF-M5-HUMAN-ACCEPTANCE.md)
+provides the executable seven-scene review, candidate-bound pending record and
+strict evidence validator. Its packet builder verifies copied machine evidence
+while leaving every human field empty. Human verdicts remain explicitly pending;
+technical image inspection and synthetic validator tests cannot supply them.
 
 ## Retained CyberSand technical reference
 

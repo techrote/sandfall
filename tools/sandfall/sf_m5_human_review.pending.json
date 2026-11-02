@@ -1,0 +1,131 @@
+{
+  "schema": "sandfall-sf-m5-human-review-v1",
+  "status": "pending",
+  "candidate": null,
+  "environment": null,
+  "reviewer": null,
+  "scenes": [
+    {
+      "id": "gravity_cascade",
+      "status": "pending",
+      "criteria": {
+        "visual_legibility": null,
+        "interaction_navigation": null,
+        "labels_viewport": null,
+        "physical_causality": null,
+        "pacing_responsiveness": null,
+        "reset_presentation": null,
+        "errors_refusals": null
+      },
+      "notes": null,
+      "browser_receipt": null,
+      "screenshot": null,
+      "run_evidence": null
+    },
+    {
+      "id": "fluid_messenger",
+      "status": "pending",
+      "criteria": {
+        "visual_legibility": null,
+        "interaction_navigation": null,
+        "labels_viewport": null,
+        "physical_causality": null,
+        "pacing_responsiveness": null,
+        "reset_presentation": null,
+        "errors_refusals": null
+      },
+      "notes": null,
+      "browser_receipt": null,
+      "screenshot": null,
+      "run_evidence": null
+    },
+    {
+      "id": "passive_subject_ride",
+      "status": "pending",
+      "criteria": {
+        "visual_legibility": null,
+        "interaction_navigation": null,
+        "labels_viewport": null,
+        "physical_causality": null,
+        "pacing_responsiveness": null,
+        "reset_presentation": null,
+        "errors_refusals": null
+      },
+      "notes": null,
+      "browser_receipt": null,
+      "screenshot": null,
+      "run_evidence": null
+    },
+    {
+      "id": "endless_kinetic_loop",
+      "status": "pending",
+      "criteria": {
+        "visual_legibility": null,
+        "interaction_navigation": null,
+        "labels_viewport": null,
+        "physical_causality": null,
+        "pacing_responsiveness": null,
+        "reset_presentation": null,
+        "errors_refusals": null
+      },
+      "notes": null,
+      "browser_receipt": null,
+      "screenshot": null,
+      "run_evidence": null
+    },
+    {
+      "id": "intervention",
+      "status": "pending",
+      "criteria": {
+        "visual_legibility": null,
+        "interaction_navigation": null,
+        "labels_viewport": null,
+        "physical_causality": null,
+        "pacing_responsiveness": null,
+        "reset_presentation": null,
+        "errors_refusals": null
+      },
+      "notes": null,
+      "browser_receipt": null,
+      "screenshot": null,
+      "run_evidence": null
+    },
+    {
+      "id": "time_controls",
+      "status": "pending",
+      "criteria": {
+        "visual_legibility": null,
+        "interaction_navigation": null,
+        "labels_viewport": null,
+        "physical_causality": null,
+        "pacing_responsiveness": null,
+        "reset_presentation": null,
+        "errors_refusals": null
+      },
+      "notes": null,
+      "browser_receipt": null,
+      "screenshot": null,
+      "run_evidence": null
+    },
+    {
+      "id": "sixteen_body",
+      "status": "pending",
+      "criteria": {
+        "visual_legibility": null,
+        "interaction_navigation": null,
+        "labels_viewport": null,
+        "physical_causality": null,
+        "pacing_responsiveness": null,
+        "reset_presentation": null,
+        "errors_refusals": null
+      },
+      "notes": null,
+      "browser_receipt": null,
+      "screenshot": null,
+      "run_evidence": null
+    }
+  ],
+  "decision": null,
+  "overall_notes": null,
+  "attestation": null
+}
